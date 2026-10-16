@@ -1,0 +1,46 @@
+<!-- Enlace para saltar directamente al contenido con el teclado -->
+<a class="skip-link" href="#main-content">Saltar al contenido</a>
+
+<header class="container-fluid sticky-top p-0">
+  <div class="nav-wrapper">
+    <div class="hamburger-bar">
+      <button #openButton class="hamburger-btn" id="openMenu" type="button" aria-label="Abrir menú"
+              aria-controls="mobileMenu" [attr.aria-expanded]="menuOpen()" (click)="openMenu()">
+        <app-icon name="list" class="hamburger-icon" />
+      </button>
+    </div>
+
+    <!-- Cambiar entre modo oscuro y claro -->
+    <button type="button" class="theme-toggle" (click)="toggleTheme()" [attr.aria-pressed]="lightTheme()"
+            [attr.aria-label]="lightTheme() ? 'Activar modo oscuro' : 'Activar modo claro'">
+      @if (lightTheme()) {
+        <app-icon name="moon" />
+      } @else {
+        <app-icon name="sun" />
+      }
+    </button>
+
+    <nav class="w-100" aria-label="Principal">
+      <ul class="nav nav-underline justify-content-center py-3">
+        @for (link of links; track link.href) {
+          <li class="nav-item"><a class="nav-link" [href]="link.href">{{ link.label }}</a></li>
+        }
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<!-- MENÚ FULLSCREEN (móvil): cerrado no se puede alcanzar con el teclado -->
+<div class="mobile-menu" id="mobileMenu" role="dialog" aria-modal="true" aria-label="Menú"
+     [class.active]="menuOpen()" [attr.inert]="menuOpen() ? null : ''">
+  <button #closeButton class="close-menu-btn" id="closeMenu" type="button" aria-label="Cerrar menú"
+          (click)="closeMenu()"><app-icon name="x-lg" /></button>
+
+  <nav aria-label="Menú móvil">
+    <ul class="mobile-menu-links">
+      @for (link of links; track link.href) {
+        <li><a [href]="link.href" (click)="closeMenu(false)">{{ link.label }}</a></li>
+      }
+    </ul>
+  </nav>
+</div>

@@ -1,0 +1,16 @@
+node_modules
+dist
+.angular
+.git
+.env
+.vscode
+scripts
+# La API y la configuración de Ollama se construyen y despliegan aparte
+api
+deploy
+# Archivos que la web ya no usa (originales de la animación, vídeos y fondos antiguos)
+public/assets/hero-originales
+public/assets/video
+public/assets/Animacion2blanco.png
+public/assets/Animacionn2pc.png
+public/assets/*.zip

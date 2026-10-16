@@ -1,0 +1,89 @@
+<!-- Preguntas sobre ti o, en modo "Quiero un proyecto", respuestas al formulario inteligente -->
+<form class="ask-form" (submit)="$event.preventDefault(); submit()" [attr.role]="mode() === 'intake' ? null : 'search'"
+      [attr.aria-label]="mode() === 'intake' ? 'Cuéntame tu proyecto' : 'Pregúntame sobre mi trabajo'">
+  <label for="ask-input" class="sr-only">
+    {{ mode() === 'intake' ? 'Escribe tu respuesta' : 'Escribe una pregunta sobre ' + profile.firstName }}
+  </label>
+  <input id="ask-input" type="text" class="ask-input" [attr.maxlength]="maxLength()" autocomplete="off"
+         [placeholder]="mode() === 'intake' ? 'Escribe tu respuesta…' : 'Pregúntame lo que quieras…'"
+         [value]="question()" (input)="onInput($event)" [disabled]="status() === 'thinking'">
+  <button type="submit" class="ask-send" [attr.aria-label]="mode() === 'intake' ? 'Enviar respuesta' : 'Enviar pregunta'"
+          [disabled]="status() === 'thinking' || question().trim().length < minLength()">
+    <app-icon name="arrow-up-circle-fill" />
+  </button>
+</form>
+
+<div class="ask-suggestions">
+  @if (mode() === 'intake') {
+    <!-- Mientras se rellena el proyecto: salir (queda guardado) o empezar de cero -->
+    <button type="button" class="ask-chip" (click)="leaveIntake()">Salir (lo guardo para luego)</button>
+    <button type="button" class="ask-chip" (click)="restartIntake()" [disabled]="status() === 'thinking'">Empezar de nuevo</button>
+  } @else {
+    @for (suggestion of suggestions; track suggestion) {
+      <button type="button" class="ask-chip" (click)="ask(suggestion)" [disabled]="status() === 'thinking'">
+        {{ suggestion }}
+      </button>
+    }
+    <button type="button" class="ask-chip ask-chip-project" (click)="startIntake()" [disabled]="status() === 'thinking'">
+      <app-icon name="stars" />
+      {{ hasSaved() ? 'Seguir con mi proyecto' : 'Quiero un proyecto' }}
+    </button>
+  }
+</div>
+
+<!-- Aviso de IA (transparencia): siempre visible junto al chat -->
+<app-ai-notice />
+
+<!-- Para lectores de pantalla: la respuesta completa de una vez (el bocadillo se escribe letra a letra) -->
+<p class="sr-only" aria-live="polite">
+  @if (status() === 'thinking') { Pensando la respuesta… }
+  @if ((status() === 'answer' || status() === 'error') && done()) {
+    @if (resumed()) { Seguimos donde lo dejamos. }
+    {{ fullAnswer() }}
+  }
+</p>
+
+<!-- Burbujas sobre la escena. El texto que se escribe letra a letra es decorativo (se anuncia arriba);
+     el resumen final del proyecto sí es contenido accesible, con su casilla y sus botones. -->
+@if (visible()) {
+  <div class="ask-stage"
+       [class.on-left]="placement().side === 'left'"
+       [class.on-top]="placement().side === 'top'"
+       [style.--tail-x.px]="placement().tailX"
+       [style.--tail-ratio]="placement().tailX / placement().width"
+       [style.left.px]="placement().left"
+       [style.top.px]="placement().top"
+       [style.width.px]="placement().width"
+       [style.max-height.px]="placement().maxHeight">
+    @if (asked()) {
+      <p class="bubble-question" aria-hidden="true">{{ asked() }}</p>
+    }
+    <div class="bubble-answer" [class.is-error]="status() === 'error'">
+      <div class="bubble-scroll">
+        <!-- Mientras se escribe letra a letra es decorativo (se anuncia arriba); al terminar, sus enlaces se
+             pueden usar también con teclado y lector de pantalla -->
+        <div class="bubble-text" [attr.aria-hidden]="done() && status() !== 'thinking' && shown() === fullAnswer() ? null : 'true'">
+          @if (resumed() && done()) {
+            <span class="bubble-note">Seguimos donde lo dejamos</span>
+          }
+          @if (status() === 'thinking') {
+            <span class="typing"><span></span><span></span><span></span></span>
+          } @else {
+            @for (part of shownParts(); track $index) {
+              @if (part.href) {
+                <a class="bubble-link" [href]="part.href" [attr.aria-label]="part.label"
+                   [attr.target]="part.external ? '_blank' : null" [attr.rel]="part.external ? 'noopener' : null">{{ part.text }}</a>
+              } @else {{{ part.text }}}
+            }
+          }
+        </div>
+
+        @if (mode() === 'intake' && complete() && status() === 'answer' && sendStatus() !== 'sent') {
+          <app-intake-summary [summary]="summary()" [sendStatus]="sendStatus()" [sendError]="sendError()"
+                              [(privacy)]="privacy" (send)="sendIntake()" (correct)="correct()" />
+        }
+      </div>
+      <button type="button" class="bubble-close" tabindex="-1" aria-hidden="true" (click)="close()"><app-icon name="x" /></button>
+    </div>
+  </div>
+}

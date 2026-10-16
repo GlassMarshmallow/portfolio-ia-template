@@ -1,0 +1,1360 @@
+/* =========================================
+   FUENTE GLOBAL
+========================================= */
+:root {
+  --font-main: "Montserrat", sans-serif;
+}
+
+/* Aplicar Montserrat globalmente */
+html, body, * {
+  font-family: var(--font-main) !important;
+}
+
+/* =========================================
+   TIPOGRAFÍA GENERAL
+========================================= */
+h1 {
+  font-family: var(--font-main);
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #ffffff;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: clamp(2.3rem, 5vw, 3.2rem);
+}
+
+.hero .content h1 {
+  font-size: clamp(2.8rem, 7vw, 4rem);
+}
+
+.projects h2,
+.about h2,
+#skills h2,
+.footer h3 {
+  color: #117f84;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+/* =========================================
+   HEADER PRINCIPAL
+========================================= */
+/* El menú queda fijo encima del contenido: el dibujo del inicio empieza en el borde superior
+   de la página y el menú lo solapa. */
+header.sticky-top {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1020;
+}
+
+/* Al saltar a una sección desde el menú, deja hueco para que el título no quede debajo */
+html {
+  scroll-padding-top: 80px;
+}
+
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.02);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(11px);
+  -webkit-backdrop-filter: blur(11px);
+}
+
+ul {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  margin: 0;
+  padding: 1rem 0;
+}
+
+a {
+  position: relative;
+  text-decoration: none;
+  color: #ffffff;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.959);
+}
+
+a:hover {
+  color: #1cabb0;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.959);
+}
+
+/* =========================================
+   HERO SECTION
+========================================= */
+.hero {
+  position: relative;
+  /* ocupa todo el ancho de la ventana aunque esté dentro de main (max-width 1200px) */
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #fff;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.006);
+  backdrop-filter: blur(2px);
+  z-index: -1;
+}
+
+.hero .content {
+  position: relative;
+  z-index: 2;
+  max-width: 800px;
+  padding: 0 1rem;
+  margin-top: 200px;
+}
+
+.hero .content h2 {
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  font-weight: 400;
+  margin-bottom: 2rem;
+}
+
+.accent {
+  color: #1cabb0;
+}
+
+.hero .socials {
+  display: flex;
+  justify-content: center;
+  gap: 1.2rem;
+}
+
+/* Iconos generales de redes (email, GitHub, LinkedIn) */
+.hero .socials svg {
+  width: 42px;
+  height: 42px;
+  color: #fff;
+  transition: transform 0.2s, color 0.2s;
+}
+
+/* Hover en enlaces <a> (GitHub, LinkedIn) y botón copiar */
+.hero .socials a svg:hover,
+.copy-email:hover svg {
+  transform: scale(1.1);
+  color: #1cabb0;
+}
+
+/* Botón de copiar email */
+.copy-email {
+  all: unset;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero .copy-msg {
+  margin-top: 1rem;
+  color: #1cabb0;
+  font-weight: 500;
+  font-size: 1rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.hero .copy-msg.visible {
+  opacity: 1;
+}
+
+/* Fondo animado */
+.hero .hero-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+  opacity: 20%;
+  /* el color lo pone el mapa de luz que se aplica al dibujar (pantalla, lámpara, penumbra) */
+  filter: brightness(1.35) contrast(1.15);
+}
+
+/* =========================================
+   ABOUT SECTION
+========================================= */
+.about {
+  padding: 6rem 0;
+  color: #ffffff;
+}
+
+.about .col-12 {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.about h1 {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: #1cabb0;
+}
+
+.about p {
+  text-align: left;
+  font-size: 1.1rem;
+  line-height: 1.7;
+  margin-bottom: 1.2rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* =========================================
+   PROJECTS SECTION
+========================================= */
+.projects {
+  padding: 6rem 0;
+  color: #000;
+}
+
+.projects .row,
+.projects .col-12 {
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.projects h1 {
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.8rem;
+  color: #1cabb0;
+  margin-bottom: 2rem;
+}
+
+#projectsCarousel video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+  pointer-events: none;
+  
+}
+
+#projectsCarousel p {
+  font-size: 1rem;
+  color: #ffffff;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.8);
+}
+#btnProject{
+    border-radius: 5px;
+    
+    width: 50px;
+}
+
+.video-alt {
+  font-size: 0.9rem;
+  color: #ccc;
+  margin-top: -10px;
+  text-align: left;
+  padding-bottom: 40px;
+  
+
+}
+
+/*--------------------------------skills----------------------------------------*/
+/* ==== SECCIÓN GENERAL ==== */
+#skills{
+  padding: 5rem 0;
+  color: #f5f5f5;
+}
+
+#skills h1 {
+  text-align: center;
+  color: #1cabb0;
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  font-weight: 600;
+}
+
+/* ==== GRID ==== */
+#skills .skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 1.5rem;
+}
+
+/* ==== TARJETAS (Bootstrap + tu estilo) ==== */
+#skills .skill-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  box-sizing: border-box;
+  overflow: hidden;              /* impide que nada se salga visualmente */
+}
+
+#skills .skill-card .card-body {
+  padding: 1.25rem 1rem;
+}
+
+/* ==== TÍTULOS DE BLOQUES ==== */
+#skills .skill-card .card-title {
+  color: #1cabb0;
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  text-shadow: 0 0 10px rgba(108, 33, 104, 0.3);
+}
+
+/* ==== LISTAS ==== */
+#skills ul,
+#skills li {
+  all: unset;               /* BORRA cualquier estilo heredado */
+  display: block;           /* cada elemento en su propia línea */
+  color: #bbbbbb;
+}
+
+#skills ul {
+  display: block;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#skills li {
+  display: block;
+  list-style: none;
+  margin: 0.25rem 0;
+  color: #e8e8e8;
+  line-height: 1.6;
+}
+
+/* ==== RESPONSIVE ==== */
+@media (max-width: 600px) {
+  #skills {
+    padding: 3.5rem 1rem;
+  }
+  #skills h1 {
+    font-size: 1.7rem;
+  }
+  
+}
+
+/*------------------------------form------------------------------------------*/
+
+.fieldForm {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 2rem 1.5rem;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  max-width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.20);
+  color: #ffffff;
+  box-sizing: border-box;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #cccccc;
+}
+
+/* ===========================
+   FIX CHECKBOX & RADIO
+=========================== */
+/* Evitar que hereden el estilo de inputs normales */
+input[type="checkbox"],
+input[type="radio"] {
+  width: auto ;
+  height: auto;
+  padding: 0;
+  margin: 0;
+  border-radius: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+/* ===========================
+   BOTONES
+=========================== */
+.sectionButton {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+/* ===========================
+   TEXTO DE AYUDA
+=========================== */
+.help,
+.field-help {
+  font-size: 0.85rem;
+  color: #dcdcdc;
+  margin-top: -8px;
+  margin-bottom: 10px;
+}
+
+/* ===========================
+   ACCESIBILIDAD
+=========================== */
+.sr-only {
+  position: absolute;
+  left: -999px;
+  opacity: 0;
+}
+
+/* ===========================
+   OVERRIDES DE INPUTS NORMALES
+=========================== */
+input[type="text"],
+input[type="email"],
+input[type="tel"] {
+  background-color: #222;
+  color: #ffffff;
+  border: 1px solid #555;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+option {
+  background-color: #222;
+  color: white;
+  border: 1px solid #555;
+  padding: 10px;
+  font-size: 1rem;
+}
+/* ===========================
+   RESPONSIVE
+=========================== */
+@media (max-width: 768px) {
+
+  .sectionButton,
+  .btn-group-custom {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+/*-----------------------------footer---------------------------------------*/
+
+.footer {
+  color: #ffffff;
+  padding: 3rem 0 1.5rem;
+  text-align: center;
+  font-family: var(--font-main, "Montserrat"), sans-serif;
+}
+
+/* Contenedor interno */
+.footer .container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Título */
+.footer h3 {
+  font-family: var(--font-main, "Montserrat"), sans-serif;
+  font-weight: 700;
+  font-size: 1.6rem;
+  color: #1cabb0;
+  margin-bottom: 1.2rem;
+  letter-spacing: 0.5px;
+}
+
+/* Socials alineado con Bootstrap */
+.footer .socials {
+  display: flex;
+  justify-content: center;
+  gap: 1.3rem;
+  margin-bottom: 2rem;
+}
+
+/* Los SVG del footer */
+.footer .socials svg {
+  width: 38px;
+  height: 38px;
+  color: #ffffff;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+  cursor: pointer;
+}
+
+/* Hover */
+.footer .socials a:hover svg {
+  transform: scale(1.12);
+  color: #1cabb0;
+  opacity: 0.9;
+}
+
+/* Texto inferior */
+.footer .bottom p {
+  font-size: 0.95rem;
+  color: #ffffff;
+  font-family: var(--font-main, "Montserrat"), sans-serif;
+  margin-top: 1rem;
+}
+
+/* Acento */
+.footer .brand {
+  color: #1cabb0;
+  font-weight: 600;
+}
+
+/*------------------------------------*/
+:root {
+  --font-main: "Montserrat", sans-serif;
+}
+
+/*fondo*/
+.purple-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  width: 100vw;
+  height: 100vh;
+
+  background-color: #0a0a0a;
+
+  background-image: radial-gradient(
+    ellipse 80% 80% at 50% -20%,
+    rgba(160, 165, 170, 0.22), /* gris neutro (antes petróleo: rgba(22, 92, 106, 0.45)) */
+    rgba(255, 255, 255, 0)
+  );
+
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+/* Capa de puntos */
+.dots-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+
+  background-image: radial-gradient(#e5e7eb4b 1px, transparent 1px);
+  background-size: 16px 16px;
+  opacity: 0.35;
+
+  -webkit-mask-image: radial-gradient(
+    ellipse 60% 60% at 50% 50%,
+    #000 75%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    ellipse 60% 60% at 50% 50%,
+    #000 75%,
+    transparent 100%
+  );
+}
+
+/* === Global === */
+/* Color de fondo real de la página (el resplandor y los puntos van encima en capas fijas).
+   Sin él, las herramientas de accesibilidad y los modos de alto contraste asumen fondo blanco. */
+html,
+body {
+  margin: 0;
+  overflow-x: clip; /* evita scroll horizontal por el hero a 100vw */
+  font-family: var(--font-main);
+}
+
+html {
+  background-color: #0a0a0a;
+}
+
+body {
+  background-color: transparent; /* deja ver el resplandor y los puntos, que van en capas fijas */
+}
+
+.about,
+.projects,
+#skills,
+.footer {
+  background-color: transparent; /* para accesibilidad */
+}
+
+/* ADAPTACIÓN IMPORTANTE PARA BOOTSTRAP:
+   No tocamos el ancho global. */
+main {
+  max-width: 1200px;
+   margin: 0 auto;
+  padding: 0rem 2rem;
+ }
+
+/* ✔ En su lugar, adaptamos esto a la rejilla */
+main .container,
+main .container-fluid {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+/*-----------------------------menu version movil-------------------------------------------*/
+
+/* --- BOTÓN HAMBURGUESA (solo móvil) --- */
+.hamburger-btn {
+  font-size: 2.2rem;
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  display: none; /* solo visible en móvil */
+  
+}
+
+.hamburger-btn:hover {
+  color: #1cabb0;
+}
+
+/* --- MENÚ FULLSCREEN --- */
+.mobile-menu {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+
+  background: rgba(10, 10, 10, 0.95);
+  backdrop-filter: blur(6px);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+
+  z-index: 2500;
+}
+
+.mobile-menu.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* --- BOTÓN X (cerrar) --- */
+.close-menu-btn {
+  position: absolute;
+  top: 25px;
+  left: 25px;
+  font-size: 3rem;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  z-index: 3001;
+}
+
+.close-menu-btn:hover {
+  color: #1cabb0;
+}
+
+/* --- ENLACES DEL MENÚ FULLSCREEN --- */
+.mobile-menu ul.mobile-menu-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.mobile-menu .mobile-menu-links a {
+  font-size: 2rem;
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.mobile-menu .mobile-menu-links a:hover {
+  color: #1cabb0;
+}
+
+/* === ESTADO NORMAL (ESCRITORIO) === */
+.hamburger-btn,
+.hamburger-bar {
+    display: none ;
+}
+
+/* === ESTADO NORMAL (ESCRITORIO) === */
+.hamburger-btn,
+.hamburger-bar {
+    display: none;
+}
+
+/* === SOLO EN MÓVIL === */
+@media (max-width: 768px) {
+
+    /* Ocultamos menú normal */
+    nav .nav-underline {
+        display: none;
+    }
+
+    /* Recuperamos tu estilo original de la barra */
+    .hamburger-bar {
+        display: flex;
+        width: 100%;
+
+        background: rgba(255, 255, 255, 0.02);
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(11px);
+        -webkit-backdrop-filter: blur(11px);
+
+        padding: 10px 20px;
+
+        /* CORRECCIÓN IMPORTANTE: quitar este desplazamiento */
+        position: sticky;
+        top: 0;
+
+        z-index: 1500;
+
+        justify-content: flex-end;
+        align-items: center;
+    }
+
+    .hamburger-btn {
+        display: block;
+    }
+}
+
+@media (max-width: 768px) {
+  main {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+}
+
+/*------------------------------------------------------------------------*/
+
+/*------------------------------accesibilidad------------------------------*/
+
+/* Enlace "Saltar al contenido": oculto hasta que se llega a él con el teclado */
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 3000;
+  padding: 0.6rem 1rem;
+  background: #0a0a0a;
+  color: #ffffff;
+  border: 2px solid #1cabb0;
+  border-radius: 8px;
+  transform: translateY(-200%);
+}
+
+.skip-link:focus {
+  transform: none;
+}
+
+/* El menú de dentro del menú móvil no lleva el estilo de la barra superior */
+.mobile-menu nav {
+  position: static;
+  width: 100%;
+  background: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* Contorno visible al navegar con teclado en los botones sin estilo propio */
+.copy-email:focus-visible,
+.hamburger-btn:focus-visible,
+.close-menu-btn:focus-visible {
+  outline: 2px solid #1cabb0;
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+
+/* Botón para pausar las animaciones del inicio */
+.hero.is-paused,
+.hero.is-paused * {
+  animation-play-state: paused !important;
+}
+
+/*==========================================================================
+  ESTILO APPLE
+  Ajustes de color, superficies y componentes para un aspecto más sobrio y
+  elegante (la tipografía sigue siendo la original: Montserrat y sus tamaños).
+  Va al final para sobrescribir lo anterior sin tocarlo.
+==========================================================================*/
+
+:root {
+  --text-primary: #f5f5f7;
+  --text-secondary: #a1a1a6;
+  --surface: rgba(255, 255, 255, 0.04);
+  --hairline: rgba(255, 255, 255, 0.1);
+  --accent: #1cabb0;
+  --accent-strong: #127a7e; /* turquesa más oscuro: texto blanco encima con buen contraste */
+  --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  color: var(--text-primary);
+}
+
+/* --- Colores del texto: titulares en blanco y párrafos en gris claro --- */
+.hero .content .hero-subtitle {
+  color: var(--text-primary);
+}
+
+.about h2,
+#skills h2,
+.footer h3 {
+  color: var(--text-primary);
+  text-shadow: none;
+}
+
+.about p {
+  color: var(--text-secondary);
+}
+
+.about p .accent {
+  color: var(--text-primary);
+}
+
+/* --- Barra de navegación: más fina, cristal con saturación como en apple.com --- */
+nav {
+  background: rgba(22, 22, 23, 0.72);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  box-shadow: none;
+  border-bottom: 1px solid var(--hairline);
+}
+
+nav .nav-underline {
+  padding-top: 0.85rem !important;
+  padding-bottom: 0.85rem !important;
+  gap: 2rem;
+}
+
+nav .nav-link {
+  color: rgba(245, 245, 247, 0.8);
+  text-shadow: none;
+  padding: 0;
+}
+
+nav .nav-link:hover {
+  color: #ffffff;
+  text-shadow: none;
+}
+
+.mobile-menu nav {
+  border-bottom: none;
+}
+
+/* --- Habilidades: tarjetas con esquinas más suaves --- */
+#skills .skill-card {
+  border-radius: 18px;
+  background: var(--surface);
+}
+
+#skills li {
+  color: var(--text-secondary);
+}
+
+.help {
+  color: var(--text-secondary);
+}
+
+input,
+select,
+textarea,
+input[type="text"],
+input[type="email"],
+input[type="tel"] {
+  background-color: #1d1d1f;
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  padding: 0.75rem 0.9rem;
+  color: var(--text-primary);
+  transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+}
+
+option {
+  background-color: #1d1d1f;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--accent);
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+/* --- Pie --- */
+.footer {
+  border-top: 1px solid var(--hairline);
+}
+
+.footer .bottom p {
+  color: #86868b;
+}
+
+.footer .socials svg,
+.hero .socials svg {
+  transition: transform 0.25s var(--ease), color 0.25s var(--ease);
+}
+
+/* Indicador de foco igual en toda la web (al navegar con teclado): turquesa, 2px */
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible,
+input[type="checkbox"]:focus-visible,
+input[type="radio"]:focus-visible,
+select:focus-visible {
+  outline: 2px solid #1cabb0;
+  outline-offset: 3px;
+}
+
+/* Sin el resplandor azul de Bootstrap en los botones */
+.btn:focus,
+.btn:focus-visible,
+.btn-primary:focus,
+.btn-primary:not(:disabled):not(.disabled):active:focus {
+  box-shadow: none;
+}
+
+/*==========================================================================
+  MODO CLARO (estilo Apple)
+  Se activa con el botón del menú (atributo data-theme="light" en <html>).
+  El inicio sigue oscuro, como una pantalla encendida; el resto de la página
+  pasa a fondo claro. Al bajar, el dibujo fijo se funde con el fondo claro.
+==========================================================================*/
+
+:root {
+  color-scheme: dark;
+  --accent-text: #1cabb0; /* turquesa para texto y detalles sobre el fondo */
+}
+
+html[data-theme="light"] {
+  color-scheme: light;
+  --text-primary: #1d1d1f;
+  --text-secondary: #6e6e73;
+  --surface: #ffffff;
+  --hairline: rgba(0, 0, 0, 0.1);
+  /* Colores de las luces del dibujo, oscurecidos para que el texto se lea sobre el fondo claro:
+     pantalla (cian, 4,9:1), luz ambiente (violeta, 6,3:1) y lámpara (ámbar, 4,6:1) */
+  --accent-text: #0e7490; /* cian de la pantalla: foco y casillas (lo que no admite degradado) */
+  --accent-tint: linear-gradient(135deg, rgba(14, 116, 144, 0.12), rgba(91, 63, 208, 0.12), rgba(180, 83, 9, 0.12));
+  --accent-gradient: linear-gradient(90deg, #0e7490 0%, #5b3fd0 50%, #b45309 100%);
+  --accent-gradient-hover: linear-gradient(90deg, #0b5f75 0%, #4a32b0 50%, #93430a 100%);
+  /* Versión más viva para el nombre del título (título grande: basta 3:1; cian 3,4, violeta 3,9 y naranja 3,3) */
+  --accent-gradient-vivid: linear-gradient(90deg, #0891b2 0%, #8b5cf6 50%, #ea580c 100%);
+  --page-bg: #f5f5f7;
+  background-color: var(--page-bg);
+}
+
+/* --- Menú: la barra superior no cambia (mismo cristal oscuro que en modo oscuro) --- */
+/* La barra superior es igual en los dos modos (cristal oscuro); solo el menú móvil a pantalla
+   completa pasa a claro, así que su botón de cerrar va en oscuro */
+html[data-theme="light"] .close-menu-btn {
+  color: #1d1d1f;
+}
+
+html[data-theme="light"] .mobile-menu {
+  background: rgba(245, 245, 247, 0.97);
+}
+
+html[data-theme="light"] .mobile-menu .mobile-menu-links a {
+  color: #1d1d1f;
+  text-shadow: none;
+}
+
+/* --- Textos y enlaces fuera del inicio --- */
+html[data-theme="light"] .about,
+html[data-theme="light"] #skills,
+html[data-theme="light"] .footer {
+  color: var(--text-primary);
+}
+
+html[data-theme="light"] .footer a {
+  color: var(--text-primary);
+  text-shadow: none;
+}
+
+html[data-theme="light"] .about p .accent {
+  color: var(--text-primary);
+}
+
+/* --- Habilidades: las tarjetas blancas están en skills.css (necesitan ganar a sus reglas) --- */
+html[data-theme="light"] #skills .skill-card .card-title {
+  color: var(--accent-text);
+  text-shadow: none;
+}
+
+html[data-theme="light"] #skills li {
+  color: #424245;
+}
+
+html[data-theme="light"] input,
+html[data-theme="light"] select,
+html[data-theme="light"] textarea,
+html[data-theme="light"] input[type="text"],
+html[data-theme="light"] input[type="email"],
+html[data-theme="light"] input[type="tel"] {
+  background-color: #ffffff;
+  color: #1d1d1f;
+  border-color: rgba(0, 0, 0, 0.18);
+}
+
+html[data-theme="light"] option {
+  background-color: #ffffff;
+  color: #1d1d1f;
+}
+
+html[data-theme="light"] .help {
+  color: var(--text-secondary);
+}
+
+html[data-theme="light"] input[type="checkbox"],
+html[data-theme="light"] input[type="radio"] {
+  accent-color: var(--accent-text);
+}
+
+html[data-theme="light"] input[aria-invalid="true"],
+html[data-theme="light"] textarea[aria-invalid="true"] {
+  border-color: #c4314b !important;
+}
+
+/* --- Pie --- */
+html[data-theme="light"] .footer .socials svg {
+  color: #1d1d1f;
+}
+
+html[data-theme="light"] .footer .socials a:hover svg {
+  color: var(--accent-text);
+}
+
+html[data-theme="light"] .footer .bottom p {
+  color: var(--text-secondary);
+}
+
+html[data-theme="light"] .footer .brand {
+  color: var(--accent-text);
+}
+
+/* --- Foco con teclado: turquesa oscuro para que contraste sobre blanco --- */
+html[data-theme="light"] a:focus-visible,
+html[data-theme="light"] button:focus-visible,
+html[data-theme="light"] summary:focus-visible,
+html[data-theme="light"] input[type="checkbox"]:focus-visible,
+html[data-theme="light"] input[type="radio"]:focus-visible,
+html[data-theme="light"] select:focus-visible,
+html[data-theme="light"] .skill-summary:focus-visible {
+  outline-color: var(--accent-text);
+}
+
+/* Inicio en modo claro: título y subtítulo en negro y el nombre en turquesa oscuro, para que cumplan
+   el contraste sobre el dibujo claro (WCAG 1.4.3). Sin contorno ni sombra (ver hero.css). */
+html[data-theme="light"] .hero .content h1,
+html[data-theme="light"] .hero .content .hero-subtitle {
+  color: #1d1d1f;
+}
+
+html[data-theme="light"] .hero .content .accent,
+html[data-theme="light"] .hero .content .copy-msg {
+  color: var(--accent-text);
+}
+
+/* Modo claro: sin el oscurecido redondo de los bordes (viñeta) */
+html[data-theme="light"] .film-vignette {
+  display: none;
+}
+
+/* --- Botón para cambiar de modo (sol / luna) --- */
+.nav-wrapper {
+  position: relative;
+}
+
+.theme-toggle {
+  position: absolute;
+  top: 50%;
+  right: 1.25rem;
+  z-index: 1600;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  color: #f5f5f7;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.theme-toggle svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* En móvil, a la izquierda del botón del menú */
+@media (max-width: 768px) {
+  .theme-toggle {
+    right: 4.75rem;
+  }
+}
+
+/* --- Al bajar por la página el dibujo se sigue viendo, igual que en modo oscuro:
+   se aclara con el color de fondo (hasta un 60 %) para que los textos se lean bien. --- */
+html[data-theme="light"] .hero-dim {
+  background: var(--page-bg);
+}
+
+/* La capa del fondo de la página (con el resplandor) también pasa a clara */
+html[data-theme="light"] .purple-bg {
+  background-color: var(--page-bg);
+}
+
+/* --- Inicio en modo claro: sin las líneas de televisor --- */
+html[data-theme="light"] .film-scanlines {
+  display: none;
+}
+
+/* --- Franja de tecnologías en claro --- */
+html[data-theme="light"] .ticker {
+  background: rgba(255, 255, 255, 0.8);
+  border-image: linear-gradient(90deg, rgba(14, 116, 144, 0.45), rgba(91, 63, 208, 0.45), rgba(180, 83, 9, 0.45)) 1;
+}
+
+html[data-theme="light"] .ticker-item {
+  color: #1d1d1f;
+}
+
+/*------------------------------iconos (Bootstrap Icons)------------------------------*/
+/* Los iconos de Bootstrap llenan su cuadro de 16×16; estos tamaños igualan el aspecto anterior */
+.hero .socials svg {
+  width: 36px;
+  height: 36px;
+}
+
+.footer .socials svg {
+  width: 32px;
+  height: 32px;
+}
+
+.hamburger-btn app-icon {
+  width: 30px;
+  height: 30px;
+}
+
+.close-menu-btn app-icon {
+  width: 2rem;
+  height: 2rem;
+}
+
+.theme-toggle app-icon {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+/* El menú móvil a pantalla completa tiene un solo fondo: la lista de enlaces no lleva
+   el fondo translúcido de la barra superior (tampoco en modo claro) */
+html[data-theme="light"] .mobile-menu nav {
+  background: none;
+  border: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* En modo claro la barra superior (escritorio y móvil) es de cristal esmerilado blanco, sin línea de borde */
+html[data-theme="light"] header nav,
+html[data-theme="light"] .hamburger-bar {
+  /* cristal blanco más sólido para que el texto se lea bien sobre el dibujo */
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  border-bottom: none;
+}
+
+/* Texto e iconos de la barra en oscuro, sobre el cristal claro */
+html[data-theme="light"] header nav .nav-link {
+  color: #1d1d1f;
+  text-shadow: none;
+}
+
+html[data-theme="light"] header nav .nav-link:hover {
+  color: var(--accent-text);
+}
+
+html[data-theme="light"] .theme-toggle,
+html[data-theme="light"] .hamburger-btn {
+  color: #1d1d1f;
+}
+
+html[data-theme="light"] .theme-toggle:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+html[data-theme="light"] .hamburger-btn:hover {
+  color: var(--accent-text);
+}
+
+/* Modo claro: iconos de correo, GitHub y LinkedIn del inicio en negro */
+html[data-theme="light"] .hero .socials a,
+html[data-theme="light"] .hero .socials svg,
+html[data-theme="light"] .hero .copy-email {
+  color: #1d1d1f;
+}
+
+html[data-theme="light"] .hero .socials a:hover svg,
+html[data-theme="light"] .hero .copy-email:hover svg {
+  color: var(--accent-text);
+}
+
+/*------------------------------barra superior: altura e iconos------------------------------*/
+/* La barra de escritorio tiene la misma altura que la del móvil (75px) */
+header nav .nav-underline {
+  min-height: 75px;
+  align-items: center;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* Iconos de la barra algo más gruesos (trazo extra del mismo color) y un poco más grandes */
+.theme-toggle svg,
+.hamburger-btn svg {
+  stroke: currentColor;
+  stroke-width: 0.6;
+}
+
+.theme-toggle app-icon {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+.theme-toggle {
+  width: 2.6rem;
+  height: 2.6rem;
+}
+
+/* Botón de sol / luna: el círculo se ve siempre; al pasar el ratón se tiñe de turquesa
+   y el icono gira un poco */
+.theme-toggle {
+  background: rgba(255, 255, 255, 0.12);
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.theme-toggle app-icon {
+  transition: transform 0.35s ease;
+}
+
+.theme-toggle:hover {
+  background: rgba(28, 171, 176, 0.3);
+  color: #1cabb0;
+}
+
+.theme-toggle:hover app-icon {
+  transform: rotate(25deg) scale(1.08);
+}
+
+html[data-theme="light"] .theme-toggle {
+  background: rgba(0, 0, 0, 0.07);
+}
+
+html[data-theme="light"] .theme-toggle:hover {
+  background: var(--accent-tint);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle:hover app-icon {
+    transform: none;
+  }
+}
+
+/* Modo claro: textos de acento con el degradado de las luces del dibujo (cian → violeta → ámbar) */
+html[data-theme="light"] .hero .content .copy-msg,
+html[data-theme="light"] #skills .skill-card .card-title,
+html[data-theme="light"] .footer .brand,
+html[data-theme="light"] header nav .nav-link:hover {
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ===== Modo claro: sin morado liso. Iconos y bordes con el degradado de las luces del dibujo ===== */
+
+/* Iconos: se rellenan con el degradado SVG #degradado-dibujo (definido en index.html) */
+html[data-theme="light"] .ask-send svg,
+html[data-theme="light"] .ask-chip-project svg,
+html[data-theme="light"] .theme-toggle:hover svg,
+html[data-theme="light"] .hamburger-btn:hover svg,
+html[data-theme="light"] .close-menu-btn:hover svg,
+html[data-theme="light"] .footer .socials a:hover svg,
+html[data-theme="light"] .hero .socials a:hover svg,
+html[data-theme="light"] .hero .copy-email:hover svg {
+  fill: url(#degradado-dibujo);
+}
+
+html[data-theme="light"] .theme-toggle:hover svg,
+html[data-theme="light"] .hamburger-btn:hover svg {
+  stroke: url(#degradado-dibujo);
+}
+
+/* El nombre en el título: el degradado del dibujo en su versión más viva */
+html[data-theme="light"] .hero .content .accent {
+  background: var(--accent-gradient-vivid);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+/* "Saltar al contenido" en modo claro: blanco con el borde del acento del modo claro */
+html[data-theme="light"] .skip-link {
+  background: #ffffff;
+  color: #1d1d1f;
+  border-color: var(--accent-text);
+}

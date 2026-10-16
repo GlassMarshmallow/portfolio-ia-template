@@ -1,0 +1,68 @@
+<section id="skills" class="skills py-5">
+  <div class="container">
+
+    <!-- Título -->
+    <div class="row justify-content-center mb-4">
+      <div class="col-12 text-center">
+        <h2>Habilidades técnicas</h2>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12">
+        <!-- Una sola tarjeta con todas las categorías; cada una es una fila separada por una línea -->
+        <div class="skills-grid">
+          <!-- Acordeón: cada grupo empieza cerrado y solo se abre uno a la vez (mismo name) -->
+          @for (group of groups; track group.id) {
+            <details class="skill-card" name="skills">
+              <summary class="skill-summary">
+                <!-- Icono de la categoría -->
+                <span class="category-icon" aria-hidden="true"><app-icon [name]="group.icon" /></span>
+
+                <span class="summary-text">
+                  <h3 [id]="group.id" class="card-title">{{ group.title }}</h3>
+                  <span class="summary-count">{{ group.items.length }} tecnologías</span>
+                </span>
+
+                <!-- Vista previa de algunos logos del grupo (decorativa) -->
+                <span class="summary-preview" aria-hidden="true">
+                  @for (logo of group.preview; track logo.slug) {
+                    <span class="preview-logo">
+                      <svg appFitIcon viewBox="0 0 24 24" [class.outline]="outlineIcons.has(logo.slug)"><path [attr.d]="logo.path" /></svg>
+                    </span>
+                  }
+                  @if (group.morePreview > 0) {
+                    <span class="preview-more">+{{ group.morePreview }}</span>
+                  }
+                </span>
+
+                <app-icon name="chevron-down" class="chevron" />
+              </summary>
+
+              <!-- Contenido: lista de tecnologías con su logo (información, no botones) -->
+              <ul class="skill-tiles">
+                @for (item of group.items; track item.name; let i = $index) {
+                  <li class="skill-tile" [style.--i]="i">
+                    <span class="skill-icons" aria-hidden="true">
+                      @for (icon of item.icons; track icon.slug) {
+                        @if (icon.slug === 'database') {
+                          <app-icon name="database" class="generic" />
+                        } @else {
+                          <svg appFitIcon viewBox="0 0 24 24" [class.outline]="outlineIcons.has(icon.slug)"><title>{{ icon.title }}</title><path [attr.d]="icon.path" /></svg>
+                        }
+                      } @empty {
+                        <app-icon name="code-slash" class="generic" />
+                      }
+                    </span>
+                    <span class="skill-name">{{ item.name }}</span>
+                  </li>
+                }
+              </ul>
+            </details>
+          }
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>

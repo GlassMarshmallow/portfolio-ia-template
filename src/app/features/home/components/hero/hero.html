@@ -1,0 +1,50 @@
+<section id="home" class="hero container-fluid p-0" [class.is-paused]="paused()" [class.no-scene]="!hasScene" aria-label="Inicio">
+  <div class="row g-0">
+    <!-- Fondos animados (la ilustración se configura en src/app/core/data/hero.data.ts) -->
+    <canvas #scene class="hero-bg" role="img" [attr.aria-label]="heroDescription" [attr.aria-hidden]="hasScene ? null : 'true'"></canvas>
+    <canvas #glow class="hero-bg crt-glow" aria-hidden="true"></canvas>
+    <div class="hero-dim" aria-hidden="true"></div>
+
+    <!-- Efecto de televisor antiguo -->
+    <div class="film-grain" aria-hidden="true"></div>
+    <div class="film-scanlines" aria-hidden="true"></div>
+    <div class="film-vignette" aria-hidden="true"></div>
+    <div class="crt-curve" aria-hidden="true"></div>
+
+    <!-- Contenido centrado -->
+    <div class="content text-center">
+      <h1>Hola, soy <span class="accent">{{ profile.firstName }}</span>,</h1>
+      <p class="hero-subtitle">{{ profile.role }}.</p>
+
+      <div class="socials d-flex justify-content-center gap-4 mt-4">
+        <!-- Mail -->
+        <button class="copy-email" aria-label="Copiar dirección de correo" type="button" (click)="copyEmail()">
+          <app-icon name="envelope" />
+        </button>
+
+        <!-- GitHub -->
+        <a [href]="githubUrl" aria-label="GitHub (se abre en una pestaña nueva)" target="_blank" rel="noopener">
+          <app-icon name="github" />
+        </a>
+
+        <!-- LinkedIn -->
+        <a [href]="linkedinUrl" aria-label="LinkedIn (se abre en una pestaña nueva)" target="_blank" rel="noopener">
+          <app-icon name="linkedin" />
+        </a>
+      </div>
+
+      <p class="copy-msg" id="copyMsg" role="status" [class.visible]="copied()">@if (copied()) { ¡Correo copiado! }</p>
+
+      <!-- Preguntas sobre ti respondidas por IA, con bocadillos sobre la escena -->
+      <app-hero-ask />
+    </div>
+
+    <!-- Pausa / reanuda las animaciones del inicio (WCAG 2.2.2) -->
+    <button type="button" class="pause-btn" (click)="togglePause()" [attr.aria-pressed]="paused()">
+      {{ paused() ? 'Reanudar animación' : 'Pausar animación' }}
+    </button>
+
+    <!-- Franja con los logos de las tecnologías, en la parte de abajo del dibujo -->
+    <app-skills-ticker class="hero-ticker" />
+  </div>
+</section>

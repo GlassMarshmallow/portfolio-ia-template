@@ -1,0 +1,58 @@
+/* Enlaces legales: discretos, en una línea, bajo las redes.
+   Los estilos globales tratan cualquier <nav> como la barra del menú (fija, con fondo y borde): aquí no. */
+.legal-links {
+  position: static;
+  z-index: auto;
+  background: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+  border: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.35rem 0.6rem;
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: #a1a1a6;
+}
+
+.legal-link {
+  padding: 0.25rem 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-shadow: none;
+  cursor: pointer;
+}
+
+.legal-link:hover {
+  color: #ffffff;
+}
+
+.legal-link:focus-visible {
+  outline: 2px solid #1cabb0;
+  outline-offset: 2px;
+}
+
+/* ===== Modo claro ===== */
+:host-context(html[data-theme="light"]) .legal-links {
+  color: #6e6e73;
+}
+
+/* El estilo global de los enlaces en modo claro los pondría en negro: aquí van del mismo gris */
+:host-context(html[data-theme="light"]) .legal-link {
+  color: inherit;
+}
+
+:host-context(html[data-theme="light"]) .legal-link:hover {
+  color: #1d1d1f;
+}
+
+:host-context(html[data-theme="light"]) .legal-link:focus-visible {
+  outline-color: #0e7490;
+}

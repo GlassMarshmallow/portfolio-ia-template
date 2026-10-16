@@ -1,0 +1,62 @@
+.ticker {
+  overflow: hidden;
+  background: rgba(10, 10, 10, 0.75);
+  border-top: 1px solid rgba(28, 171, 176, 0.35);
+  border-bottom: 1px solid rgba(28, 171, 176, 0.35);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.ticker-track {
+  display: flex;
+  width: max-content;
+  animation: ticker-scroll 60s linear infinite;
+}
+
+/* Se para al pasar el ratón por encima */
+.ticker:hover .ticker-track {
+  animation-play-state: paused;
+}
+
+.ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  /* separación con padding (no gap) para que las dos copias midan exactamente lo mismo */
+  padding: 0.7rem 1.4rem;
+  color: #e8e8e8;
+  font-size: 0.95rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.ticker-item svg {
+  width: 1.9rem;
+  height: 1.3rem;
+  fill: currentColor;
+}
+
+/* Los logos que son el nombre escrito van algo más grandes, ya que no llevan texto al lado */
+.ticker-item svg.wordmark {
+  width: 3rem;
+  height: 1.3rem;
+}
+
+.ticker-item svg.outline {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track {
+    animation: none;
+  }
+}

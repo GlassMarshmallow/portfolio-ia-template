@@ -1,0 +1,22 @@
+<section class="intake-summary" aria-labelledby="intake-summary-title">
+  <h2 id="intake-summary-title" class="summary-title">Resumen de tu proyecto</h2>
+  <dl>
+    @for (field of summary(); track field.label) {
+      <div class="summary-row"><dt>{{ field.label }}</dt><dd>{{ field.value }}</dd></div>
+    }
+  </dl>
+  <label class="summary-privacy">
+    <input type="checkbox" [checked]="privacy()" (change)="privacy.set($any($event.target).checked)">
+    <span>Acepto que se usen mis datos para responder a mi solicitud. Le llegan a {{ profile.firstName }} por Telegram, junto con esta conversación, y no se ceden a nadie más.</span>
+  </label>
+  @if (sendStatus() === 'error') {
+    <p class="summary-error" role="alert">{{ sendError() }}</p>
+  }
+  <div class="summary-actions">
+    <button type="button" class="summary-secondary" (click)="correct.emit()">Corregir algo</button>
+    <button type="button" class="summary-send" (click)="send.emit()"
+            [disabled]="!privacy() || sendStatus() === 'sending'">
+      {{ sendStatus() === 'sending' ? 'Enviando…' : 'Enviar a ' + profile.firstName }}
+    </button>
+  </div>
+</section>

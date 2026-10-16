@@ -1,0 +1,51 @@
+<dialog #dialog class="ai-info" aria-labelledby="ai-info-title" (close)="service.close()" (click)="onBackdropClick($event)">
+  <div class="ai-info-body">
+    <header class="ai-info-header">
+      <!-- Al abrirse, el foco va al título (así la ✕ no aparece marcada) -->
+      <h2 id="ai-info-title" tabindex="-1" autofocus>Información sobre la IA</h2>
+      <app-close-button (closed)="service.close()" />
+    </header>
+
+    <section class="ai-info-section" aria-labelledby="ai-info-what">
+      <h3 id="ai-info-what">Qué es</h3>
+      <p>
+        El chat del inicio y «Quiero un proyecto» usan un modelo de inteligencia artificial que funciona en mi
+        propio servidor, no en servicios externos. Responde a partir de mi perfil profesional y
+        <strong>puede equivocarse</strong>: para algo importante, escríbeme directamente.
+      </p>
+    </section>
+
+    <section class="ai-info-section" aria-labelledby="ai-info-data">
+      <h3 id="ai-info-data">Qué pasa con lo que escribes</h3>
+      <h4>Preguntas rápidas</h4>
+      <p>Tu pregunta solo se usa para darte la respuesta. No se guarda en ningún sitio.</p>
+
+      <h4>«Quiero un proyecto»</h4>
+      <ol>
+        <li>El asistente con IA te hace unas preguntas sobre tu proyecto y tus datos de contacto.</li>
+        <li>
+          Mientras habláis, la conversación se guarda solo en este navegador, por si cierras la página y quieres
+          seguir más tarde. Se borra sola a los 7 días, o antes si pulsas «Empezar de nuevo».
+        </li>
+        <li>
+          Al terminar, el asistente te enseña un resumen y te propone enviármelo. Si pulsas «Enviar a {{ profile.firstName }}», me
+          llegan por Telegram el resumen y la conversación, para que pueda ponerme en contacto contigo.
+        </li>
+        <li>Si no lo envías, no me llega nada.</li>
+      </ol>
+    </section>
+
+    <section class="ai-info-section" aria-labelledby="ai-info-tips">
+      <h3 id="ai-info-tips">Antes de escribir</h3>
+      <p>No incluyas datos sensibles: salud, contraseñas, datos bancarios…</p>
+    </section>
+
+    <section class="ai-info-section" aria-labelledby="ai-info-rights">
+      <h3 id="ai-info-rights">Tus datos</h3>
+      <p>
+        Puedes pedirme que los consulte, corrija o borre escribiendo a
+        <a [href]="'mailto:' + profile.email">{{ profile.email }}</a>.
+      </p>
+    </section>
+  </div>
+</dialog>

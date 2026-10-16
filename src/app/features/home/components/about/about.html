@@ -1,0 +1,19 @@
+<section id="about" class="about py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-10 col-lg-8">
+        <h2 class="text-center mb-4">Sobre mí</h2>
+
+        <!-- El texto se cambia en src/app/core/data/profile.data.ts ("about") -->
+        @for (paragraph of profile.about; track $index; let first = $first) {
+          <p class="text-left">
+            @if (first) {
+              Hola, me llamo <strong class="accent">{{ profile.fullName }}</strong>
+            }
+            {{ paragraph }}
+          </p>
+        }
+      </div>
+    </div>
+  </div>
+</section>

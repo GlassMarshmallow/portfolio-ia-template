@@ -1,0 +1,15 @@
+<!-- Decorativa: la lista completa de tecnologías está en la sección Habilidades -->
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track">
+    @for (copy of copies; track copy) {
+      @for (logo of logos; track logo.slug) {
+        <span class="ticker-item">
+          <svg appFitIcon viewBox="0 0 24 24" [class.outline]="outlineIcons.has(logo.slug)" [class.wordmark]="wordmarkIcons.has(logo.slug)"><path [attr.d]="logo.path" /></svg>
+          @if (!wordmarkIcons.has(logo.slug)) {
+            {{ logo.title }}
+          }
+        </span>
+      }
+    }
+  </div>
+</div>

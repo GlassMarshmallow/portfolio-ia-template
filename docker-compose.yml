@@ -1,0 +1,63 @@
+# Portfolio + API de preguntas + túnel de Cloudflare.
+name: portfolio
+
+# El portfolio no publica ningún puerto a internet: solo el túnel de Cloudflare llega a él por la
+# red interna de Docker. En el propio servidor se puede abrir en http://localhost:8095 para comprobarlo.
+services:
+  portfolio:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8095:80"
+
+  # API del chat y del formulario inteligente. nginx del portfolio le pasa las llamadas a /api/.
+  # Usa el Ollama de deploy/ollama, al que llega por la red "ollama-compartido".
+  api:
+    build: ./api
+    restart: unless-stopped
+    environment:
+      Ollama__BaseUrl: ${OLLAMA_URL:-http://ollama:11434/}
+      Ollama__Model: ${OLLAMA_MODEL:-qwen3:8b}
+      # Bot de Telegram que te envía las solicitudes (en el .env del servidor, nunca en git)
+      Telegram__BotToken: ${TELEGRAM_BOT_TOKEN:-}
+      Telegram__ChatId: ${TELEGRAM_CHAT_ID:-}
+      Solicitudes__Carpeta: /data/solicitudes
+    volumes:
+      # Copia de cada solicitud recibida, por si falla Telegram
+      - solicitudes:/data/solicitudes
+    networks:
+      - default
+      - ollama
+    mem_limit: 256m
+
+  # Túnel con dominio propio (URL fija). Necesita CLOUDFLARE_TUNNEL_TOKEN en el archivo .env.
+  # Arranque: docker compose --profile tunel up -d --build
+  cloudflared:
+    image: cloudflare/cloudflared:2025.9.1
+    profiles: ["tunel"]
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN:-}
+    depends_on:
+      - portfolio
+
+  # Túnel rápido sin cuenta ni dominio: da una URL *.trycloudflare.com aleatoria que cambia en cada
+  # reinicio. Útil para probar. Arranque: docker compose --profile rapido up -d --build
+  # y la URL aparece en: docker compose logs cloudflared-rapido
+  cloudflared-rapido:
+    image: cloudflare/cloudflared:2025.9.1
+    profiles: ["rapido"]
+    restart: unless-stopped
+    command: tunnel --no-autoupdate --url http://portfolio:80
+    depends_on:
+      - portfolio
+
+volumes:
+  solicitudes:
+
+networks:
+  # Red creada por deploy/ollama/compose.yaml (hay que arrancar Ollama antes que el portfolio)
+  ollama:
+    external: true
+    name: ollama-compartido

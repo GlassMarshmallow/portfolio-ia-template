@@ -1,0 +1,78 @@
+<app-text-page title="Política de privacidad" [updated]="profile.legalUpdated">
+  <p>
+    En esta página te explico, de forma sencilla, qué datos se recogen en esta web, para qué se usan y qué
+    puedes hacer con ellos.
+  </p>
+
+  <h2>Quién es la responsable</h2>
+  <p>
+    {{ profile.fullName }}. Puedes escribirme para cualquier tema de privacidad a
+    <a [href]="'mailto:' + profile.email">{{ profile.email }}</a>.
+  </p>
+
+  <h2>Qué datos se recogen</h2>
+  <ul>
+    <li>
+      <strong>Preguntas rápidas del chat:</strong> tu pregunta solo se usa para darte la respuesta. No se
+      guarda.
+    </li>
+    <li>
+      <strong>«Quiero un proyecto»:</strong> si decides enviarme tu solicitud, recojo tu nombre, tu correo, lo
+      que me cuentas de tu proyecto y la conversación con el asistente. El teléfono y el nombre de tu empresa
+      solo si quieres darlos.
+    </li>
+  </ul>
+
+  <h2>Para qué los uso</h2>
+  <p>
+    Solo para responder a tu solicitud y, si te interesa, prepararte una propuesta. No los uso para enviarte
+    publicidad ni los cedo a nadie.
+  </p>
+
+  <h2>Con qué permiso</h2>
+  <p>
+    Con tu consentimiento: antes de enviar la solicitud, marcas una casilla aceptándolo. Puedes retirarlo
+    cuando quieras escribiéndome.
+  </p>
+
+  <h2>Dónde están y quién los ve</h2>
+  <ul>
+    <li>El chat y el asistente funcionan con una inteligencia artificial en mi propio servidor, no en servicios externos.</li>
+    <li>
+      Cuando envías la solicitud, me llega por Telegram, que solo la transporta hasta mí, y se guarda una
+      copia en mi servidor para no perderla.
+    </li>
+    <li>Nadie más tiene acceso a tus datos.</li>
+  </ul>
+
+  <h2>Cuánto tiempo los guardo</h2>
+  <p>
+    El tiempo necesario para atender tu solicitud y, como máximo, 12 meses desde nuestro último contacto.
+    Después, los borro.
+  </p>
+
+  <h2>Qué se guarda en tu navegador</h2>
+  <p>Esta web no usa cookies ni herramientas de seguimiento o publicidad. Solo guarda en tu navegador:</p>
+  <ul>
+    <li>Si prefieres el modo claro o el oscuro.</li>
+    <li>
+      La conversación con el asistente de «Quiero un proyecto», para que no la pierdas si cierras la página.
+      Se borra sola a los 7 días o cuando pulsas «Empezar de nuevo».
+    </li>
+  </ul>
+  <p>Esos datos se quedan en tu dispositivo: solo me llegan si decides enviar la solicitud.</p>
+
+  <h2>Tus derechos</h2>
+  <p>
+    Puedes pedirme ver tus datos, corregirlos, borrarlos, limitar su uso u oponerte a que los use, escribiendo
+    a <a [href]="'mailto:' + profile.email">{{ profile.email }}</a>. Si crees que no los he tratado bien,
+    puedes reclamar ante la <a href="https://www.aepd.es" target="_blank" rel="noopener">Agencia Española de
+    Protección de Datos</a>.
+  </p>
+
+  <h2>Sobre la inteligencia artificial</h2>
+  <p>
+    Si quieres saber más sobre cómo funciona el chat, consulta la
+    <button type="button" class="link-button" (click)="aiInfo.open()">información sobre la IA</button>.
+  </p>
+</app-text-page>

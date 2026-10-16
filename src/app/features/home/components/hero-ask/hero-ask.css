@@ -1,0 +1,506 @@
+/* ===== Campo de pregunta ===== */
+.ask-form {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  max-width: 30rem;
+  margin: 1.75rem auto 0;
+  padding: 0.3rem 0.35rem 0.3rem 1.1rem;
+  /* Mismo cristal, borde y sombra que las tarjetas de Habilidades */
+  border-radius: 999px;
+  background: rgba(28, 28, 30, 0.82);
+  border: 1px solid #636366;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(11px);
+  -webkit-backdrop-filter: blur(11px);
+}
+
+.ask-form:focus-within {
+  border-color: #1cabb0;
+  box-shadow: 0 0 0 3px rgba(28, 171, 176, 0.3);
+}
+
+.ask-input {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 0.55rem 0;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #f5f5f7;
+  font-size: 1rem;
+}
+
+.ask-input::placeholder {
+  color: #a1a1a6;
+}
+
+.ask-input:focus {
+  outline: none;
+}
+
+.ask-send {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: #1cabb0;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.ask-send app-icon {
+  width: 2rem;
+  height: 2rem;
+}
+
+.ask-send:hover:not(:disabled) {
+  transform: scale(1.08);
+}
+
+.ask-send:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* Preguntas sugeridas */
+.ask-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+/* Preguntas rápidas: mismo cristal, borde, sombra y efecto que las tarjetas de Habilidades */
+.ask-chip {
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid #636366;
+  background: rgba(28, 28, 30, 0.82);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  color: #f5f5f7;
+  font-size: 0.82rem;
+  cursor: pointer;
+  backdrop-filter: blur(11px);
+  -webkit-backdrop-filter: blur(11px);
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.3s ease;
+}
+
+.ask-chip:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: #1cabb0;
+}
+
+.ask-chip:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ===== Burbujas sobre la escena ===== */
+.ask-stage {
+  position: absolute;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  text-align: left;
+  overflow: visible;
+  animation: stage-in 0.35s ease both;
+}
+
+/* Pregunta: burbuja pequeña, en el lado contrario a la cabeza */
+.bubble-question {
+  align-self: flex-end;
+  max-width: 85%;
+  margin: 0;
+  padding: 0.45rem 0.8rem;
+  border-radius: 14px 14px 4px 14px;
+  background: rgba(245, 245, 247, 0.92);
+  color: #1d1d1f;
+  font-size: 0.85rem;
+  line-height: 1.35;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.on-left .bubble-question {
+  align-self: flex-start;
+  border-radius: 14px 14px 14px 4px;
+}
+
+/* Respuesta: bocadillo de cómic con la cola apuntando a la cabeza */
+.bubble-answer {
+  position: relative;
+  display: flex;
+  min-height: 0;
+  padding: 0.85rem 2.1rem 0.9rem 1rem;
+  border-radius: 18px;
+  /* Mismo cristal, borde y brillo que la tarjeta abierta de Habilidades */
+  background: rgba(28, 28, 30, 0.82);
+  border: 1px solid #1cabb0;
+  backdrop-filter: blur(11px);
+  -webkit-backdrop-filter: blur(11px);
+  color: #f5f5f7;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1), 0 0 22px rgba(28, 171, 176, 0.18);
+}
+
+/* Si el bocadillo no cabe sobre el título, el texto se desplaza dentro (la cola queda fuera, visible) */
+.bubble-scroll {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(128, 128, 128, 0.5) transparent;
+}
+
+/* Enlaces conocidos dentro de la respuesta (LinkedIn, GitHub, correo) */
+.bubble-link {
+  color: #1cabb0;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-shadow: none;
+  overflow-wrap: anywhere;
+}
+
+.bubble-link:focus-visible {
+  outline: 2px solid #1cabb0;
+  outline-offset: 2px;
+}
+
+/* Cola del bocadillo (a la izquierda, hacia la cabeza) */
+.bubble-answer::before,
+.bubble-answer::after {
+  content: "";
+  position: absolute;
+  top: 1.1rem;
+  width: 0;
+  height: 0;
+  border-style: solid;
+}
+
+.bubble-answer::before {
+  left: -14px;
+  border-width: 9px 14px 9px 0;
+  border-color: transparent #1cabb0 transparent transparent;
+}
+
+.bubble-answer::after {
+  left: -11px;
+  border-width: 8px 12px 8px 0;
+  border-color: transparent #1c1c1e transparent transparent;
+}
+
+/* En móvil el bocadillo queda a la izquierda de la cabeza: la cola apunta a la derecha */
+.on-left .bubble-answer::before {
+  left: auto;
+  right: -14px;
+  border-width: 9px 0 9px 14px;
+  border-color: transparent transparent transparent #1cabb0;
+}
+
+.on-left .bubble-answer::after {
+  left: auto;
+  right: -11px;
+  border-width: 8px 0 8px 12px;
+  border-color: transparent transparent transparent #1c1c1e;
+}
+
+.bubble-answer.is-error {
+  border-color: #a53a42;
+}
+
+.bubble-close {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  display: flex;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0.2rem;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: inherit;
+  opacity: 0.6;
+  cursor: pointer;
+}
+
+.bubble-close:hover {
+  opacity: 1;
+}
+
+/* Puntos de "pensando…" */
+.typing {
+  display: inline-flex;
+  gap: 0.3rem;
+  padding: 0.35rem 0;
+}
+
+.typing span {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: #1cabb0;
+  animation: typing 1.2s ease-in-out infinite;
+}
+
+.typing span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.typing span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes typing {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-5px); opacity: 1; }
+}
+
+@keyframes stage-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.97); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ask-stage,
+  .typing span {
+    animation: none;
+  }
+
+  .ask-chip:hover:not(:disabled) {
+    transform: none;
+  }
+}
+
+/* Móvil: bocadillo a todo el ancho bajo el menú, con la cola hacia arriba (hacia la cabeza).
+   La pregunta no se repite en burbuja para dejar sitio a la respuesta. */
+.on-top .bubble-question {
+  display: none;
+}
+
+.on-top .bubble-answer {
+  margin-top: 12px;
+}
+
+.on-top .bubble-answer::before,
+.on-top .bubble-answer::after {
+  top: auto;
+  right: auto;
+}
+
+.on-top .bubble-answer::before {
+  top: -14px;
+  left: calc(var(--tail-x) - 9px);
+  border-width: 0 9px 14px 9px;
+  border-color: transparent transparent #1cabb0 transparent;
+}
+
+.on-top .bubble-answer::after {
+  top: -11px;
+  left: calc(var(--tail-x) - 8px);
+  border-width: 0 8px 12px 8px;
+  border-color: transparent transparent #1c1c1e transparent;
+}
+
+/* Móvil: las preguntas sugeridas en dos filas de dos */
+@media (max-width: 767px) {
+  .ask-suggestions {
+    display: grid;
+    grid-template-columns: auto auto;
+    justify-content: center;
+    gap: 0.4rem;
+  }
+
+  .ask-chip {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+
+}
+
+/* ===== Formulario inteligente ("Quiero un proyecto") ===== */
+
+/* Botón para empezarlo: destacado con el color de acento */
+.ask-chip-project {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-color: #1cabb0;
+  font-weight: 600;
+}
+
+.ask-chip-project app-icon {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+@media (max-width: 767px) {
+  /* En móvil va solo en su fila, debajo de las cuatro preguntas */
+  .ask-chip-project {
+    grid-column: 1 / -1;
+    justify-self: center;
+  }
+}
+
+.bubble-note {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #1cabb0;
+}
+
+/* ===== Modo claro ===== */
+:host-context(html[data-theme="light"]) .ask-form,
+:host-context(html[data-theme="light"]) .ask-chip {
+  /* cristal esmerilado con borde visible, como las tarjetas de Habilidades */
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-color: #86868b;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+}
+
+:host-context(html[data-theme="light"]) .ask-input,
+:host-context(html[data-theme="light"]) .ask-chip {
+  color: #1d1d1f;
+}
+
+:host-context(html[data-theme="light"]) .ask-input::placeholder {
+  color: #6e6e73;
+}
+
+:host-context(html[data-theme="light"]) {
+  /* Degradado de las luces del dibujo: pantalla (cian), luz ambiente (violeta) y lámpara (ámbar) */
+  --g: linear-gradient(90deg, #0e7490, #5b3fd0, #b45309);
+}
+
+/* El icono de enviar se pinta con el degradado (en styles.css, por el encapsulado de <app-icon>) */
+:host-context(html[data-theme="light"]) .ask-send {
+  color: #0e7490;
+}
+
+/* Puntos de "pensando…" con el degradado */
+:host-context(html[data-theme="light"]) .typing span {
+  background: var(--g);
+}
+
+/* Bordes con degradado sobre fondos translúcidos: capa encima recortada con una máscara */
+:host-context(html[data-theme="light"]) .ask-form,
+:host-context(html[data-theme="light"]) .ask-chip {
+  position: relative;
+}
+
+:host-context(html[data-theme="light"]) .ask-form:focus-within::after,
+:host-context(html[data-theme="light"]) .ask-chip:hover:not(:disabled)::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  padding: 1px;
+  border-radius: inherit;
+  background: var(--g);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+:host-context(html[data-theme="light"]) .ask-form:focus-within {
+  border-color: transparent;
+  box-shadow: 0 0 0 3px rgba(14, 116, 144, 0.15);
+}
+
+:host-context(html[data-theme="light"]) .ask-chip:hover:not(:disabled) {
+  border-color: transparent;
+}
+
+:host-context(html[data-theme="light"]) .bubble-question {
+  background: rgba(29, 29, 31, 0.88);
+  color: #f5f5f7;
+}
+
+/* Bocadillo blanco con el borde degradado */
+:host-context(html[data-theme="light"]) .bubble-answer {
+  border-color: transparent;
+  background: linear-gradient(#ffffff, #ffffff) padding-box, var(--g) border-box;
+  color: #1d1d1f;
+  /* misma sombra que la tarjeta abierta de Habilidades */
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* La cola toma el color del degradado en el punto del borde del que sale */
+:host-context(html[data-theme="light"]) .bubble-answer::before {
+  border-right-color: #0e7490;
+}
+
+:host-context(html[data-theme="light"]) .bubble-answer::after {
+  border-right-color: #ffffff;
+}
+
+:host-context(html[data-theme="light"]) .on-left .bubble-answer::before {
+  border-right-color: transparent;
+  border-left-color: #b45309;
+}
+
+:host-context(html[data-theme="light"]) .on-left .bubble-answer::after {
+  border-right-color: transparent;
+  border-left-color: #ffffff;
+}
+
+/* Arriba (móvil), la cola sale de un punto cualquiera del borde: se mezcla el color de ese punto */
+:host-context(html[data-theme="light"]) .on-top .bubble-answer::before {
+  --mid: color-mix(in srgb, #5b3fd0 calc(min(var(--tail-ratio, 0.5) * 2, 1) * 100%), #0e7490);
+  border-color: transparent transparent
+    color-mix(in srgb, #b45309 calc(max(var(--tail-ratio, 0.5) * 2 - 1, 0) * 100%), var(--mid)) transparent;
+}
+
+:host-context(html[data-theme="light"]) .on-top .bubble-answer::after {
+  border-color: transparent transparent #ffffff transparent;
+}
+
+:host-context(html[data-theme="light"]) .ask-chip-project {
+  border-color: transparent;
+  background: linear-gradient(#ffffff, #ffffff) padding-box, var(--g) border-box;
+}
+
+:host-context(html[data-theme="light"]) .ask-chip-project:hover:not(:disabled)::after {
+  content: none;
+}
+
+:host-context(html[data-theme="light"]) .bubble-note {
+  background: var(--g);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+:host-context(html[data-theme="light"]) .bubble-link {
+  /* Como el resto de acentos del modo claro: degradado de las luces del dibujo, también en el subrayado */
+  background: var(--g);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  text-decoration: none;
+  border-bottom: 1.5px solid transparent;
+  border-image: var(--g) 1;
+}
+
+:host-context(html[data-theme="light"]) .bubble-link:focus-visible {
+  outline-color: #0e7490;
+}

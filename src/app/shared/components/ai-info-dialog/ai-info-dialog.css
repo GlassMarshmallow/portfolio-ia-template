@@ -1,0 +1,155 @@
+/* Ventana con el mismo cristal, borde y sombra que las tarjetas de Habilidades */
+.ai-info {
+  width: min(34rem, calc(100vw - 2rem));
+  max-height: calc(100vh - 2rem);
+  padding: 0;
+  border: 1px solid #636366;
+  border-radius: 18px;
+  background: rgba(28, 28, 30, 0.92);
+  backdrop-filter: blur(11px);
+  -webkit-backdrop-filter: blur(11px);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+  color: #f5f5f7;
+}
+
+/* Bootstrap 4 muestra los <dialog> aunque estén cerrados: aquí solo se ve cuando está abierto */
+.ai-info:not([open]) {
+  display: none;
+}
+
+.ai-info::backdrop {
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.ai-info-body {
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  padding: 1.5rem 1.75rem 1.75rem;
+}
+
+.ai-info-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.ai-info h2 {
+  margin: 0;
+  outline: none;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: inherit;
+}
+
+/* Cada apartado separado por una línea fina */
+.ai-info-section {
+  padding: 1rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.ai-info-section:last-child {
+  padding-bottom: 0;
+}
+
+.ai-info h3 {
+  margin: 0 0 0.4rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1cabb0;
+}
+
+.ai-info p {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.ai-info h4 {
+  margin: 0.75rem 0 0.2rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: inherit;
+}
+
+.ai-info h3 + h4 {
+  margin-top: 0;
+}
+
+/* Pasos numerados (los estilos globales ponen las listas en fila, para el menú) */
+.ai-info ol {
+  display: block;
+  margin: 0;
+  padding: 0 0 0 1.2rem;
+  list-style: decimal;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.ai-info ol li + li {
+  margin-top: 0.35rem;
+}
+
+/* Enlace limpio y subrayado (los enlaces globales llevan sombra, pensada para leerse sobre el dibujo) */
+.ai-info a {
+  color: #1cabb0;
+  font-weight: 600;
+  text-shadow: none;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+
+
+.ai-info a:focus-visible {
+  outline: 2px solid #1cabb0;
+  outline-offset: 2px;
+}
+
+/* ===== Modo claro ===== */
+:host-context(html[data-theme="light"]) .ai-info {
+  border-color: #86868b;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+  color: #1d1d1f;
+}
+
+:host-context(html[data-theme="light"]) .ai-info::backdrop {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* Modo claro: títulos y enlaces con el degradado de las luces del dibujo, como el resto de acentos */
+:host-context(html[data-theme="light"]) .ai-info h3 {
+  /* el degradado se ajusta al ancho del texto, no al de la tarjeta */
+  width: fit-content;
+  background: linear-gradient(90deg, #0e7490, #5b3fd0, #b45309);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+:host-context(html[data-theme="light"]) .ai-info a {
+  background: linear-gradient(90deg, #0e7490, #5b3fd0, #b45309);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  text-decoration: none;
+  border-bottom: 1.5px solid transparent;
+  border-image: linear-gradient(90deg, #0e7490, #5b3fd0, #b45309) 1;
+}
+
+
+:host-context(html[data-theme="light"]) .ai-info-section {
+  border-top-color: rgba(0, 0, 0, 0.1);
+}
+
+
+
+:host-context(html[data-theme="light"]) .ai-info a:focus-visible {
+  outline-color: #0e7490;
+}

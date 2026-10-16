@@ -1,0 +1,38 @@
+/* Aviso de IA (transparencia), bajo el chat del inicio */
+.ask-notice {
+  margin: 0.75rem auto 0;
+  max-width: 30rem;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: #c7c7cc;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.ask-notice-link {
+  /* al menos 24 px de alto, para poder pulsarlo bien con el dedo (WCAG 2.2, criterio 2.5.8) */
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 0.15rem;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.ask-notice-link:hover {
+  color: #ffffff;
+}
+
+/* ===== Modo claro ===== */
+:host-context(html[data-theme="light"]) .ask-notice {
+  color: #6e6e73;
+  text-shadow: none;
+}
+
+:host-context(html[data-theme="light"]) .ask-notice-link:hover {
+  color: #1d1d1f;
+}
