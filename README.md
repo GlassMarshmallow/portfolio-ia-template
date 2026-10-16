@@ -300,4 +300,6 @@ En pocas palabras:
 
 Como prohíbe el uso comercial, técnicamente no es «open source» según la definición de la OSI, sino **código disponible para uso no comercial**. Para un uso comercial, contacta con la autora a través de GitHub.
 
+Al pie de la web hay una línea de créditos («Hecho con portfolio-ia-template · Licencia PolyForm Noncommercial»). **No es obligatoria, pero se agradece mucho que la mantengas.**
+
 Los logos de tecnologías son de [Simple Icons](https://simpleicons.org) (CC0) y los iconos, de [Bootstrap Icons](https://icons.getbootstrap.com) (MIT). Las marcas pertenecen a sus dueños. **No se incluye ninguna ilustración**: la animación del inicio es para tu propio dibujo.

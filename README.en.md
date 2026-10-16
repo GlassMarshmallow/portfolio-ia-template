@@ -302,4 +302,6 @@ In short:
 
 Because it forbids commercial use, it is technically not "open source" under the OSI definition, but **source-available for non-commercial use**. For commercial use, contact the author through GitHub.
 
+The site footer has a credits line ("Hecho con portfolio-ia-template · Licencia PolyForm Noncommercial" / "Made with…"). **It isn't mandatory, but keeping it is greatly appreciated.**
+
 Technology logos come from [Simple Icons](https://simpleicons.org) (CC0) and icons from [Bootstrap Icons](https://icons.getbootstrap.com) (MIT). Trademarks belong to their owners. **No illustration is included**: the home animation is meant for your own drawing.

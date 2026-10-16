@@ -39,8 +39,21 @@
   outline-offset: 2px;
 }
 
+/* Créditos de la plantilla, bajo el nombre */
+.template-credit {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: #a1a1a6;
+}
+
+/* Los dos enlaces del mismo color (los estilos globales de los enlaces externos se colarían en uno) */
+.template-credit a.legal-link {
+  color: inherit;
+}
+
 /* ===== Modo claro ===== */
-:host-context(html[data-theme="light"]) .legal-links {
+:host-context(html[data-theme="light"]) .legal-links,
+:host-context(html[data-theme="light"]) .template-credit {
   color: #6e6e73;
 }
 
