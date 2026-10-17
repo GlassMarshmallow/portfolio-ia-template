@@ -2,13 +2,8 @@
 <div class="gm-ticker" [class.gm-ticker--static]="!moving()" [class.is-paused]="paused()" aria-hidden="true">
   <div class="gm-ticker__track">
     @for (copy of copies(); track copy) {
-      @for (logo of logos; track logo.slug) {
-        <span class="gm-ticker__item">
-          <svg appFitIcon viewBox="0 0 24 24" [class.outline]="outlineIcons.has(logo.slug)" [class.wordmark]="wordmarkIcons.has(logo.slug)"><path [attr.d]="logo.path" /></svg>
-          @if (!wordmarkIcons.has(logo.slug)) {
-            {{ logo.title }}
-          }
-        </span>
+      @for (logo of logos; track logo) {
+        <span class="gm-ticker__item"><i [class]="'gmi gmi-' + logo"></i>{{ titles[logo] }}</span>
       }
     }
   </div>

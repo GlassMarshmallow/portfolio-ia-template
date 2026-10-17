@@ -1,9 +1,8 @@
 // Tecnologías de Habilidades y de la franja del inicio (datos en core/data/skills.data.ts)
-import type { SimpleIcon } from 'simple-icons';
-
 export interface Skill {
   name: string;
-  icons: SimpleIcon[];
+  /** Logos: nombres de iconos de GlassMarshmallow (sin «gmi-»), normalmente de la categoría Brand */
+  icons: string[];
 }
 
 export interface SkillGroup {

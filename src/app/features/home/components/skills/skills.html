@@ -1,9 +1,9 @@
-<section id="skills" class="section">
+<section id="skills" class="gm-section">
   <div class="gm-container gm-container--narrow">
-    <h2>Habilidades técnicas</h2>
+    <h2 class="gm-section__title">Habilidades técnicas</h2>
 
     <!-- Acordeón: cada grupo empieza cerrado y solo se abre uno a la vez (mismo name) -->
-    <div class="gm-accordion skills">
+    <div class="gm-accordion">
       @for (group of groups; track group.id) {
         <details class="gm-accordion__item" name="skills">
           <summary class="gm-accordion__summary">
@@ -15,36 +15,30 @@
             </span>
 
             <!-- Vista previa de algunos logos del grupo (decorativa) -->
-            <span class="summary-preview" aria-hidden="true">
-              @for (logo of group.preview; track logo.slug) {
-                <span class="preview-logo">
-                  <svg appFitIcon viewBox="0 0 24 24" [class.outline]="outlineIcons.has(logo.slug)"><path [attr.d]="logo.path" /></svg>
-                </span>
+            <span class="gm-accordion__preview" aria-hidden="true">
+              @for (logo of group.preview; track logo) {
+                <span class="gm-accordion__preview-item"><i [class]="'gmi gmi-' + logo"></i></span>
               }
               @if (group.morePreview > 0) {
-                <span class="preview-more">+{{ group.morePreview }}</span>
+                <span class="gm-accordion__preview-more">+{{ group.morePreview }}</span>
               }
             </span>
 
             <i class="gmi gmi-chevron-down gm-accordion__chevron" aria-hidden="true"></i>
           </summary>
 
-          <!-- Contenido: lista de tecnologías con su logo (información, no botones) -->
-          <ul class="gm-accordion__content skill-tiles">
+          <!-- Lista de tecnologías con su logo, una debajo de otra (información, no botones) -->
+          <ul class="gm-accordion__content gm-accordion__list gm-accordion__list--icons gm-accordion__list--cascade">
             @for (item of group.items; track item.name; let i = $index) {
-              <li class="skill-tile" [style.--i]="i">
-                <span class="skill-icons" aria-hidden="true">
-                  @for (icon of item.icons; track icon.slug) {
-                    @if (icon.slug === 'database') {
-                      <i class="gmi gmi-database generic"></i>
-                    } @else {
-                      <svg appFitIcon viewBox="0 0 24 24" [class.outline]="outlineIcons.has(icon.slug)"><title>{{ icon.title }}</title><path [attr.d]="icon.path" /></svg>
-                    }
+              <li [style.--i]="i">
+                <span class="gm-accordion__list-icon" aria-hidden="true">
+                  @for (icon of item.icons; track icon) {
+                    <i [class]="'gmi gmi-' + icon"></i>
                   } @empty {
-                    <i class="gmi gmi-code-slash generic"></i>
+                    <i class="gmi gmi-code-slash"></i>
                   }
                 </span>
-                <span class="skill-name">{{ item.name }}</span>
+                {{ item.name }}
               </li>
             }
           </ul>
