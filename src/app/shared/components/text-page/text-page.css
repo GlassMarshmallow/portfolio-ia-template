@@ -1,20 +1,7 @@
-/* Tarjeta de lectura con el mismo cristal, borde y sombra que las tarjetas de Habilidades */
+/* Página de texto: la tarjeta de lectura de GlassMarshmallow (gm-prose--card), debajo de la barra */
 .text-page {
   padding-top: 110px;
   padding-bottom: 4rem;
-}
-
-.text-card {
-  max-width: 760px;
-  margin: 0 auto;
-  padding: 2.25rem 2rem;
-  border: 1px solid #636366;
-  border-radius: 18px;
-  background: rgba(28, 28, 30, 0.82);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(11px);
-  -webkit-backdrop-filter: blur(11px);
-  color: #f5f5f7;
 }
 
 .text-header {
@@ -24,178 +11,16 @@
   gap: 1rem;
 }
 
-
-
-
-.text-card h1 {
-  margin: 0 0 0.35rem;
-  text-align: left;
-  font-size: 1.9rem;
-  font-weight: 700;
-  color: inherit;
-  text-shadow: none;
-}
-
-.text-updated {
-  margin: 0 0 1.5rem;
-  font-size: 0.85rem;
-  color: #a1a1a6;
-}
-
-/* Contenido proyectado (h2, p, listas, enlaces) */
-.text-card ::ng-deep h2 {
-  margin: 1.75rem 0 0.5rem;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #1cabb0;
-  text-shadow: none;
-}
-
-.text-card ::ng-deep p,
-.text-card ::ng-deep li {
-  font-size: 0.95rem;
-  line-height: 1.65;
-}
-
-.text-card ::ng-deep p {
-  margin: 0 0 0.75rem;
-}
-
-/* Listas normales (los estilos globales ponen las listas en fila, para el menú) */
-.text-card ::ng-deep ul {
-  display: block;
-  margin: 0 0 0.75rem;
-  padding-left: 1.2rem;
-  list-style: disc;
-}
-
-.text-card ::ng-deep li + li {
-  margin-top: 0.3rem;
-}
-
-.text-card ::ng-deep a {
-  color: #1cabb0;
-  font-weight: 600;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  text-shadow: none;
-}
-
-.text-card ::ng-deep a:focus-visible {
-  outline: 2px solid #1cabb0;
-  outline-offset: 2px;
+/* Botón de pausa del dibujo de fondo, fijo en la esquina inferior derecha */
+.pause-btn {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 3;
 }
 
 @media (max-width: 576px) {
   .text-page {
     padding-top: 95px;
   }
-
-  .text-card {
-    padding: 1.75rem 1.25rem;
-  }
-
-  .text-card h1 {
-    font-size: 1.5rem;
-  }
-}
-
-/* ===== Modo claro ===== */
-:host-context(html[data-theme="light"]) .text-card {
-  border-color: #86868b;
-  background: rgba(255, 255, 255, 0.78);
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
-  color: #1d1d1f;
-}
-
-:host-context(html[data-theme="light"]) .text-updated {
-  color: #6e6e73;
-}
-
-/* Modo claro: títulos y enlaces con el degradado de las luces del dibujo, como el resto de acentos */
-:host-context(html[data-theme="light"]) .text-card ::ng-deep h2 {
-  /* el degradado se ajusta al ancho del texto, no al de la tarjeta */
-  width: fit-content;
-  background: linear-gradient(90deg, #0e7490, #5b3fd0, #b45309);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-}
-
-:host-context(html[data-theme="light"]) .text-card ::ng-deep a,
-:host-context(html[data-theme="light"]) .text-card ::ng-deep .link-button {
-  background: linear-gradient(90deg, #0e7490, #5b3fd0, #b45309);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-  text-decoration: none;
-  border-bottom: 1.5px solid transparent;
-  border-image: linear-gradient(90deg, #0e7490, #5b3fd0, #b45309) 1;
-}
-
-
-:host-context(html[data-theme="light"]) .text-card ::ng-deep a:focus-visible {
-  outline-color: #0e7490;
-}
-
-/* Botón con aspecto de enlace (abre una ventana, no lleva a otra página) */
-.text-card ::ng-deep .link-button {
-  padding: 0;
-  border: none;
-  background: none;
-  color: #1cabb0;
-  font: inherit;
-  font-weight: 600;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  cursor: pointer;
-}
-
-.text-card ::ng-deep .link-button:focus-visible {
-  outline: 2px solid #1cabb0;
-  outline-offset: 2px;
-}
-
-
-:host-context(html[data-theme="light"]) .text-card ::ng-deep .link-button:focus-visible {
-  outline-color: #0e7490;
-}
-
-
-
-
-/* Botón de pausa del dibujo de fondo: como el del inicio, fijo en la esquina inferior derecha */
-.pause-btn {
-  position: fixed;
-  right: 1rem;
-  bottom: 1rem;
-  z-index: 3;
-  padding: 0.35rem 0.8rem;
-  font-size: 0.8rem;
-  color: #e8e8e8;
-  background: rgba(10, 10, 10, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 999px;
-  cursor: pointer;
-}
-
-.pause-btn:hover {
-  border-color: #1cabb0;
-}
-
-.pause-btn:focus-visible {
-  outline: 2px solid #1cabb0;
-  outline-offset: 2px;
-}
-
-:host-context(html[data-theme="light"]) .pause-btn:hover {
-  border-color: #1d1d1f;
-}
-
-:host-context(html[data-theme="light"]) .pause-btn:focus-visible {
-  outline-color: var(--accent-text);
 }

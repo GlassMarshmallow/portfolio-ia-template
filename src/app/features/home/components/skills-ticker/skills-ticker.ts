@@ -9,11 +9,12 @@ import { OUTLINE_ICONS, SKILL_LOGOS, WORDMARK_ICONS } from '../../../../core/dat
   selector: 'app-skills-ticker',
   imports: [FitIcon],
   templateUrl: './skills-ticker.html',
-  styleUrl: './skills-ticker.css',
-  host: { '[class.static]': '!moving()' }
+  styleUrl: './skills-ticker.css'
 })
 export class SkillsTicker {
   readonly moving = input(true);
+  /** Pausada con el botón «Pausar animación» del inicio */
+  readonly paused = input(false);
   protected readonly logos = SKILL_LOGOS;
   protected readonly outlineIcons = OUTLINE_ICONS;
   protected readonly wordmarkIcons = WORDMARK_ICONS;

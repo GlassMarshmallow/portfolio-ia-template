@@ -1,12 +1,12 @@
-<dialog #dialog class="ai-info" aria-labelledby="ai-info-title" (close)="service.close()" (click)="onBackdropClick($event)">
-  <div class="ai-info-body">
-    <header class="ai-info-header">
+<dialog #dialog class="gm-dialog" aria-labelledby="ai-info-title" (close)="service.close()" (click)="onBackdropClick($event)">
+  <div class="gm-dialog__body">
+    <header class="gm-dialog__header">
       <!-- Al abrirse, el foco va al título (así la ✕ no aparece marcada) -->
-      <h2 id="ai-info-title" tabindex="-1" autofocus>Información sobre la IA</h2>
+      <h2 id="ai-info-title" class="gm-dialog__title" tabindex="-1" autofocus>Información sobre la IA</h2>
       <app-close-button (closed)="service.close()" />
     </header>
 
-    <section class="ai-info-section" aria-labelledby="ai-info-what">
+    <section class="gm-dialog__section" aria-labelledby="ai-info-what">
       <h3 id="ai-info-what">Qué es</h3>
       <!-- Si conectas la IA a un servicio externo (OpenAI, OpenRouter…), cambia "que funciona en mi propio
            servidor, no en servicios externos" por el nombre del servicio (README → Conectar la IA) -->
@@ -17,7 +17,7 @@
       </p>
     </section>
 
-    <section class="ai-info-section" aria-labelledby="ai-info-data">
+    <section class="gm-dialog__section" aria-labelledby="ai-info-data">
       <h3 id="ai-info-data">Qué pasa con lo que escribes</h3>
       <h4>Preguntas rápidas</h4>
       <p>Tu pregunta solo se usa para darte la respuesta. No se guarda en ningún sitio.</p>
@@ -37,12 +37,12 @@
       </ol>
     </section>
 
-    <section class="ai-info-section" aria-labelledby="ai-info-tips">
+    <section class="gm-dialog__section" aria-labelledby="ai-info-tips">
       <h3 id="ai-info-tips">Antes de escribir</h3>
       <p>No incluyas datos sensibles: salud, contraseñas, datos bancarios…</p>
     </section>
 
-    <section class="ai-info-section" aria-labelledby="ai-info-rights">
+    <section class="gm-dialog__section" aria-labelledby="ai-info-rights">
       <h3 id="ai-info-rights">Tus datos</h3>
       <p>
         Puedes pedirme que los consulte, corrija o borre escribiendo a

@@ -5,16 +5,18 @@
       <div class="summary-row"><dt>{{ field.label }}</dt><dd>{{ field.value }}</dd></div>
     }
   </dl>
-  <label class="summary-privacy">
-    <input type="checkbox" [checked]="privacy()" (change)="privacy.set($any($event.target).checked)">
-    <span>Acepto que se usen mis datos para responder a mi solicitud. Le llegan a {{ profile.firstName }} por Telegram, junto con esta conversación, y no se ceden a nadie más.</span>
-  </label>
+  <div class="gm-check">
+    <label>
+      <input type="checkbox" [checked]="privacy()" (change)="privacy.set($any($event.target).checked)">
+      <span>Acepto que se usen mis datos para responder a mi solicitud. Le llegan a {{ profile.firstName }} por Telegram, junto con esta conversación, y no se ceden a nadie más.</span>
+    </label>
+  </div>
   @if (sendStatus() === 'error') {
     <p class="summary-error" role="alert">{{ sendError() }}</p>
   }
   <div class="summary-actions">
-    <button type="button" class="summary-secondary" (click)="correct.emit()">Corregir algo</button>
-    <button type="button" class="summary-send" (click)="send.emit()"
+    <button type="button" class="gm-btn gm-btn--secondary gm-btn--sm" (click)="correct.emit()">Corregir algo</button>
+    <button type="button" class="gm-btn gm-btn--sm" (click)="send.emit()"
             [disabled]="!privacy() || sendStatus() === 'sending'">
       {{ sendStatus() === 'sending' ? 'Enviando…' : 'Enviar a ' + profile.firstName }}
     </button>

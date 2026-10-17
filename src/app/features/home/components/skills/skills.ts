@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import type { SimpleIcon } from 'simple-icons';
 import { FitIcon } from '../../../../shared/directives/fit-icon.directive';
-import { Icon } from '../../../../shared/components/icon/icon';
 import { DATABASE, OUTLINE_ICONS, SKILL_GROUPS } from '../../../../core/data/skills.data';
 import type { SkillGroup } from '../../../../core/models/skill.models';
 
@@ -19,7 +18,7 @@ const groupLogos = (group: SkillGroup): SimpleIcon[] => [
 
 @Component({
   selector: 'app-skills',
-  imports: [FitIcon, Icon],
+  imports: [FitIcon],
   templateUrl: './skills.html',
   styleUrl: './skills.css'
 })

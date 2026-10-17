@@ -7,7 +7,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "hero-frames": "bash scripts/build-hero-frames.sh"
+    "hero-frames": "bash scripts/build-hero-frames.sh",
+    "glassmarshmallow": "node scripts/copy-glassmarshmallow.mjs"
   },
   "prettier": {
     "printWidth": 100,

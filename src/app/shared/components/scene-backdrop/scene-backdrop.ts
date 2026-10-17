@@ -2,27 +2,31 @@ import { Component, DestroyRef, ElementRef, afterNextRender, inject, viewChild }
 import { SceneService } from '../../../core/services/scene.service';
 import { HAS_SCENE, startSceneAnimation } from '../../utils/scene-animation';
 
-// El mismo dibujo animado del inicio (o, sin ilustración, su fondo degradado), fijo detrás de las páginas
-// de texto (privacidad, aviso legal), con el efecto de televisor antiguo y sin nada que lo oscurezca: el
-// texto ya va en su tarjeta de cristal.
+// Fondo de todas las páginas: el de GlassMarshmallow (gm-backdrop) y, si hay ilustración, el dibujo animado
+// con su brillo de tubo. Va una sola vez, en el marco de la página.
 @Component({
   selector: 'app-scene-backdrop',
   templateUrl: './scene-backdrop.html',
   styleUrl: './scene-backdrop.css',
-  host: { '[class.is-paused]': 'paused()', '[class.no-scene]': '!hasScene' }
+  host: { '[class.is-paused]': 'paused()' }
 })
 export class SceneBackdrop {
-  protected readonly paused = inject(SceneService).paused;
-  /** Sin ilustración (HERO.frames vacío): el mismo fondo degradado que el inicio */
+  private readonly sceneState = inject(SceneService);
+  protected readonly paused = this.sceneState.paused;
+  protected readonly dim = this.sceneState.dim;
   protected readonly hasScene = HAS_SCENE;
-  private readonly scene = viewChild.required<ElementRef<HTMLCanvasElement>>('scene');
-  private readonly glow = viewChild.required<ElementRef<HTMLCanvasElement>>('glow');
+  private readonly scene = viewChild<ElementRef<HTMLCanvasElement>>('scene');
+  private readonly glow = viewChild<ElementRef<HTMLCanvasElement>>('glow');
 
   constructor() {
     const destroyRef = inject(DestroyRef);
     afterNextRender(() => {
-      const stop = startSceneAnimation(this.scene().nativeElement, this.glow().nativeElement, () => this.paused());
-      destroyRef.onDestroy(stop);
+      const scene = this.scene()?.nativeElement;
+      const glow = this.glow()?.nativeElement;
+      if (scene && glow) {
+        const stop = startSceneAnimation(scene, glow, () => this.paused());
+        destroyRef.onDestroy(stop);
+      }
     });
   }
 }

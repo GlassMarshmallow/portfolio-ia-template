@@ -1,5 +1,5 @@
-/* Mismas capas y valores que el fondo del inicio (hero.css). El componente no crea capa propia
-   (display: contents), para que el brillo y el grano se mezclen con el fondo igual que en el inicio. */
+/* Lo que el fondo de GlassMarshmallow (gm-backdrop) no tiene: el dibujo animado de la plantilla.
+   Con dibujo, debajo va el color liso del fondo en lugar de las luces (las luces las pone el dibujo). */
 :host {
   display: contents;
 }
@@ -8,19 +8,12 @@
   animation-play-state: paused !important;
 }
 
-.scene-bg,
-.film-grain,
-.film-scanlines,
-.film-vignette,
-.crt-curve {
-  position: fixed;
-  z-index: -1;
-  pointer-events: none;
+.gm-backdrop.has-scene {
+  background: var(--gm-backdrop-bg);
 }
 
 /* El dibujo ocupa toda la pantalla, con un parpadeo suave */
 .scene-bg {
-  inset: 0;
   width: 100vw;
   height: 100vh;
   object-fit: cover;
@@ -29,56 +22,31 @@
   animation: film-flicker 1.4s steps(1) infinite;
 }
 
-/* Grano: ruido que se desplaza a saltos */
-.film-grain {
-  inset: -50%;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1.2 -0.25'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
-  opacity: 0.16;
-  mix-blend-mode: screen;
-  animation: film-grain 0.5s steps(6) infinite;
-}
-
-/* Líneas horizontales finas, como una pantalla de televisor */
-.film-scanlines {
-  inset: 0;
-  background: repeating-linear-gradient(transparent 0 2px, rgba(0, 0, 0, 0.65) 2px 4px);
-}
-
 /* Brillo de tubo: copia difuminada de la escena sumada por encima */
 .crt-glow {
   filter: brightness(2.5) blur(4px);
   mix-blend-mode: screen;
-  opacity: 0.22;
+  opacity: .22;
   animation: none;
 }
 
-/* Esquinas oscurecidas y redondeadas, como la pantalla curva de una tele antigua */
-.crt-curve {
-  inset: 0;
-  border-radius: 6% / 9%;
-  box-shadow: inset 0 0 40px 18px rgba(0, 0, 0, 0.85), inset 0 0 0 2px rgba(28, 171, 176, 0.08);
+/* Al bajar por el inicio, el dibujo se funde con el fondo para que los textos se lean bien */
+.scene-dim {
+  background: var(--gm-backdrop-bg);
 }
 
-/* En móvil, las esquinas oscurecidas sin redondear */
-@media (max-width: 767px) {
-  .crt-curve {
-    border-radius: 0;
-  }
-}
-
-/* Bordes oscurecidos */
-.film-vignette {
-  inset: 0;
-  background: radial-gradient(ellipse at center, transparent 45%, rgba(0, 0, 0, 0.7) 100%);
+/* Con dibujo, el grano se mueve a saltos */
+.has-scene .gm-backdrop__grain {
+  animation: film-grain .5s steps(6) infinite;
 }
 
 @keyframes film-flicker {
-  0% { opacity: 0.55; }
-  15% { opacity: 0.53; }
-  30% { opacity: 0.56; }
-  50% { opacity: 0.52; }
-  70% { opacity: 0.55; }
-  85% { opacity: 0.53; }
+  0% { opacity: .55; }
+  15% { opacity: .53; }
+  30% { opacity: .56; }
+  50% { opacity: .52; }
+  70% { opacity: .55; }
+  85% { opacity: .53; }
 }
 
 @keyframes film-grain {
@@ -92,80 +60,30 @@
 
 @media (prefers-reduced-motion: reduce) {
   .scene-bg,
-  .film-grain {
+  .has-scene .gm-backdrop__grain {
     animation: none;
   }
 }
 
-/* Pantallas táctiles: al desplazarse, la barra del navegador aparece y desaparece y cambia el alto de la
-   ventana. Las capas del fondo se fijan al alto máximo (lvh, con la barra escondida), que no cambia, para
-   que no den saltos; antes se estiraban o encogían con la ventana. */
-@media (pointer: coarse) {
-  .scene-bg,
-  .film-scanlines,
-  .film-vignette,
-  .crt-curve {
-    bottom: auto;
-    height: 100vh;
-    height: 100lvh;
-  }
-
-  .film-grain {
-    top: -50vh;
-    top: -50lvh;
-    bottom: auto;
-    height: 200vh;
-    height: 200lvh;
-  }
-}
-
-/* ===== Modo claro: dibujo invertido, como en el inicio ===== */
+/* Modo claro: el dibujo invertido (fondo blanco, líneas oscuras). invert + hue-rotate(180deg) invierte la luz
+   pero conserva el tono de cada zona */
 :host-context(html[data-theme="light"]) .scene-bg {
   filter: invert(1) hue-rotate(180deg) brightness(1.05) contrast(1.1);
   animation-name: film-flicker-light;
 }
 
-@keyframes film-flicker-light {
-  0% { opacity: 0.85; }
-  15% { opacity: 0.83; }
-  30% { opacity: 0.86; }
-  50% { opacity: 0.82; }
-  70% { opacity: 0.85; }
-  85% { opacity: 0.83; }
-}
-
 :host-context(html[data-theme="light"]) .crt-glow {
   filter: invert(1) hue-rotate(180deg) blur(4px);
   mix-blend-mode: multiply;
-  opacity: 0.18;
+  opacity: .18;
   animation: none;
 }
 
-:host-context(html[data-theme="light"]) .crt-curve {
-  display: none;
-}
-
-/* ===== Sin ilustración (HERO.frames vacío): el mismo fondo degradado que el inicio, y el grano quieto ===== */
-.scene-fallback {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    radial-gradient(circle at 25% 35%, rgba(28, 171, 176, 0.28), transparent 45%),
-    radial-gradient(circle at 75% 65%, rgba(140, 100, 255, 0.24), transparent 50%),
-    radial-gradient(circle at 60% 20%, rgba(255, 150, 70, 0.14), transparent 40%),
-    #0a0a0a;
-}
-
-:host-context(html[data-theme="light"]) .scene-fallback {
-  background:
-    radial-gradient(circle at 25% 35%, rgba(14, 116, 144, 0.16), transparent 45%),
-    radial-gradient(circle at 75% 65%, rgba(91, 63, 208, 0.14), transparent 50%),
-    radial-gradient(circle at 60% 20%, rgba(180, 83, 9, 0.1), transparent 40%),
-    #f5f5f7;
-}
-
-:host(.no-scene) .film-grain {
-  animation: none;
+@keyframes film-flicker-light {
+  0% { opacity: .85; }
+  15% { opacity: .83; }
+  30% { opacity: .86; }
+  50% { opacity: .82; }
+  70% { opacity: .85; }
+  85% { opacity: .83; }
 }

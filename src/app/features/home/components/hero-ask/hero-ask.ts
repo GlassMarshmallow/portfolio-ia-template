@@ -6,7 +6,6 @@ import {
   INTAKE_GREETING, INTAKE_MESSAGE_MAX, IntakeError, IntakeService, emptyIntakeData
 } from '../../../../core/services/intake.service';
 import { AiNotice } from '../../../../shared/components/ai-notice/ai-notice';
-import { Icon } from '../../../../shared/components/icon/icon';
 import { linkifyKnown } from '../../../../shared/utils/known-links';
 import { IntakeSummary } from '../intake-summary/intake-summary';
 import { HERO } from '../../../../core/data/hero.data';
@@ -58,7 +57,7 @@ const SUMMARY_FIELDS: { key: 'nombre' | 'correo' | 'telefono' | 'empresa' | 'neg
 
 @Component({
   selector: 'app-hero-ask',
-  imports: [Icon, IntakeSummary, AiNotice],
+  imports: [IntakeSummary, AiNotice],
   host: { '(document:keydown.escape)': 'close()' },
   templateUrl: './hero-ask.html',
   styleUrl: './hero-ask.css'
@@ -364,7 +363,7 @@ export class HeroAsk {
       index = this.reducedMotion ? text.length : Math.min(index + 2, text.length);
       this.shown.set(text.slice(0, index));
       // Si el bocadillo es más bajo que el texto, lo va siguiendo hacia abajo
-      const box = this.host.nativeElement.querySelector('.bubble-scroll');
+      const box = this.host.nativeElement.querySelector('.gm-bubble__scroll');
       if (box) {
         box.scrollTop = box.scrollHeight;
       }
@@ -393,7 +392,7 @@ export class HeroAsk {
     const vw = document.documentElement.clientWidth;
     const vh = window.innerHeight;
     // El dibujo se recorta para cubrir su lienzo (que ocupa toda la ventana, barra incluida)
-    const scene = document.querySelector('.hero .hero-bg')?.getBoundingClientRect();
+    const scene = document.querySelector('.scene-bg')?.getBoundingClientRect();
     const sceneWidth = scene?.width || vw;
     const sceneHeight = scene?.height || vh;
     const imageWidth = Math.max(sceneWidth, sceneHeight * IMAGE_RATIO);
@@ -477,7 +476,7 @@ export class HeroAsk {
       width = vw - MARGIN * 2;
       const above = content.querySelector('.hero-subtitle') ?? content.querySelector('h1') ?? content;
       top = above.getBoundingClientRect().bottom + scrollY + 8;
-      const belowTop = (content.querySelector('.ask-form')?.getBoundingClientRect().top ?? vh) + scrollY;
+      const belowTop = (content.querySelector('.gm-chat-input')?.getBoundingClientRect().top ?? vh) + scrollY;
       maxHeight = Math.max(140, belowTop - 8 - top);
     }
 

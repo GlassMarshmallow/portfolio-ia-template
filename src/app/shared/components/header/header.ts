@@ -1,10 +1,9 @@
 import { Component, ElementRef, signal, viewChild } from '@angular/core';
-import { Icon } from '../icon/icon';
 
 @Component({
   selector: 'app-header',
-  imports: [Icon],
   templateUrl: './header.html',
+  styleUrl: './header.css',
   host: {
     '(document:keydown.escape)': 'closeMenu()',
     '(document:keydown.tab)': 'trapFocus($event)'
@@ -40,8 +39,8 @@ export class Header {
 
   openMenu() {
     this.menuOpen.set(true);
-    // Lleva el foco dentro del menú al abrirlo
-    setTimeout(() => this.closeButton().nativeElement.focus());
+    // Lleva el foco al primer enlace del menú al abrirlo (como el menú de GlassMarshmallow)
+    setTimeout(() => this.closeButton().nativeElement.closest('.gm-fullscreen-menu')!.querySelector<HTMLElement>('a')?.focus(), 50);
   }
 
   // Con el menú abierto, el Tab da la vuelta dentro del menú en lugar de salir a la página de detrás.
@@ -49,7 +48,7 @@ export class Header {
     if (!this.menuOpen()) {
       return;
     }
-    const menu = this.closeButton().nativeElement.closest('.mobile-menu')!;
+    const menu = this.closeButton().nativeElement.closest('.gm-fullscreen-menu')!;
     const focusables = [...menu.querySelectorAll<HTMLElement>('button, a[href]')];
     const first = focusables[0];
     const last = focusables[focusables.length - 1];

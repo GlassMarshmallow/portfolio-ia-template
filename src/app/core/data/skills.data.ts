@@ -1,5 +1,4 @@
 // Lista de tecnologías: la usan las tarjetas de Habilidades y la franja del inicio.
-import type { BootstrapIconName } from '../../shared/icons/bootstrap-icons';
 import type { Skill, SkillGroup } from '../models/skill.models';
 import {
   type SimpleIcon,
@@ -40,7 +39,7 @@ import {
 
 // Logos de Simple Icons (CC0). Las que no tienen logo en la colección llevan un icono genérico.
 
-// Iconos de categoría (nombres de Bootstrap Icons, ver bootstrap-icons.ts)
+// Iconos de categoría (nombres de los iconos de GlassMarshmallow, sin «gmi-»)
 const CATEGORY_ICONS = {
   code: 'code-slash',
   window: 'window',
@@ -48,7 +47,7 @@ const CATEGORY_ICONS = {
   tools: 'tools',
   ai: 'stars',
   palette: 'palette'
-} satisfies Record<string, BootstrapIconName>;
+};
 
 const skill = (name: string, ...icons: SimpleIcon[]): Skill => ({ name, icons });
 

@@ -1,36 +1,36 @@
 <!-- Preguntas sobre ti o, en modo "Quiero un proyecto", respuestas al formulario inteligente -->
-<form class="ask-form" (submit)="$event.preventDefault(); submit()" [attr.role]="mode() === 'intake' ? null : 'search'"
+<form class="gm-chat-input" (submit)="$event.preventDefault(); submit()" [attr.role]="mode() === 'intake' ? null : 'search'"
       [attr.aria-label]="mode() === 'intake' ? 'Cuéntame tu proyecto' : 'Pregúntame sobre mi trabajo'">
-  <label for="ask-input" class="sr-only">
+  <label for="ask-input" class="gm-visually-hidden">
     {{ mode() === 'intake' ? 'Escribe tu respuesta' : 'Escribe una pregunta sobre ' + profile.firstName }}
   </label>
-  <input id="ask-input" type="text" class="ask-input" [attr.maxlength]="maxLength()" autocomplete="off"
+  <input id="ask-input" type="text" class="gm-chat-input__field" [attr.maxlength]="maxLength()" autocomplete="off"
          [placeholder]="mode() === 'intake' ? 'Escribe tu respuesta…' : 'Pregúntame lo que quieras…'"
          [value]="question()" (input)="onInput($event)" [disabled]="status() === 'thinking'">
-  <button type="submit" class="ask-send" [attr.aria-label]="mode() === 'intake' ? 'Enviar respuesta' : 'Enviar pregunta'"
+  <button type="submit" class="gm-chat-input__send" [attr.aria-label]="mode() === 'intake' ? 'Enviar respuesta' : 'Enviar pregunta'"
           [disabled]="status() === 'thinking' || question().trim().length < minLength()">
-    <app-icon name="arrow-up-circle-fill" />
+    <i class="gmi gmi-arrow-up-circle-fill" aria-hidden="true"></i>
   </button>
 </form>
 
 <div class="ask-suggestions">
   @if (mode() === 'intake') {
     <!-- Mientras se rellena el proyecto: salir (queda guardado) o empezar de cero -->
-    <button type="button" class="ask-chip" (click)="leaveIntake()">Salir (lo guardo para luego)</button>
-    <button type="button" class="ask-chip" (click)="restartIntake()" [disabled]="status() === 'thinking'">Empezar de nuevo</button>
+    <button type="button" class="gm-chip" (click)="leaveIntake()">Salir (lo guardo para luego)</button>
+    <button type="button" class="gm-chip" (click)="restartIntake()" [disabled]="status() === 'thinking'">Empezar de nuevo</button>
   } @else {
     <!-- Preguntas rápidas: en móvil, una sola fila que se desliza de lado -->
-    <div class="ask-quick">
+    <div class="gm-scroll-row gm-scroll-row--mobile ask-quick" role="group" aria-label="Preguntas rápidas">
       @for (suggestion of suggestions; track suggestion) {
         <!-- Mientras piensa siguen enfocables (aria-disabled, no disabled): si no, la fila deslizable del móvil
              se quedaría sin nada que alcanzar con el teclado. ask() ya no hace nada mientras piensa. -->
-        <button type="button" class="ask-chip" (click)="ask(suggestion)" [attr.aria-disabled]="status() === 'thinking' ? 'true' : null">
+        <button type="button" class="gm-chip" (click)="ask(suggestion)" [attr.aria-disabled]="status() === 'thinking' ? 'true' : null">
           {{ suggestion }}
         </button>
       }
     </div>
-    <button type="button" class="ask-chip ask-chip-project" (click)="startIntake()" [disabled]="status() === 'thinking'">
-      <app-icon name="stars" />
+    <button type="button" class="gm-chip gm-chip--accent" (click)="startIntake()" [disabled]="status() === 'thinking'">
+      <i class="gmi gmi-stars" aria-hidden="true"></i>
       {{ hasSaved() ? 'Seguir con mi proyecto' : 'Quiero un proyecto' }}
     </button>
   }
@@ -40,7 +40,7 @@
 <app-ai-notice />
 
 <!-- Para lectores de pantalla: la respuesta completa de una vez (el bocadillo se escribe letra a letra) -->
-<p class="sr-only" aria-live="polite">
+<p class="gm-visually-hidden" aria-live="polite">
   @if (status() === 'thinking') { Pensando la respuesta… }
   @if ((status() === 'answer' || status() === 'error') && done()) {
     @if (resumed()) { Seguimos donde lo dejamos. }
@@ -48,34 +48,37 @@
   }
 </p>
 
-<!-- Burbujas sobre la escena. El texto que se escribe letra a letra es decorativo (se anuncia arriba);
+<!-- Bocadillo sobre la escena. El texto que se escribe letra a letra es decorativo (se anuncia arriba);
      el resumen final del proyecto sí es contenido accesible, con su casilla y sus botones. -->
 @if (visible()) {
   <div class="ask-stage"
-       [class.on-left]="placement().side === 'left'"
-       [class.on-right]="placement().side === 'right'"
-       [class.tail-low]="placement().side === 'right' && placement().tailBottom > 0"
-       [style.--tail-bottom.px]="placement().tailBottom"
        [style.left.px]="placement().left"
        [style.top.px]="placement().top"
        [style.bottom.px]="placement().bottom"
        [style.width.px]="placement().width"
        [style.max-height.px]="placement().maxHeight">
-    <div class="bubble-answer" [class.is-error]="status() === 'error'">
+    <!-- Cola hacia la cara: a la derecha si el bocadillo está delante (a su izquierda), a la izquierda si está
+         detrás; en el móvil va encima, a todo el ancho y sin cola -->
+    <div class="gm-bubble"
+         [class.gm-bubble--error]="status() === 'error'"
+         [class.gm-bubble--tail-end]="placement().side === 'left'"
+         [class.gm-bubble--tail-start]="placement().side === 'right'"
+         [class.gm-bubble--tail-bottom]="placement().side === 'right' && placement().tailBottom > 0"
+         [style.--gm-bubble-tail-y.px]="placement().tailBottom > 0 ? placement().tailBottom : null">
       <!-- Se puede enfocar con el teclado para desplazar el texto con las flechas cuando no cabe (WCAG 2.1.1) -->
-      <div class="bubble-scroll" tabindex="0" role="region" aria-label="Respuesta">
+      <div class="gm-bubble__scroll" tabindex="0" role="region" aria-label="Respuesta">
         <!-- Mientras se escribe letra a letra es decorativo (se anuncia arriba); al terminar, sus enlaces se
              pueden usar también con teclado y lector de pantalla -->
-        <div class="bubble-text" [attr.aria-hidden]="done() && status() !== 'thinking' && shown() === fullAnswer() ? null : 'true'">
+        <div [attr.aria-hidden]="done() && status() !== 'thinking' && shown() === fullAnswer() ? null : 'true'">
           @if (resumed() && done()) {
-            <span class="bubble-note">Seguimos donde lo dejamos</span>
+            <span class="gm-bubble__note">Seguimos donde lo dejamos</span>
           }
           @if (status() === 'thinking') {
-            <span class="typing"><span></span><span></span><span></span></span>
+            <span class="gm-typing"><span></span><span></span><span></span></span>
           } @else {
             @for (part of shownParts(); track $index) {
               @if (part.href) {
-                <a class="bubble-link" [href]="part.href" [attr.aria-label]="part.label"
+                <a [href]="part.href" [attr.aria-label]="part.label"
                    [attr.target]="part.external ? '_blank' : null" [attr.rel]="part.external ? 'noopener' : null">{{ part.text }}</a>
               } @else {{{ part.text }}}
             }
@@ -87,7 +90,7 @@
                               [(privacy)]="privacy" (send)="sendIntake()" (correct)="correct()" />
         }
       </div>
-      <button type="button" class="bubble-close" tabindex="-1" aria-hidden="true" (click)="close()"><app-icon name="x" /></button>
+      <button type="button" class="gm-bubble__close" tabindex="-1" aria-hidden="true" (click)="close()"><i class="gmi gmi-x" aria-hidden="true"></i></button>
     </div>
   </div>
 }

@@ -1,57 +1,44 @@
-<section id="home" class="hero container-fluid p-0" [class.is-paused]="paused()" [class.no-scene]="!hasScene" aria-label="Inicio">
-  <div class="row g-0">
-    <!-- Fondos animados (la ilustración se configura en src/app/core/data/hero.data.ts) -->
-    <canvas #scene class="hero-bg" role="img" [attr.aria-label]="heroDescription" [attr.aria-hidden]="hasScene ? null : 'true'"></canvas>
-    <canvas #glow class="hero-bg crt-glow" aria-hidden="true"></canvas>
-    <div class="hero-dim" aria-hidden="true"></div>
+<section id="home" class="hero" aria-label="Inicio">
+  <!-- Descripción del dibujo animado de fondo (el dibujo está en el fondo de la página, src/app/core/data/hero.data.ts) -->
+  @if (hasScene) {
+    <span class="gm-visually-hidden" role="img" [attr.aria-label]="heroDescription"></span>
+  }
 
-    <!-- Efecto de televisor antiguo -->
-    <div class="film-grain" aria-hidden="true"></div>
-    <div class="film-scanlines" aria-hidden="true"></div>
-    <div class="film-vignette" aria-hidden="true"></div>
-    <div class="crt-curve" aria-hidden="true"></div>
+  <!-- Contenido centrado -->
+  <div class="content">
+    @if (profile.photo) {
+      <img class="hero-photo" [src]="profile.photo" [alt]="'Foto de ' + profile.fullName" width="240" height="240">
+    }
+    <h1 class="gm-text-outline">Hola, soy <span class="accent">{{ profile.firstName }}</span>,</h1>
+    <p class="hero-subtitle gm-text-outline">{{ profile.role }}.</p>
 
-    <!-- Contenido centrado -->
-    <div class="content text-center">
-      @if (profile.photo) {
-        <img class="hero-photo" [src]="profile.photo" [alt]="'Foto de ' + profile.fullName" width="240" height="240">
-      }
-      <h1>Hola, soy <span class="accent">{{ profile.firstName }}</span>,</h1>
-      <p class="hero-subtitle">{{ profile.role }}.</p>
-
-      <!-- Redes (solo en ordenador: en el móvil están en «Conectemos», al final) -->
-      <div class="socials d-flex justify-content-center gap-4 mt-4">
-        <!-- Mail -->
-        <button class="copy-email" aria-label="Copiar dirección de correo" type="button" (click)="copyEmail()">
-          <app-icon name="envelope-fill" />
-        </button>
-
-        <!-- GitHub -->
-        <a [href]="githubUrl" aria-label="GitHub (se abre en una pestaña nueva)" target="_blank" rel="noopener">
-          <app-icon name="github" />
-        </a>
-
-        <!-- LinkedIn -->
-        <a [href]="linkedinUrl" aria-label="LinkedIn (se abre en una pestaña nueva)" target="_blank" rel="noopener">
-          <app-icon name="linkedin" />
-        </a>
-      </div>
-
-      <p class="copy-msg" id="copyMsg" role="status" [class.visible]="copied()">@if (copied()) { ¡Correo copiado! }</p>
-
-      <!-- Preguntas sobre ti respondidas por IA, con bocadillos sobre la escena -->
-      <app-hero-ask />
+    <!-- Redes (solo en ordenador: en el móvil están en «Conectemos», al final) -->
+    <div class="socials">
+      <button type="button" aria-label="Copiar dirección de correo" (click)="copyEmail()">
+        <i class="gmi gmi-envelope-fill" aria-hidden="true"></i>
+      </button>
+      <a [href]="githubUrl" aria-label="GitHub (se abre en una pestaña nueva)" target="_blank" rel="noopener">
+        <i class="gmi gmi-github" aria-hidden="true"></i>
+      </a>
+      <a [href]="linkedinUrl" aria-label="LinkedIn (se abre en una pestaña nueva)" target="_blank" rel="noopener">
+        <i class="gmi gmi-linkedin" aria-hidden="true"></i>
+      </a>
     </div>
 
-    <!-- Pausa / reanuda las animaciones del inicio (WCAG 2.2.2). Sin ilustración no se mueve nada (la franja
-         de logos y el grano se quedan quietos), así que no hace falta -->
-    @if (hasScene) {
-      <button type="button" class="pause-btn" (click)="togglePause()" [attr.aria-pressed]="paused()">
-        {{ paused() ? 'Reanudar animación' : 'Pausar animación' }}
-      </button>
-    }
+    <p class="copy-msg" role="status" [class.visible]="copied()">@if (copied()) { ¡Correo copiado! }</p>
 
-    <!-- Franja con los logos de las tecnologías, en la parte de abajo del dibujo -->
-    <app-skills-ticker class="hero-ticker" [moving]="hasScene" />
+    <!-- Preguntas sobre ti respondidas por IA, con bocadillos sobre la escena -->
+    <app-hero-ask />
   </div>
+
+  <!-- Pausa / reanuda las animaciones del inicio (WCAG 2.2.2). Sin ilustración no se mueve nada (la franja
+       de logos y el grano se quedan quietos), así que no hace falta -->
+  @if (hasScene) {
+    <button type="button" class="gm-btn gm-btn--secondary gm-btn--sm pause-btn" (click)="togglePause()" [attr.aria-pressed]="paused()">
+      {{ paused() ? 'Reanudar animación' : 'Pausar animación' }}
+    </button>
+  }
+
+  <!-- Franja con los logos de las tecnologías, en la parte de abajo del inicio -->
+  <app-skills-ticker class="hero-ticker" [moving]="hasScene" [paused]="paused()" />
 </section>

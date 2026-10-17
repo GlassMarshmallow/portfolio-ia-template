@@ -2,33 +2,32 @@ import { Component, inject, input } from '@angular/core';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { CloseButton } from '../close-button/close-button';
-import { SceneBackdrop } from '../scene-backdrop/scene-backdrop';
 import { SceneService } from '../../../core/services/scene.service';
 import { HAS_SCENE } from '../../utils/scene-animation';
 
 // Página de texto (privacidad, aviso legal…): título y contenido en una tarjeta con el estilo de la web,
-// con una ✕ para cerrarla (también con Escape). Detrás, el mismo dibujo animado del inicio, con su botón de pausa.
+// con una ✕ para cerrarla (también con Escape). Detrás se ve el fondo de la web; si hay dibujo animado, con su
+// botón de pausa.
 @Component({
   selector: 'app-text-page',
-  imports: [CloseButton, SceneBackdrop],
+  imports: [CloseButton],
   host: { '(document:keydown.escape)': 'close()' },
   template: `
-    <app-scene-backdrop />
-    <section class="text-page container">
-      <article class="text-card">
+    <section class="text-page gm-container">
+      <article class="gm-prose gm-prose--card">
         <header class="text-header">
           <h1>{{ title() }}</h1>
           <app-close-button label="Cerrar y volver" (closed)="close()" />
         </header>
         @if (updated()) {
-          <p class="text-updated">Última actualización: {{ updated() }}</p>
+          <p class="gm-prose__updated">Última actualización: {{ updated() }}</p>
         }
         <ng-content />
       </article>
     </section>
     <!-- Pausa / reanuda el dibujo animado de fondo (WCAG 2.2.2); el estado es el mismo que en el inicio -->
     @if (hasScene) {
-      <button type="button" class="pause-btn" (click)="paused.set(!paused())" [attr.aria-pressed]="paused()">
+      <button type="button" class="gm-btn gm-btn--secondary gm-btn--sm pause-btn" (click)="paused.set(!paused())" [attr.aria-pressed]="paused()">
         {{ paused() ? 'Reanudar animación' : 'Pausar animación' }}
       </button>
     }

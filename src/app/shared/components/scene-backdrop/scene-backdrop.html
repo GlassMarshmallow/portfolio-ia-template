@@ -1,9 +1,14 @@
-@if (!hasScene) {
-  <div class="scene-fallback" aria-hidden="true"></div>
-}
-<canvas #scene class="scene-bg" [hidden]="!hasScene" aria-hidden="true"></canvas>
-<canvas #glow class="scene-bg crt-glow" [hidden]="!hasScene" aria-hidden="true"></canvas>
-<div class="film-grain" aria-hidden="true"></div>
-<div class="film-scanlines" aria-hidden="true"></div>
-<div class="film-vignette" aria-hidden="true"></div>
-<div class="crt-curve" aria-hidden="true"></div>
+<!-- Fondo de GlassMarshmallow (luces, puntos, grano y efecto de televisor) con, encima de las luces, el dibujo
+     animado si lo hay (src/app/core/data/hero.data.ts). Decorativo: la descripción del dibujo está en el inicio. -->
+<div class="gm-backdrop" [class.has-scene]="hasScene" aria-hidden="true">
+  <div class="gm-backdrop__dots"></div>
+  @if (hasScene) {
+    <canvas #scene class="scene-bg"></canvas>
+    <canvas #glow class="scene-bg crt-glow"></canvas>
+    <div class="scene-dim" [style.opacity]="dim()"></div>
+  }
+  <div class="gm-backdrop__grain"></div>
+  <div class="gm-backdrop__scanlines"></div>
+  <div class="gm-backdrop__vignette"></div>
+  <div class="gm-backdrop__curve"></div>
+</div>

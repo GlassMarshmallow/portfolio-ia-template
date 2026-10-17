@@ -1,43 +1,36 @@
 <!-- Enlace para saltar directamente al contenido con el teclado -->
-<a class="skip-link" href="#main-content">Saltar al contenido</a>
+<a class="gm-skip-link" href="#main-content">Saltar al contenido</a>
 
-<header class="container-fluid sticky-top p-0">
-  <div class="nav-wrapper">
-    <div class="hamburger-bar">
-      <button #openButton class="hamburger-btn" id="openMenu" type="button" aria-label="Abrir menú"
-              aria-controls="mobileMenu" [attr.aria-expanded]="menuOpen()" (click)="openMenu()">
-        <app-icon name="list" class="hamburger-icon" />
-      </button>
-    </div>
+<header class="gm-navbar site-header">
+  <nav class="gm-navbar__nav" aria-label="Principal">
+    @for (link of links; track link.href) {
+      <a [href]="link.href">{{ link.label }}</a>
+    }
+  </nav>
 
+  <div class="gm-navbar__actions">
     <!-- Cambiar entre modo oscuro y claro -->
-    <button type="button" class="theme-toggle" (click)="toggleTheme()" [attr.aria-pressed]="lightTheme()"
+    <button type="button" class="gm-icon-btn" (click)="toggleTheme()" [attr.aria-pressed]="lightTheme()"
             [attr.aria-label]="lightTheme() ? 'Activar modo oscuro' : 'Activar modo claro'">
-      @if (lightTheme()) {
-        <app-icon name="moon" />
-      } @else {
-        <app-icon name="sun" />
-      }
+      <i class="gmi" [class.gmi-moon]="lightTheme()" [class.gmi-sun]="!lightTheme()" aria-hidden="true"></i>
     </button>
 
-    <nav class="w-100" aria-label="Principal">
-      <ul class="nav nav-underline justify-content-center py-3">
-        @for (link of links; track link.href) {
-          <li class="nav-item"><a class="nav-link" [href]="link.href">{{ link.label }}</a></li>
-        }
-      </ul>
-    </nav>
+    <!-- Menú a pantalla completa (solo en el móvil) -->
+    <button #openButton type="button" class="gm-icon-btn gm-icon-btn--glass menu-btn" aria-label="Abrir menú"
+            aria-controls="mobileMenu" [attr.aria-expanded]="menuOpen()" (click)="openMenu()">
+      <i class="gmi gmi-list" aria-hidden="true"></i>
+    </button>
   </div>
 </header>
 
-<!-- MENÚ FULLSCREEN (móvil): cerrado no se puede alcanzar con el teclado -->
-<div class="mobile-menu" id="mobileMenu" role="dialog" aria-modal="true" aria-label="Menú"
-     [class.active]="menuOpen()" [attr.inert]="menuOpen() ? null : ''">
-  <button #closeButton class="close-menu-btn" id="closeMenu" type="button" aria-label="Cerrar menú"
-          (click)="closeMenu()"><app-icon name="x-lg" /></button>
+<!-- MENÚ A PANTALLA COMPLETA (móvil): cerrado no se puede alcanzar con el teclado -->
+<div class="gm-fullscreen-menu" id="mobileMenu" role="dialog" aria-modal="true" aria-label="Menú"
+     [class.is-open]="menuOpen()" [attr.inert]="menuOpen() ? null : ''">
+  <button #closeButton type="button" class="gm-icon-btn gm-icon-btn--glass gm-fullscreen-menu__close"
+          aria-label="Cerrar menú" (click)="closeMenu()"><i class="gmi gmi-x-lg" aria-hidden="true"></i></button>
 
   <nav aria-label="Menú móvil">
-    <ul class="mobile-menu-links">
+    <ul class="gm-fullscreen-menu__links">
       @for (link of mobileLinks; track link.href) {
         <li><a [href]="link.href" (click)="closeMenu(false)">{{ link.label }}</a></li>
       }

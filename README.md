@@ -445,4 +445,4 @@ Como prohíbe el uso comercial, técnicamente no es «open source» según la de
 
 Al pie de la web hay una línea de créditos («Hecho con portfolio-ia-template · Licencia PolyForm Noncommercial»). **No es obligatoria, pero se agradece mucho que la mantengas.**
 
-Los logos de tecnologías son de [Simple Icons](https://simpleicons.org) (CC0) y los iconos, de [Bootstrap Icons](https://icons.getbootstrap.com) (MIT). Las marcas pertenecen a sus dueños. **No se incluye ninguna ilustración**: la animación del inicio es para tu propio dibujo.
+Los logos de tecnologías son de [Simple Icons](https://simpleicons.org) (CC0) y el aspecto y los iconos, de [GlassMarshmallow](https://github.com/spyamuza/glassmarshmallow) (MIT). Las marcas pertenecen a sus dueños. **No se incluye ninguna ilustración**: la animación del inicio es para tu propio dibujo.

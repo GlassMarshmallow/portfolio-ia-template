@@ -1,51 +1,38 @@
-<footer class="footer container-fluid py-5" id="contacto">
-  <div class="container">
+<footer class="gm-footer" id="contacto">
+  <div class="gm-container">
+    <h2>Conectemos</h2>
 
-    <!-- FILA SUPERIOR -->
-    <div class="row justify-content-center text-center mb-4">
-      <div class="col-12">
-        <h2>Conectemos</h2>
-      </div>
-
-      <div class="col-12 d-flex justify-content-center gap-4 socials mt-3">
-        <a [href]="'mailto:' + profile.email" [attr.aria-label]="'Enviar un correo a ' + profile.email">
-          <app-icon name="envelope-fill" />
-        </a>
-
-        <a [href]="githubUrl" aria-label="GitHub (se abre en una pestaña nueva)" target="_blank" rel="noopener">
-          <app-icon name="github" />
-        </a>
-
-        <a [href]="linkedinUrl" aria-label="LinkedIn (se abre en una pestaña nueva)" target="_blank" rel="noopener">
-          <app-icon name="linkedin" />
-        </a>
-      </div>
+    <div class="gm-footer__socials">
+      <a [href]="'mailto:' + profile.email" [attr.aria-label]="'Enviar un correo a ' + profile.email">
+        <i class="gmi gmi-envelope-fill" aria-hidden="true"></i>
+      </a>
+      <a [href]="githubUrl" aria-label="GitHub (se abre en una pestaña nueva)" target="_blank" rel="noopener">
+        <i class="gmi gmi-github" aria-hidden="true"></i>
+      </a>
+      <a [href]="linkedinUrl" aria-label="LinkedIn (se abre en una pestaña nueva)" target="_blank" rel="noopener">
+        <i class="gmi gmi-linkedin" aria-hidden="true"></i>
+      </a>
     </div>
 
-    <!-- ENLACES LEGALES -->
-    <nav class="legal-links" aria-label="Información legal">
-      <button type="button" class="legal-link" (click)="aiInfo.open()">Información sobre la IA</button>
+    <nav class="gm-footer__links" aria-label="Información legal">
+      <button type="button" (click)="aiInfo.open()">Información sobre la IA</button>
       <span aria-hidden="true">·</span>
-      <a class="legal-link" routerLink="/privacidad">Privacidad</a>
+      <a routerLink="/privacidad">Privacidad</a>
       <span aria-hidden="true">·</span>
-      <a class="legal-link" routerLink="/aviso-legal">Aviso legal</a>
+      <a routerLink="/aviso-legal">Aviso legal</a>
     </nav>
 
-    <!-- FILA INFERIOR -->
-    <div class="row">
-      <div class="col-12 text-center mt-4 bottom">
-        <p>{{ year }} · <span class="brand">{{ profile.fullName }}</span> · Portfolio</p>
-        <!-- Créditos de la plantilla: se agradece mantenerlos (ver README → Licencia) -->
-        <p class="template-credit">
-          Hecho con
-          <a class="legal-link" href="https://github.com/spyamuza/portfolio-ia-template" target="_blank" rel="noopener"
-             aria-label="portfolio-ia-template (se abre en una pestaña nueva)">portfolio-ia-template</a>
-          · Licencia
-          <a class="legal-link" href="https://polyformproject.org/licenses/noncommercial/1.0.0/" target="_blank" rel="noopener"
-             aria-label="PolyForm Noncommercial (se abre en una pestaña nueva)">PolyForm Noncommercial</a>
-        </p>
-      </div>
-    </div>
-
+    <p class="gm-footer__bottom">{{ year }} · <strong>{{ profile.fullName }}</strong> · Portfolio</p>
+    <!-- Créditos de la plantilla: se agradece mantenerlos (ver README → Licencia) -->
+    <p class="gm-footer__credit">
+      Hecho con
+      <a href="https://github.com/spyamuza/portfolio-ia-template" target="_blank" rel="noopener"
+         aria-label="portfolio-ia-template (se abre en una pestaña nueva)">portfolio-ia-template</a>
+      y <a href="https://github.com/spyamuza/glassmarshmallow" target="_blank" rel="noopener"
+         aria-label="GlassMarshmallow (se abre en una pestaña nueva)">GlassMarshmallow</a>
+      · Licencia
+      <a href="https://polyformproject.org/licenses/noncommercial/1.0.0/" target="_blank" rel="noopener"
+         aria-label="PolyForm Noncommercial (se abre en una pestaña nueva)">PolyForm Noncommercial</a>
+    </p>
   </div>
 </footer>

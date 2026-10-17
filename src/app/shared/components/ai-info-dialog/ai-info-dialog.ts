@@ -8,8 +8,7 @@ import { PROFILE } from '../../../core/data/profile.data';
 @Component({
   selector: 'app-ai-info-dialog',
   imports: [CloseButton],
-  templateUrl: './ai-info-dialog.html',
-  styleUrl: './ai-info-dialog.css'
+  templateUrl: './ai-info-dialog.html'
 })
 export class AiInfoDialog {
   protected readonly profile = PROFILE;
