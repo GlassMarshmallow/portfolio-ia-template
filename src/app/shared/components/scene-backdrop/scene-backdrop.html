@@ -5,8 +5,9 @@
   @if (hasScene) {
     <canvas #scene class="scene-bg"></canvas>
     <canvas #glow class="scene-bg crt-glow"></canvas>
-    <div class="scene-dim" [style.opacity]="dim()"></div>
   }
+  <!-- Al bajar por el inicio, el fondo se oscurece (se aclara de día) para que se lean las secciones -->
+  <div class="scene-dim" [style.opacity]="dim()"></div>
   <div class="gm-backdrop__grain"></div>
   <div class="gm-backdrop__scanlines"></div>
   <div class="gm-backdrop__vignette"></div>

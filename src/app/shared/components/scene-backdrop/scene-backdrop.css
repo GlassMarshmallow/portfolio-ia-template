@@ -30,7 +30,7 @@
   animation: none;
 }
 
-/* Al bajar por el inicio, el dibujo se funde con el fondo para que los textos se lean bien */
+/* Al bajar por el inicio, el fondo (luces o dibujo) se funde con su color para que los textos se lean bien */
 .scene-dim {
   background: var(--gm-backdrop-bg);
 }
