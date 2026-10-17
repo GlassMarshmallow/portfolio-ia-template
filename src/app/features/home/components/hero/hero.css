@@ -39,18 +39,12 @@
   color: var(--gm-accent);
 }
 
-/* Foto en un círculo encima del saludo, con el marco de las luces del dibujo */
+/* Foto con el marco de las luces (gm-avatar--ring): 240 px; en pantallas bajas, algo menos para que quepa
+   todo el inicio */
 .hero-photo {
-  display: block;
-  /* 240 px; en pantallas bajas, algo menos para que quepa todo el inicio */
-  width: clamp(130px, 30vh - 40px, 240px);
-  height: clamp(130px, 30vh - 40px, 240px);
+  --gm-avatar-size: clamp(130px, 30vh - 40px, 240px);
+  display: grid;
   margin: 0 auto 1.5rem;
-  padding: 4px;
-  border-radius: 50%;
-  object-fit: cover;
-  background: var(--gm-lights-gradient);
-  box-shadow: var(--gm-bubble-shadow);
 }
 
 /* Correo, GitHub y LinkedIn: iconos grandes de 44 px como mínimo */
@@ -119,10 +113,8 @@
 /* Móvil: título de unos 32 px (cabe en una línea) y subtítulo de unos 20 px, en proporción */
 @media (max-width: 600px) {
   .hero-photo {
-    width: 140px;
-    height: 140px;
+    --gm-avatar-size: 140px;
     margin-bottom: .75rem;
-    padding: 3px;
   }
 
   .content h1 {
