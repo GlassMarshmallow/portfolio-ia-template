@@ -60,3 +60,10 @@
     animation: none;
   }
 }
+
+/* Quieta (sin ilustración animada): los logos que caben, centrados */
+:host(.static) .ticker-track {
+  width: auto;
+  justify-content: center;
+  animation: none;
+}

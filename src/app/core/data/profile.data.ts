@@ -9,6 +9,11 @@ export const PROFILE = {
   fullName: 'Alex Ejemplo',
   /** Cómo te llaman: "Hola, soy …" y los textos del chat */
   firstName: 'Alex',
+  /**
+   * Tu foto, en un círculo encima del saludo. Pon la tuya en public/assets/perfil/ (cuadrada, unos 480×480 px,
+   * en JPG o WebP) y su ruta aquí. Sin foto: null.
+   */
+  photo: 'assets/perfil/foto.jpg' as string | null,
   /** Lo que eres, en minúscula: aparece bajo el saludo ("desarrolladora full-stack", "diseñador UX"…) */
   role: 'desarrollador full-stack',
   /** Ciudad y país, para el aviso legal */

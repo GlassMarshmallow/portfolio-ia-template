@@ -116,6 +116,21 @@
   filter: drop-shadow(0 0 1px #000) drop-shadow(0 2px 6px rgba(0, 0, 0, 0.9));
 }
 
+/* Foto en un círculo encima del saludo. Marco como el resto de la web: en oscuro, turquesa con un brillo
+   suave (como el bocadillo del chat); en claro, el degradado de acento (abajo) */
+.hero-photo {
+  display: block;
+  /* 240 px; en pantallas bajas, algo menos para que quepa todo el inicio */
+  width: clamp(130px, 30vh - 40px, 240px);
+  height: clamp(130px, 30vh - 40px, 240px);
+  margin: 0 auto 1.5rem;
+  padding: 4px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #1cabb0;
+  box-shadow: 0 0 0 1px rgba(28, 171, 176, 0.35), 0 0 28px rgba(28, 171, 176, 0.35), 0 8px 28px rgba(0, 0, 0, 0.45);
+}
+
 /* Franja de tecnologías pegada al borde inferior del dibujo, por encima de los efectos */
 .hero-ticker {
   position: absolute;
@@ -166,13 +181,17 @@
 /* Ordenador: el bloque (saludo, iconos, chat y aviso) abajo, justo encima de la franja de logos, en vez de
    centrado en vertical; así el dibujo queda más despejado */
 @media (min-width: 768px) {
+  /* Si el contenido no cabe (pantallas bajas), el inicio crece en vez de meterse bajo el menú */
   .hero {
+    height: auto;
+    min-height: 100vh;
     align-items: flex-end;
   }
 
   .hero > .row {
     width: 100%;
     justify-content: center;
+    padding-top: 90px;
     padding-bottom: 5rem;
   }
 
@@ -240,6 +259,13 @@
   display: none;
 }
 
+/* Modo claro: el marco de la foto con el degradado de acento y una sombra suave, sin brillo */
+:host-context(html[data-theme="light"]) .hero-photo {
+  padding: 5px;
+  background: var(--accent-gradient);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
 /* Modo claro: los iconos del inicio (en negro) llevan un halo blanco en lugar de la sombra oscura */
 :host-context(html[data-theme="light"]) .hero .content .socials svg {
   filter: drop-shadow(0 0 1px #ffffff) drop-shadow(0 2px 6px rgba(255, 255, 255, 0.9));
@@ -254,6 +280,13 @@
 
 /* En móvil: título de unos 32 px (cabe en una línea) y subtítulo de unos 20 px, en proporción */
 @media (max-width: 600px) {
+  .hero-photo {
+    width: 140px;
+    height: 140px;
+    margin-bottom: 0.75rem;
+    padding: 3px;
+  }
+
   .hero .content h1 {
     font-size: clamp(1.75rem, 8.5vw, 2.1rem);
     margin-bottom: 0.75rem;
@@ -330,6 +363,10 @@
 }
 
 /* ===== Sin ilustración (HERO.frames vacío): fondo degradado fijo, con los colores de acento ===== */
+.hero.no-scene .film-grain {
+  animation: none;
+}
+
 .hero.no-scene .hero-bg {
   display: none;
 }

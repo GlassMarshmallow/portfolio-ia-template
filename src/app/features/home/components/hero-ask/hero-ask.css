@@ -207,7 +207,8 @@
 
 /* Delante de la cara: cola a la derecha, a la altura de la cara, pero siempre en el tramo recto del borde
    (en las esquinas redondeadas quedaba despegada). --tail-y es la altura desde abajo. */
-.on-left .bubble-answer {
+.on-left .bubble-answer,
+.tail-low .bubble-answer {
   /* (en un bocadillo de una sola línea, centrada en el lado) */
   --tail-y: clamp(min(18px, calc(50% - 9px)), var(--tail-bottom, 1.1rem), max(calc(100% - 36px), calc(50% - 9px)));
 }
@@ -239,6 +240,17 @@
   left: -11px;
   border-width: 8px 12px 8px 0;
   border-color: transparent #1c1c1e transparent transparent;
+}
+
+/* A la derecha de la foto: la cola, a la altura de la foto (medida desde abajo, como delante de la cara) */
+.on-right.tail-low .bubble-answer::before {
+  top: auto;
+  bottom: var(--tail-y);
+}
+
+.on-right.tail-low .bubble-answer::after {
+  top: auto;
+  bottom: calc(var(--tail-y) + 1px);
 }
 
 .bubble-answer.is-error {

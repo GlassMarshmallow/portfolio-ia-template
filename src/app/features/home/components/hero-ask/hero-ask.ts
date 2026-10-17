@@ -411,18 +411,44 @@ export class HeroAsk {
     // el bocadillo se recolocaba y bajaba con la página.
     const scrollY = window.scrollY;
     const titleTop = (content.querySelector('h1')?.getBoundingClientRect().top ?? vh) + scrollY;
+    // Hasta dónde puede bajar un bocadillo que ocupe de `from` a `to` en horizontal: hasta el título o, si
+    // pasa por encima de la foto (que va sobre el título), hasta la foto
+    const photo = content.querySelector('.hero-photo')?.getBoundingClientRect();
+    const limitFor = (from: number, to: number) =>
+      photo && from < photo.right && to > photo.left ? photo.top + scrollY : titleTop;
     // Coordenadas relativas al bloque de contenido (que es el contenedor posicionado)
     const box = content.getBoundingClientRect();
     const boxTop = box.top + scrollY;
     const faceX = (sceneWidth - imageWidth) / 2 + FACE.x * imageWidth;
     const faceY = (sceneHeight - imageHeight) / 2 + FACE.y * imageHeight;
 
+    // Escritorio con foto: el bocadillo sale a su lado, con la cola hacia ella (la foto es quien "habla")
+    if (vw >= 768 && photo) {
+      const photoMiddle = (photo.top + photo.bottom) / 2 + scrollY;
+      const spaceLeft = photo.left - TAIL - 6 - MARGIN;
+      const spaceAfter = vw - photo.right - TAIL - 6 - MARGIN;
+      if (spaceLeft >= 220 || spaceAfter >= 220) {
+        const onLeft = spaceLeft >= spaceAfter;
+        const width = Math.min(BUBBLE_WIDTH, onLeft ? spaceLeft : spaceAfter);
+        const left = onLeft ? photo.left - TAIL - 6 - width : photo.right + TAIL + 6;
+        // Se apoya un poco por debajo de la mitad de la foto (sin bajar al título) y crece hacia arriba
+        const bottom = Math.min(photoMiddle + 40, titleTop - 12);
+        const maxHeight = Math.max(96, bottom - (navBottom + MARGIN));
+        const tailBottom = Math.max(12, Math.min(bottom - photoMiddle - 9, maxHeight - 30));
+        this.placement.set({
+          left: left - box.left, top: null, bottom: boxTop + box.height - bottom,
+          width, maxHeight, side: onLeft ? 'left' : 'right', tailBottom
+        });
+        return;
+      }
+    }
+
     if (vw >= 768 && faceX - TAIL - MARGIN >= 260) {
       // Escritorio: delante de su cara (mira a la izquierda, hacia el portátil), con la cola hacia ella.
       // Se ancla por abajo, a la altura de la cara (o encima del título), y crece hacia arriba.
       const width = Math.min(BUBBLE_WIDTH, faceX - TAIL - MARGIN);
       const left = faceX - TAIL - width;
-      const bottom = Math.min(faceY + 40, titleTop - 12);
+      const bottom = Math.min(faceY + 40, limitFor(left, left + width) - 12);
       // nunca por debajo del menú (en ventanas bajas queda más bajito y el texto se desplaza dentro)
       const maxHeight = Math.max(96, bottom - (navBottom + MARGIN));
       const tailBottom = Math.max(12, Math.min(bottom - faceY - 9, maxHeight - 30));
@@ -442,7 +468,7 @@ export class HeroAsk {
       side = 'right';
       width = Math.min(BUBBLE_WIDTH, spaceRight);
       left = headX + 40;
-      maxHeight = Math.max(140, titleTop - 12 - top);
+      maxHeight = Math.max(140, limitFor(left, left + width) - 12 - top);
     } else {
       // Móvil y tableta: a todo el ancho, en el hueco entre el saludo (arriba) y el chat (abajo); si no
       // cabe, el texto se desplaza dentro

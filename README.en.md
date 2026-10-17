@@ -20,7 +20,7 @@ A personal portfolio template for developers and creatives, with an **AI chat th
   <img src="docs/capturas/movil-oscuro.jpg" width="24%" alt="Mobile, dark mode">
 </p>
 
-This is how it looks without your own illustration (gradient background). You can add your animated drawing: see [Home animation](#home-animation).
+This is how it looks with the example photo and no illustration of your own (gradient background, nothing moving). Replace the photo with yours and, if you like, add your animated drawing: see [Home animation](#home-animation).
 
 > The website texts and the code comments are in Spanish. All visible texts can be translated in the files listed under [Customize](#customize).
 
@@ -214,6 +214,7 @@ Some services and their address (`BaseUrl`). You'll find the model names in each
 | What | Where |
 |---|---|
 | **Your name, role, email, GitHub, LinkedIn and "About me"** | `src/app/core/data/profile.data.ts` |
+| **Your photo** (in a circle above the greeting; the chat bubble appears next to it) | Put it in `public/assets/perfil/` (square, about 480 × 480 px) and its path in `photo` in `profile.data.ts`. No photo: `photo: null`. |
 | **What the AI knows about you** (experience, technologies, model answers…) | `api/perfil.md` |
 | **Name, email and links used by the AI** | `api/appsettings.json` → `"Perfil"` |
 | **Your skills and their logos** | `src/app/core/data/skills.data.ts` (logos from [Simple Icons](https://simpleicons.org)) |
@@ -400,7 +401,7 @@ If you already run Ollama somewhere else (another container or machine), skip th
   - Fully usable with the keyboard, with the focus always visible.
   - Dialogs that keep focus inside and close with Escape.
   - Screen-reader announcements and "reduce motion" support.
-  - A button to pause the animation.
+  - Without an illustration nothing moves; with your animated drawing, a button to pause it appears.
   - Check it after your changes with [axe DevTools](https://www.deque.com/axe/devtools/).
 - **Deployment security:**
   - The API doesn't run as root and has a memory limit.

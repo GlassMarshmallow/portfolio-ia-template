@@ -20,7 +20,7 @@ Plantilla de portfolio personal para desarrolladores y creativos, con un **chat 
   <img src="docs/capturas/movil-oscuro.jpg" width="24%" alt="Móvil, modo oscuro">
 </p>
 
-Así se ve sin ilustración propia (con fondo degradado). Puedes añadir tu dibujo animado: ver [Animación del inicio](#animación-del-inicio).
+Así se ve con la foto de ejemplo y sin ilustración propia (fondo degradado, sin nada en movimiento). Cambia la foto por la tuya y, si quieres, añade tu dibujo animado: ver [Animación del inicio](#animación-del-inicio).
 
 ---
 
@@ -212,6 +212,7 @@ Algunos servicios y su dirección (`BaseUrl`). El nombre del modelo lo encuentra
 | Qué | Dónde |
 |---|---|
 | **Tu nombre, rol, correo, GitHub, LinkedIn y «Sobre mí»** | `src/app/core/data/profile.data.ts` |
+| **Tu foto** (en un círculo encima del saludo; el bocadillo del chat sale a su lado) | Ponla en `public/assets/perfil/` (cuadrada, unos 480 × 480 px) y su ruta en `photo` de `profile.data.ts`. Sin foto: `photo: null`. |
 | **Lo que la IA sabe de ti** (experiencia, tecnologías, respuestas modelo…) | `api/perfil.md` |
 | **Nombre, correo y enlaces que usa la IA** | `api/appsettings.json` → `"Perfil"` |
 | **Tus habilidades y sus logos** | `src/app/core/data/skills.data.ts` (logos de [Simple Icons](https://simpleicons.org)) |
@@ -398,7 +399,7 @@ Si ya tienes Ollama en otro sitio (otro contenedor u otra máquina), no uses el 
   - Todo se puede usar con teclado, con el foco siempre visible.
   - Ventanas con el foco dentro, que se cierran con Escape.
   - Avisos para lectores de pantalla y «reducir movimiento».
-  - Botón para pausar la animación.
+  - Sin ilustración no se mueve nada; con tu dibujo animado aparece un botón para pausarlo.
   - Compruébalo tras tus cambios con [axe DevTools](https://www.deque.com/axe/devtools/).
 - **Seguridad del despliegue:**
   - La API no se ejecuta como administrador y tiene límite de memoria.

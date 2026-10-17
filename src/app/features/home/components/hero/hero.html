@@ -13,6 +13,9 @@
 
     <!-- Contenido centrado -->
     <div class="content text-center">
+      @if (profile.photo) {
+        <img class="hero-photo" [src]="profile.photo" [alt]="'Foto de ' + profile.fullName" width="240" height="240">
+      }
       <h1>Hola, soy <span class="accent">{{ profile.firstName }}</span>,</h1>
       <p class="hero-subtitle">{{ profile.role }}.</p>
 
@@ -40,12 +43,15 @@
       <app-hero-ask />
     </div>
 
-    <!-- Pausa / reanuda las animaciones del inicio (WCAG 2.2.2) -->
-    <button type="button" class="pause-btn" (click)="togglePause()" [attr.aria-pressed]="paused()">
-      {{ paused() ? 'Reanudar animación' : 'Pausar animación' }}
-    </button>
+    <!-- Pausa / reanuda las animaciones del inicio (WCAG 2.2.2). Sin ilustración no se mueve nada (la franja
+         de logos y el grano se quedan quietos), así que no hace falta -->
+    @if (hasScene) {
+      <button type="button" class="pause-btn" (click)="togglePause()" [attr.aria-pressed]="paused()">
+        {{ paused() ? 'Reanudar animación' : 'Pausar animación' }}
+      </button>
+    }
 
     <!-- Franja con los logos de las tecnologías, en la parte de abajo del dibujo -->
-    <app-skills-ticker class="hero-ticker" />
+    <app-skills-ticker class="hero-ticker" [moving]="hasScene" />
   </div>
 </section>

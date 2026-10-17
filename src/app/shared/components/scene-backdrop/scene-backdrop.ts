@@ -9,7 +9,7 @@ import { HAS_SCENE, startSceneAnimation } from '../../utils/scene-animation';
   selector: 'app-scene-backdrop',
   templateUrl: './scene-backdrop.html',
   styleUrl: './scene-backdrop.css',
-  host: { '[class.is-paused]': 'paused()' }
+  host: { '[class.is-paused]': 'paused()', '[class.no-scene]': '!hasScene' }
 })
 export class SceneBackdrop {
   protected readonly paused = inject(SceneService).paused;

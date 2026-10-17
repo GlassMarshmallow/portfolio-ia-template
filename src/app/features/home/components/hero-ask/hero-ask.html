@@ -54,6 +54,7 @@
   <div class="ask-stage"
        [class.on-left]="placement().side === 'left'"
        [class.on-right]="placement().side === 'right'"
+       [class.tail-low]="placement().side === 'right' && placement().tailBottom > 0"
        [style.--tail-bottom.px]="placement().tailBottom"
        [style.left.px]="placement().left"
        [style.top.px]="placement().top"

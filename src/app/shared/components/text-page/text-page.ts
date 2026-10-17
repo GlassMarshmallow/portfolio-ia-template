@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { CloseButton } from '../close-button/close-button';
 import { SceneBackdrop } from '../scene-backdrop/scene-backdrop';
 import { SceneService } from '../../../core/services/scene.service';
+import { HAS_SCENE } from '../../utils/scene-animation';
 
 // Página de texto (privacidad, aviso legal…): título y contenido en una tarjeta con el estilo de la web,
 // con una ✕ para cerrarla (también con Escape). Detrás, el mismo dibujo animado del inicio, con su botón de pausa.
@@ -26,9 +27,11 @@ import { SceneService } from '../../../core/services/scene.service';
       </article>
     </section>
     <!-- Pausa / reanuda el dibujo animado de fondo (WCAG 2.2.2); el estado es el mismo que en el inicio -->
-    <button type="button" class="pause-btn" (click)="paused.set(!paused())" [attr.aria-pressed]="paused()">
-      {{ paused() ? 'Reanudar animación' : 'Pausar animación' }}
-    </button>
+    @if (hasScene) {
+      <button type="button" class="pause-btn" (click)="paused.set(!paused())" [attr.aria-pressed]="paused()">
+        {{ paused() ? 'Reanudar animación' : 'Pausar animación' }}
+      </button>
+    }
   `,
   styleUrl: './text-page.css'
 })
@@ -36,6 +39,8 @@ export class TextPage {
   readonly title = input.required<string>();
   readonly updated = input('');
   protected readonly paused = inject(SceneService).paused;
+  /** Sin ilustración animada no se mueve nada: no hace falta el botón de pausa */
+  protected readonly hasScene = HAS_SCENE;
 
   private readonly router = inject(Router);
   private readonly location = inject(Location);
