@@ -1,4 +1,5 @@
-import { Component, ElementRef, signal, viewChild } from '@angular/core';
+import { Component, DestroyRef, ElementRef, afterNextRender, inject, signal, viewChild } from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
 
 @Component({
   selector: 'app-header',
@@ -24,6 +25,44 @@ export class Header {
   private readonly closeButton = viewChild.required<ElementRef<HTMLButtonElement>>('closeButton');
 
   protected readonly menuOpen = signal(false);
+  /** Enlace de la sección que se está viendo en el inicio (en negrita, aria-current="location"); fuera del inicio, ninguno */
+  protected readonly current = signal<string | null>(null);
+
+  constructor() {
+    const router = inject(Router);
+    let observer: IntersectionObserver | undefined;
+    // Una sección cuenta como «la que se ve» cuando cruza la mitad de la pantalla
+    const watch = () => {
+      observer?.disconnect();
+      this.current.set(null);
+      const sections = this.mobileLinks
+        .map(link => document.getElementById(link.href.split('#')[1]))
+        .filter((section): section is HTMLElement => !!section);
+      if (!sections.length) {
+        return;
+      }
+      observer = new IntersectionObserver(
+        entries => {
+          const visible = entries.find(entry => entry.isIntersecting);
+          if (visible) {
+            this.current.set(`/#${visible.target.id}`);
+          }
+        },
+        { rootMargin: '-50% 0px -50% 0px' }
+      );
+      sections.forEach(section => observer!.observe(section));
+    };
+    afterNextRender(() => watch());
+    const events = router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        setTimeout(watch);
+      }
+    });
+    inject(DestroyRef).onDestroy(() => {
+      events.unsubscribe();
+      observer?.disconnect();
+    });
+  }
   protected readonly lightTheme = signal(document.documentElement.dataset['theme'] === 'light');
 
   toggleTheme() {

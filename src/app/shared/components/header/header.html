@@ -4,7 +4,7 @@
 <header class="gm-navbar gm-navbar--centered gm-navbar--floating site-header">
   <nav class="gm-navbar__nav" aria-label="Principal">
     @for (link of links; track link.href) {
-      <a [href]="link.href">{{ link.label }}</a>
+      <a [href]="link.href" [attr.aria-current]="current() === link.href ? 'location' : null">{{ link.label }}</a>
     }
   </nav>
 
@@ -32,7 +32,7 @@
   <nav aria-label="Menú móvil">
     <ul class="gm-fullscreen-menu__links">
       @for (link of mobileLinks; track link.href) {
-        <li><a [href]="link.href" (click)="closeMenu(false)">{{ link.label }}</a></li>
+        <li><a [href]="link.href" [attr.aria-current]="current() === link.href ? 'location' : null" (click)="closeMenu(false)">{{ link.label }}</a></li>
       }
     </ul>
   </nav>
