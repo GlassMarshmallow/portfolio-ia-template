@@ -142,3 +142,16 @@
     margin: .75rem auto 0;
   }
 }
+
+/* Móviles de pantalla baja (como el iPhone SE): la foto y el hueco del bocadillo, más pequeños, para que la franja
+   de logos se vea abajo al abrir la página */
+@media (max-width: 767px) and (max-height: 760px) {
+  .hero-photo {
+    --gm-avatar-size: 72px;
+    margin-bottom: .5rem;
+  }
+
+  .content app-hero-ask {
+    padding-top: 7rem;
+  }
+}

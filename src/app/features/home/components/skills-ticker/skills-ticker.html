@@ -1,10 +1,17 @@
-<!-- Decorativa: la lista completa de tecnologías está en la sección Habilidades -->
-<div class="gm-ticker" [class.gm-ticker--static]="!moving()" [class.is-paused]="paused()" aria-hidden="true">
-  <div class="gm-ticker__track">
+<!-- Los logos son decorativos: la lista completa de tecnologías está en la sección Habilidades -->
+<div class="gm-ticker" [class.gm-ticker--static]="!moving()" [class.is-paused]="paused()">
+  <div class="gm-ticker__track" aria-hidden="true">
     @for (copy of copies(); track copy) {
       @for (logo of logos; track logo) {
         <span class="gm-ticker__item"><i [class]="'gmi gmi-' + logo"></i>{{ titles[logo] }}</span>
       }
     }
   </div>
+  <!-- Pausa la franja y, si lo hay, el dibujo del fondo (WCAG 2.2.2) -->
+  @if (moving()) {
+    <button type="button" class="gm-icon-btn gm-icon-btn--glass gm-ticker__pause" (click)="paused.update(p => !p)"
+            [attr.aria-pressed]="paused()" [attr.aria-label]="paused() ? 'Reanudar animación' : 'Pausar animación'">
+      <i class="gmi" [class.gmi-play-fill]="paused()" [class.gmi-pause-fill]="!paused()" aria-hidden="true"></i>
+    </button>
+  }
 </div>
