@@ -56,11 +56,11 @@
 
 /* ===== Contenido (abierto): lista de tecnologías =====
    Es información, no algo que se pueda pulsar: sin caja, sin borde y sin efecto al pasar el ratón,
-   para que no parezcan botones (pauta de accesibilidad cognitiva del W3C). */
+   para que no parezcan botones (pauta de accesibilidad cognitiva del W3C).
+   Una debajo de otra, en lista (con más de tres, nunca en columnas ni seguidas). */
 .skill-tiles {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
-  gap: .9rem 1.5rem;
+  gap: .75rem;
   margin: 0;
   list-style: none;
 }
@@ -74,14 +74,6 @@
 
 .skill-name {
   font-size: .9rem;
-}
-
-/* En móvil, una sola columna */
-@media (max-width: 480px) {
-  .skill-tiles {
-    grid-template-columns: 1fr;
-    gap: .75rem;
-  }
 }
 
 /* Logo a la izquierda; el hueco es más ancho que alto para que los alargados (.NET, PHP) crezcan a lo ancho */
