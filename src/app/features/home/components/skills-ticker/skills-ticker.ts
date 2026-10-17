@@ -4,7 +4,7 @@ import { OUTLINE_ICONS, SKILL_LOGOS, WORDMARK_ICONS } from '../../../../core/dat
 
 // Franja tipo cinta de noticias con los logos de las tecnologías desplazándose en bucle.
 // La lista se pinta dos veces seguidas para que, al desplazarla la mitad, el bucle no tenga corte.
-// Con moving = false (inicio sin ilustración animada) se queda quieta: así no hace falta botón de pausa.
+// Se para con el botón «Pausar animación» del inicio, al pasar el ratón y si se pide menos movimiento.
 @Component({
   selector: 'app-skills-ticker',
   imports: [FitIcon],

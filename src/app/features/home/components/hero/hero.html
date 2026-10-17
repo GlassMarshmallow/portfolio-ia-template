@@ -31,14 +31,11 @@
     <app-hero-ask />
   </div>
 
-  <!-- Pausa / reanuda las animaciones del inicio (WCAG 2.2.2). Sin ilustración no se mueve nada (la franja
-       de logos y el grano se quedan quietos), así que no hace falta -->
-  @if (hasScene) {
-    <button type="button" class="gm-btn gm-btn--secondary gm-btn--sm pause-btn" (click)="togglePause()" [attr.aria-pressed]="paused()">
-      {{ paused() ? 'Reanudar animación' : 'Pausar animación' }}
-    </button>
-  }
+  <!-- Pausa / reanuda las animaciones del inicio: la franja de logos y, si lo hay, el dibujo (WCAG 2.2.2) -->
+  <button type="button" class="gm-btn gm-btn--secondary gm-btn--sm pause-btn" (click)="togglePause()" [attr.aria-pressed]="paused()">
+    {{ paused() ? 'Reanudar animación' : 'Pausar animación' }}
+  </button>
 
   <!-- Franja con los logos de las tecnologías, en la parte de abajo del inicio -->
-  <app-skills-ticker class="hero-ticker" [moving]="hasScene" [paused]="paused()" />
+  <app-skills-ticker class="hero-ticker" [paused]="paused()" />
 </section>
