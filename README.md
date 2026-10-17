@@ -215,7 +215,7 @@ Algunos servicios y su dirección (`BaseUrl`). El nombre del modelo lo encuentra
 | **Tu foto** (en un círculo encima del saludo; el bocadillo del chat sale a su lado) | Ponla en `public/assets/perfil/` (cuadrada, unos 480 × 480 px) y su ruta en `photo` de `profile.data.ts`. Sin foto: `photo: null`. |
 | **Lo que la IA sabe de ti** (experiencia, tecnologías, respuestas modelo…) | `api/perfil.md` |
 | **Nombre, correo y enlaces que usa la IA** | `api/appsettings.json` → `"Perfil"` |
-| **Tus habilidades y sus logos** | `src/app/core/data/skills.data.ts` (logos de [Simple Icons](https://simpleicons.org)) |
+| **Tus habilidades y sus logos** | `src/app/core/data/skills.data.ts` (cada logo es un icono de GlassMarshmallow por su nombre, por ejemplo `'angular'`; la lista, en la página Iconos de GlassMarshmallow, categoría Brand) |
 | **La animación del inicio** | `src/app/core/data/hero.data.ts` (ver abajo) |
 | **Las preguntas del formulario inteligente** | `api/IntakePlan.cs` |
 | **Las reglas de la IA** | `api/Prompts.cs` |
@@ -445,4 +445,4 @@ Como prohíbe el uso comercial, técnicamente no es «open source» según la de
 
 Al pie de la web hay una línea de créditos («Hecho con portfolio-ia-template · Licencia PolyForm Noncommercial»). **No es obligatoria, pero se agradece mucho que la mantengas.**
 
-Los logos de tecnologías son de [Simple Icons](https://simpleicons.org) (CC0) y el aspecto y los iconos, de [GlassMarshmallow](https://github.com/spyamuza/glassmarshmallow) (MIT). Las marcas pertenecen a sus dueños. **No se incluye ninguna ilustración**: la animación del inicio es para tu propio dibujo.
+El aspecto, los iconos y los logos de tecnologías son de [GlassMarshmallow](https://github.com/spyamuza/glassmarshmallow) (MIT; los logos, con su forma oficial, salen de [Simple Icons](https://simpleicons.org), CC0). Las marcas pertenecen a sus dueños. **No se incluye ninguna ilustración**: la animación del inicio es para tu propio dibujo.

@@ -217,7 +217,7 @@ Some services and their address (`BaseUrl`). You'll find the model names in each
 | **Your photo** (in a circle above the greeting; the chat bubble appears next to it) | Put it in `public/assets/perfil/` (square, about 480 × 480 px) and its path in `photo` in `profile.data.ts`. No photo: `photo: null`. |
 | **What the AI knows about you** (experience, technologies, model answers…) | `api/perfil.md` |
 | **Name, email and links used by the AI** | `api/appsettings.json` → `"Perfil"` |
-| **Your skills and their logos** | `src/app/core/data/skills.data.ts` (logos from [Simple Icons](https://simpleicons.org)) |
+| **Your skills and their logos** | `src/app/core/data/skills.data.ts` (each logo is a GlassMarshmallow icon by name, for example `'angular'`; the list is on the GlassMarshmallow Icons page, Brand category) |
 | **The home animation** | `src/app/core/data/hero.data.ts` (see below) |
 | **The smart-form questions** | `api/IntakePlan.cs` |
 | **The AI rules** | `api/Prompts.cs` |
@@ -447,4 +447,4 @@ Because it forbids commercial use, it is technically not "open source" under the
 
 The site footer has a credits line ("Hecho con portfolio-ia-template · Licencia PolyForm Noncommercial" / "Made with…"). **It isn't mandatory, but keeping it is greatly appreciated.**
 
-Technology logos come from [Simple Icons](https://simpleicons.org) (CC0) and the look and icons from [GlassMarshmallow](https://github.com/spyamuza/glassmarshmallow) (MIT). Trademarks belong to their owners. **No illustration is included**: the home animation is meant for your own drawing.
+The look, icons and technology logos come from [GlassMarshmallow](https://github.com/spyamuza/glassmarshmallow) (MIT; the logos, with their official shape, come from [Simple Icons](https://simpleicons.org), CC0). Trademarks belong to their owners. **No illustration is included**: the home animation is meant for your own drawing.
