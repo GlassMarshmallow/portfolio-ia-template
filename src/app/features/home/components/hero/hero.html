@@ -7,7 +7,11 @@
   <!-- Contenido centrado -->
   <div class="content">
     @if (profile.photo) {
-      <span class="gm-avatar gm-avatar--ring hero-photo"><img [src]="profile.photo" [alt]="'Foto de ' + profile.fullName" width="240" height="240"></span>
+      <!-- Al pulsarla se ve en grande (visor de GlassMarshmallow) -->
+      <a class="gm-avatar gm-avatar--ring hero-photo" [href]="profile.photo" data-gm-zoom
+         [attr.aria-label]="'Ampliar la foto de ' + profile.fullName">
+        <img [src]="profile.photo" [alt]="'Foto de ' + profile.fullName" width="240" height="240">
+      </a>
     }
     <h1 class="gm-text-outline">Hola, soy <span class="accent">{{ profile.firstName }}</span>,</h1>
     <p class="hero-subtitle gm-text-outline">{{ profile.role }}.</p>

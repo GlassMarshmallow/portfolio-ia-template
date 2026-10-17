@@ -1,4 +1,5 @@
-import { Component, DestroyRef, afterNextRender, inject, signal } from '@angular/core';
+import { Component, DestroyRef, ElementRef, afterNextRender, inject, signal } from '@angular/core';
+import { initZooms } from '../../../../../vendor/glassmarshmallow/gallery.js';
 import { HeroAsk } from '../hero-ask/hero-ask';
 import { SkillsTicker } from '../skills-ticker/skills-ticker';
 import { HERO } from '../../../../core/data/hero.data';
@@ -26,6 +27,13 @@ export class Hero {
 
   constructor() {
     const destroyRef = inject(DestroyRef);
+
+    // La foto se amplía al pulsarla (visor de GlassMarshmallow)
+    const host = inject(ElementRef<HTMLElement>).nativeElement;
+    afterNextRender(() => {
+      const stops = initZooms(host);
+      destroyRef.onDestroy(() => stops.forEach(stop => stop()));
+    });
 
     // Cuánto se oscurece el dibujo del fondo: 0 arriba del todo, hasta MAX_DIM al pasar el inicio.
     afterNextRender(() => {
