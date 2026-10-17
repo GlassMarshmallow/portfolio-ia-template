@@ -30,29 +30,28 @@ export class Header {
 
   constructor() {
     const router = inject(Router);
-    let observer: IntersectionObserver | undefined;
-    // Una sección cuenta como «la que se ve» cuando cruza la mitad de la pantalla
-    const watch = () => {
-      observer?.disconnect();
-      this.current.set(null);
-      const sections = this.mobileLinks
-        .map(link => document.getElementById(link.href.split('#')[1]))
-        .filter((section): section is HTMLElement => !!section);
+    let sections: HTMLElement[] = [];
+    // La sección marcada es la última cuyo principio ya ha pasado bajo la barra (donde la deja su enlace, por el
+    // scroll-padding-top de 80 px); al final de la página, la última, aunque no llegue arriba.
+    const update = () => {
       if (!sections.length) {
+        this.current.set(null);
         return;
       }
-      observer = new IntersectionObserver(
-        entries => {
-          const visible = entries.find(entry => entry.isIntersecting);
-          if (visible) {
-            this.current.set(`/#${visible.target.id}`);
-          }
-        },
-        { rootMargin: '-50% 0px -50% 0px' }
-      );
-      sections.forEach(section => observer!.observe(section));
+      const atEnd = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+      const passed = sections.filter(section => section.getBoundingClientRect().top <= 100);
+      const section = atEnd ? sections[sections.length - 1] : passed[passed.length - 1] ?? sections[0];
+      this.current.set(`/#${section.id}`);
+    };
+    const watch = () => {
+      sections = this.mobileLinks
+        .map(link => document.getElementById(link.href.split('#')[1]))
+        .filter((section): section is HTMLElement => !!section);
+      update();
     };
     afterNextRender(() => watch());
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
     const events = router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         setTimeout(watch);
@@ -60,9 +59,11 @@ export class Header {
     });
     inject(DestroyRef).onDestroy(() => {
       events.unsubscribe();
-      observer?.disconnect();
+      window.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
     });
   }
+
   protected readonly lightTheme = signal(document.documentElement.dataset['theme'] === 'light');
 
   toggleTheme() {
