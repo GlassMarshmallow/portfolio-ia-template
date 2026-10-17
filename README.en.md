@@ -447,4 +447,4 @@ Because it forbids commercial use, it is technically not "open source" under the
 
 The site footer has a credits line ("Hecho con portfolio-ia-template · Licencia PolyForm Noncommercial" / "Made with…"). **It isn't mandatory, but keeping it is greatly appreciated.**
 
-The look, icons and technology logos come from [GlassMarshmallow](https://github.com/spyamuza/glassmarshmallow) (MIT; the logos, with their official shape, come from [Simple Icons](https://simpleicons.org), CC0). Trademarks belong to their owners. **No illustration is included**: the home animation is meant for your own drawing.
+The look, icons and technology logos come from [GlassMarshmallow](https://github.com/GlassMarshmallow/glassmarshmallow) (MIT; the logos, with their official shape, come from [Simple Icons](https://simpleicons.org), CC0). Trademarks belong to their owners. **No illustration is included**: the home animation is meant for your own drawing.
