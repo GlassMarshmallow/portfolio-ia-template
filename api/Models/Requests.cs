@@ -15,7 +15,9 @@ record IntakeData(
     /// Respuestas a los temas del guion, por clave (publico, catalogo, horarios…)
     Dictionary<string, string>? Detalles = null,
     /// Temas que no aplican a este proyecto (p. ej. envíos si vende servicios)
-    List<string>? NoAplica = null);
+    List<string>? NoAplica = null,
+    /// Tema por el que se preguntó en el último mensaje (lo pone el servidor; el navegador lo devuelve tal cual)
+    string? Pendiente = null);
 
 /// <summary>Un dato del resumen, con su etiqueta legible.</summary>
 record SummaryItem(string? Label, string? Value);
@@ -107,6 +109,7 @@ static class Validation
                 || (d.Comentarios?.Length ?? 0) > Limits.CommentsMax
                 || (d.Tipos ?? []).Any(t => !IntakePlan.ProjectTypes.Contains(t))
                 || (d.NoAplica ?? []).Any(k => !keys.Contains(k))
+                || (!string.IsNullOrEmpty(d.Pendiente) && IntakePlan.Topic(d.Pendiente) is null)
                 || (d.Detalles ?? []).Any(kv => !keys.Contains(kv.Key) || (kv.Value?.Length ?? 0) > Limits.FieldMedium))
                 return "La conversación no es válida. Puedes empezar de nuevo.";
         }

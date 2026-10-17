@@ -19,6 +19,8 @@ export interface IntakeData {
   detalles: Record<string, string>;
   /** Temas que no aplican a este proyecto */
   noAplica: string[];
+  /** Tema por el que se ha preguntado en el último mensaje (lo decide el servidor) */
+  pendiente: string | null;
 }
 
 /** Un dato del resumen, con su etiqueta legible (la pone el servidor) */

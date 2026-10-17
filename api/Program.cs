@@ -171,16 +171,23 @@ app.MapPost("/api/intake", async (IntakeRequest request, ILogger<Program> logger
             new("system", $"DATOS RECOGIDOS HASTA AHORA: {JsonSerializer.Serialize(current)}")
         };
         messages.AddRange(request.Messages!.Select(m => new AiMessage(m.Role!, m.Content!.Trim())));
-        // El servidor decide qué tema toca (los modelos pequeños se olvidan y repiten preguntas). Va al final,
-        // justo después del último mensaje, que es donde más caso le hace el modelo.
-        var next = IntakePlan.Missing(current).FirstOrDefault();
+        var history = request.Messages!;
+        var lastAnswer = history[^1].Content!.Trim();
+
+        // El servidor decide qué tema toca (los modelos pequeños se olvidan y repiten preguntas):
+        // - asked: el tema al que está respondiendo el visitante (el saludo pregunta qué quiere crear).
+        // - upcoming: el siguiente que falta sin contar ese, que es por el que tiene que preguntar la IA.
+        var asked = IntakePlan.Topic(current.Pendiente)
+            ?? (history.Count(m => m.Role == "assistant") == 1 ? IntakePlan.Topic("necesita") : null);
+        var upcoming = IntakePlan.Missing(current).FirstOrDefault(t => t.Key != asked?.Key);
+        string KeyOf(IntakeTopic t) => IntakePlan.DetailKeys.Contains(t.Key) ? $"la clave \"{t.Key}\" de detalles" : $"\"{t.Key}\"";
+        // Va al final, justo después del último mensaje, que es donde más caso le hace el modelo.
         messages.Add(new AiMessage("system",
-            next is null
-                ? "SIGUIENTE PASO: actualiza los datos con lo que acaba de decir el visitante."
-                : $"SIGUIENTE PASO: actualiza los datos con lo que acaba de decir el visitante (detecta los tipos de proyecto y marca en noAplica lo que no tenga sentido para él). " +
-                  $"Después pregúntale por {Owner.Fill(next.Hint)}" + (next.Types is null ? "" : $" (clave \"{next.Key}\" de detalles)") + ". " +
-                  "Si su última respuesta abre una oportunidad clara que aún no habéis hablado (por ejemplo, vende productos pero no por internet), puedes preguntarle antes por eso, una sola vez. " +
-                  "No repitas ninguna pregunta que ya le hayas hecho."));
+            "SIGUIENTE PASO: actualiza los datos con lo que acaba de decir el visitante (detecta los tipos de proyecto y marca en noAplica lo que no tenga sentido para él). " +
+            (asked is null ? "" : $"Está respondiendo a {Owner.Fill(asked.Hint)}: guarda su respuesta en {KeyOf(asked)}. ") +
+            (upcoming is null
+                ? "Después dale las gracias en una frase."
+                : $"Después pregúntale por {Owner.Fill(upcoming.Hint)}. No repitas ninguna pregunta que ya le hayas hecho.")));
 
         var content = await ai.CompleteJsonAsync(messages, IntakeSchema, temperature: 0.3, maxTokens: 800, ct);
         using var result = JsonDocument.Parse(content);
@@ -222,11 +229,15 @@ app.MapPost("/api/intake", async (IntakeRequest request, ILogger<Program> logger
             Detalles: details,
             NoAplica: Codes("noAplica", IntakePlan.DetailKeys, current.NoAplica));
 
+        // Si la IA no ha recogido la respuesta al tema que se le preguntó, se guarda tal cual la escribió el
+        // visitante: así nunca se queda preguntando lo mismo una y otra vez.
+        if (asked is not null && IntakePlan.Missing(data).Any(t => t.Key == asked.Key))
+            data = IntakePlan.WithAnswer(data, asked.Key, lastAnswer);
+
         // El final lo decide el servidor, no la IA: cuando no falta ningún tema, pregunta una vez por el
         // teléfono y la empresa (opcionales) y después da la solicitud por completa.
         var complete = false;
         var missing = IntakePlan.Missing(data);
-        var history = request.Messages!;
         if (missing.Count == 0)
         {
             if (!history.Any(m => m.Role == "assistant" && m.Content == Owner.Fill(IntakePlan.OptionalQuestion)))
@@ -239,11 +250,21 @@ app.MapPost("/api/intake", async (IntakeRequest request, ILogger<Program> logger
                 reply = Owner.Fill(IntakePlan.DoneMessage);
             }
         }
-        else if (history.Any(m => m.Role == "assistant" && string.Equals(m.Content?.Trim(), reply, StringComparison.OrdinalIgnoreCase)))
+        else if (missing[0].Key == asked?.Key)
         {
-            // La IA ha repetido una pregunta: se cambia por la del primer tema que falta
+            // Solo pasa con el correo: lo que ha escrito no es una dirección válida
+            reply = IntakePlan.InvalidEmailQuestion;
+        }
+        else if (missing[0].Key != upcoming?.Key
+            || IntakePlan.IsQuestionOfOtherTopic(reply, missing[0].Key)
+            || history.Any(m => m.Role == "assistant" && string.Equals(m.Content?.Trim(), reply, StringComparison.OrdinalIgnoreCase)))
+        {
+            // La IA ha preguntado por otro tema (el que toca ha cambiado con su respuesta) o ha repetido una
+            // pregunta: se cambia por la del primer tema que falta
             reply = Owner.Fill(missing[0].Question);
         }
+        // Se recuerda por qué tema se pregunta, para saber a qué responde el visitante en el siguiente turno
+        data = data with { Pendiente = missing.Count == 0 ? null : missing[0].Key };
 
         var summary = IntakePlan.Summary(data);
         return Results.Ok(new { reply, data, complete, summary });

@@ -17,7 +17,7 @@ const FALLBACK = 'Ahora mismo no puedo seguir. Tu conversación está guardada: 
 
 export const emptyIntakeData = (): IntakeData => ({
   nombre: '', empresa: '', correo: '', telefono: '', negocio: '',
-  necesita: '', comentarios: '', tipos: [], detalles: {}, noAplica: []
+  necesita: '', comentarios: '', tipos: [], detalles: {}, noAplica: [], pendiente: null
 });
 
 const list = (value: string) => (value.trim() ? [value.trim()] : []);

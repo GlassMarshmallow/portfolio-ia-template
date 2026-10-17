@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 // Los textos usan {persona}, que se sustituye por el nombre (Owner.Fill).
 // Guion del formulario inteligente ("Quiero un proyecto"), como una toma de requisitos de consultora:
 // primero lo común, después lo propio de cada tipo de proyecto y al final los datos de contacto.
@@ -105,10 +107,45 @@ static class IntakePlan
     public const string OptionalQuestion =
         "¡Gracias! Ya casi está. Si quieres, deja también un teléfono y el nombre de tu empresa; las dos cosas son opcionales, así que si prefieres no darlas, escribe «no».";
 
+    public const string InvalidEmailQuestion =
+        "Ese correo no parece completo. ¿Me lo escribes de nuevo? Por ejemplo: nombre@ejemplo.com";
+
     public const string DoneMessage =
         "¡Perfecto, ya lo tengo todo! Revisa el resumen de aquí abajo y, si está bien, envíaselo a {persona}.";
 
     public static IEnumerable<string> DetailKeys => DetailTopics.Select(t => t.Key);
+
+    public static IntakeTopic? Topic(string? key) =>
+        CoreTopics.Concat(DetailTopics).Append(Name).Append(Email).FirstOrDefault(t => t.Key == key);
+
+    /// <summary>Si el mensaje es la pregunta del guion de otro tema (la IA se ha adelantado o ha vuelto atrás).</summary>
+    public static bool IsQuestionOfOtherTopic(string reply, string key) =>
+        CoreTopics.Concat(DetailTopics).Append(Name).Append(Email)
+            .Any(t => t.Key != key && string.Equals(Owner.Fill(t.Question), reply.Trim(), StringComparison.OrdinalIgnoreCase));
+
+    /// <summary>
+    /// Guarda la respuesta tal cual escribió el visitante en el tema que se le preguntó. Se usa cuando la IA no
+    /// la ha recogido, para que nunca se quede preguntando lo mismo. El correo solo se guarda si es válido.
+    /// </summary>
+    public static IntakeData WithAnswer(IntakeData d, string key, string answer)
+    {
+        var value = answer.Trim();
+        if (value.Length > Limits.FieldMedium) value = value[..Limits.FieldMedium];
+        return key switch
+        {
+            "negocio" => d with { Negocio = value },
+            "necesita" => d with { Necesita = value },
+            "nombre" => d with { Nombre = value.Length > 100 ? value[..100] : value },
+            // El correo puede venir dentro de una frase ("es ana@ejemplo.com")
+            "correo" => Regex.Match(value, @"[^\s@<>()""',;:]+@[^\s@<>()""',;:]+") is { Success: true } m
+                        && Validation.IsEmail(m.Value.TrimEnd('.')) ? d with { Correo = m.Value.TrimEnd('.') } : d,
+            _ when DetailKeys.Contains(key) => d with
+            {
+                Detalles = new Dictionary<string, string>(d.Detalles ?? []) { [key] = value }
+            },
+            _ => d
+        };
+    }
 
     /// <summary>Temas que faltan, en orden: los del proyecto (según su tipo) y después nombre y correo.</summary>
     public static List<IntakeTopic> Missing(IntakeData d)
