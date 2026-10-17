@@ -38,7 +38,7 @@
 
   <nav aria-label="Menú móvil">
     <ul class="mobile-menu-links">
-      @for (link of links; track link.href) {
+      @for (link of mobileLinks; track link.href) {
         <li><a [href]="link.href" (click)="closeMenu(false)">{{ link.label }}</a></li>
       }
     </ul>

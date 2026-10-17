@@ -41,8 +41,13 @@ export interface HeroConfig {
   description: string;
   /** Proporción ancho/alto de tus fotogramas (para colocar los bocadillos del chat) */
   imageRatio: number;
-  /** Dónde está la cabeza del personaje, en fracción de la imagen: los bocadillos salen de ahí */
+  /** Dónde está la cabeza del personaje, en fracción de la imagen (si el bocadillo no cabe delante, sale detrás) */
   head: { x: number; y: number };
+  /**
+   * Dónde está la cara (el personaje mira a la izquierda): en ordenador, el bocadillo sale delante de ella,
+   * a su izquierda, con la cola apuntándole. Pon el borde izquierdo de la cara (o del pelo) a la altura de los ojos.
+   */
+  face: { x: number; y: number };
 }
 
 export const HERO: HeroConfig = {
@@ -53,5 +58,6 @@ export const HERO: HeroConfig = {
   lighting: null,
   description: 'Ilustración animada',
   imageRatio: 16 / 9,
-  head: { x: 0.5, y: 0.3 }
+  head: { x: 0.5, y: 0.3 },
+  face: { x: 0.45, y: 0.35 }
 };

@@ -19,11 +19,16 @@
     <button type="button" class="ask-chip" (click)="leaveIntake()">Salir (lo guardo para luego)</button>
     <button type="button" class="ask-chip" (click)="restartIntake()" [disabled]="status() === 'thinking'">Empezar de nuevo</button>
   } @else {
-    @for (suggestion of suggestions; track suggestion) {
-      <button type="button" class="ask-chip" (click)="ask(suggestion)" [disabled]="status() === 'thinking'">
-        {{ suggestion }}
-      </button>
-    }
+    <!-- Preguntas rápidas: en móvil, una sola fila que se desliza de lado -->
+    <div class="ask-quick">
+      @for (suggestion of suggestions; track suggestion) {
+        <!-- Mientras piensa siguen enfocables (aria-disabled, no disabled): si no, la fila deslizable del móvil
+             se quedaría sin nada que alcanzar con el teclado. ask() ya no hace nada mientras piensa. -->
+        <button type="button" class="ask-chip" (click)="ask(suggestion)" [attr.aria-disabled]="status() === 'thinking' ? 'true' : null">
+          {{ suggestion }}
+        </button>
+      }
+    </div>
     <button type="button" class="ask-chip ask-chip-project" (click)="startIntake()" [disabled]="status() === 'thinking'">
       <app-icon name="stars" />
       {{ hasSaved() ? 'Seguir con mi proyecto' : 'Quiero un proyecto' }}
@@ -48,18 +53,16 @@
 @if (visible()) {
   <div class="ask-stage"
        [class.on-left]="placement().side === 'left'"
-       [class.on-top]="placement().side === 'top'"
-       [style.--tail-x.px]="placement().tailX"
-       [style.--tail-ratio]="placement().tailX / placement().width"
+       [class.on-right]="placement().side === 'right'"
+       [style.--tail-bottom.px]="placement().tailBottom"
        [style.left.px]="placement().left"
        [style.top.px]="placement().top"
+       [style.bottom.px]="placement().bottom"
        [style.width.px]="placement().width"
        [style.max-height.px]="placement().maxHeight">
-    @if (asked()) {
-      <p class="bubble-question" aria-hidden="true">{{ asked() }}</p>
-    }
     <div class="bubble-answer" [class.is-error]="status() === 'error'">
-      <div class="bubble-scroll">
+      <!-- Se puede enfocar con el teclado para desplazar el texto con las flechas cuando no cabe (WCAG 2.1.1) -->
+      <div class="bubble-scroll" tabindex="0" role="region" aria-label="Respuesta">
         <!-- Mientras se escribe letra a letra es decorativo (se anuncia arriba); al terminar, sus enlaces se
              pueden usar también con teclado y lector de pantalla -->
         <div class="bubble-text" [attr.aria-hidden]="done() && status() !== 'thinking' && shown() === fullAnswer() ? null : 'true'">

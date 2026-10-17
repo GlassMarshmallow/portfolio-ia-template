@@ -1,0 +1,9 @@
+@if (!hasScene) {
+  <div class="scene-fallback" aria-hidden="true"></div>
+}
+<canvas #scene class="scene-bg" [hidden]="!hasScene" aria-hidden="true"></canvas>
+<canvas #glow class="scene-bg crt-glow" [hidden]="!hasScene" aria-hidden="true"></canvas>
+<div class="film-grain" aria-hidden="true"></div>
+<div class="film-scanlines" aria-hidden="true"></div>
+<div class="film-vignette" aria-hidden="true"></div>
+<div class="crt-curve" aria-hidden="true"></div>

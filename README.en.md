@@ -6,10 +6,21 @@ A personal portfolio template for developers and creatives, with an **AI chat th
 
 - **Website:** Angular 21 (standalone components and signals).
 - **API:** .NET 9.
-- **Local AI:** [Ollama](https://ollama.com), with no paid external services and no data leaving your server.
+- **AI of your choice:** [Ollama](https://ollama.com) on your computer or server (free, and data never leaves it) or any service compatible with the OpenAI API (OpenAI, OpenRouter, Groq, Mistral…). It ships **with no AI connected**: you choose.
 - **Deployment:** Docker.
 
 > **License: free for non-commercial use.** You may use, modify and share it for your personal portfolio, but **you may not sell it or use it to build websites for clients**. See [License](#license).
+
+<p align="center">
+  <img src="docs/capturas/escritorio-claro.jpg" width="49%" alt="Home on desktop, light mode: the chat answering "¿Qué tecnologías usas?"">
+  <img src="docs/capturas/escritorio-oscuro-proyecto.jpg" width="49%" alt=""Quiero un proyecto" in dark mode">
+</p>
+<p align="center">
+  <img src="docs/capturas/movil-claro.jpg" width="24%" alt="Mobile, light mode">
+  <img src="docs/capturas/movil-oscuro.jpg" width="24%" alt="Mobile, dark mode">
+</p>
+
+This is how it looks without your own illustration (gradient background). You can add your animated drawing: see [Home animation](#home-animation).
 
 > The website texts and the code comments are in Spanish. All visible texts can be translated in the files listed under [Customize](#customize).
 
@@ -19,16 +30,18 @@ A personal portfolio template for developers and creatives, with an **AI chat th
 
 1. [Features](#features)
 2. [Requirements](#requirements)
-3. [Run it on your computer](#run-it-on-your-computer)
-4. [Customize](#customize)
-5. [Home animation](#home-animation)
-6. [How the AI works](#how-the-ai-works)
-7. [The AI model](#the-ai-model)
-8. [Receive requests on Telegram](#receive-requests-on-telegram)
-9. [Publish it online](#publish-it-online)
-10. [Accessibility and security](#accessibility-and-security)
-11. [Project structure](#project-structure)
-12. [License](#license)
+3. [Get it running, step by step](#get-it-running-step-by-step)
+4. [Connect the AI](#connect-the-ai)
+5. [Customize](#customize)
+6. [Home animation](#home-animation)
+7. [How the AI works](#how-the-ai-works)
+8. [Choosing a model](#choosing-a-model)
+9. [Receive requests on Telegram](#receive-requests-on-telegram)
+10. [Publish it online](#publish-it-online)
+11. [Troubleshooting](#troubleshooting)
+12. [Accessibility and security](#accessibility-and-security)
+13. [Project structure](#project-structure)
+14. [License](#license)
 
 ---
 
@@ -50,36 +63,149 @@ A personal portfolio template for developers and creatives, with an **AI chat th
 |---|---|
 | The website | [Node.js 22](https://nodejs.org) |
 | The API | [.NET 9 SDK](https://dotnet.microsoft.com/download) |
-| The AI | [Ollama](https://ollama.com) (on your computer or in Docker) |
+| The AI (optional) | [Ollama](https://ollama.com) **or** a key for a service compatible with OpenAI. See [Connect the AI](#connect-the-ai) |
 | Publishing | [Docker](https://www.docker.com) with Docker Compose |
 
 ---
 
-## Run it on your computer
+## Get it running, step by step
 
-**1. The AI.** Install Ollama and download the model:
+Follow the steps in order. At the end you'll have the website running on your computer.
 
-```bash
-ollama pull qwen3:8b
-```
+### Step 1. Get the code
 
-**2. The API** (in one terminal):
+- **With GitHub (recommended):** click the green **"Use this template" → "Create a new repository"** button on this repository's page. You'll get your own copy to change and publish. Then download it:
 
-```bash
-cd api
-ASPNETCORE_URLS=http://localhost:5080 dotnet run
-```
+  ```bash
+  git clone https://github.com/YOUR-USER/YOUR-REPOSITORY.git
+  cd YOUR-REPOSITORY
+  ```
 
-**3. The website** (in another terminal):
+- **Without GitHub:** click **"Code" → "Download ZIP"**, unzip it and open a terminal in that folder.
+
+### Step 2. Add your details
+
+Before running it, replace the example ("Alex Ejemplo") with your own details. At least:
+
+1. **`src/app/core/data/profile.data.ts`**: your name, job title, email, GitHub, LinkedIn and the "About me" text.
+2. **`api/appsettings.json` → `"Perfil"`**: your name, email and links (the ones the AI uses).
+3. **`api/perfil.md`**: what the AI knows about you (experience, technologies, model answers…). See [Tips for `api/perfil.md`](#tips-for-apiperfilmd).
+
+The rest (skills, animation, legal texts) can wait: see [Customize](#customize).
+
+### Step 3. Start the API
+
+Open a terminal in the project folder:
+
+- **Mac or Linux:**
+
+  ```bash
+  cd api
+  ASPNETCORE_URLS=http://localhost:5090 dotnet run
+  ```
+
+- **Windows (PowerShell):**
+
+  ```powershell
+  cd api
+  $env:ASPNETCORE_URLS="http://localhost:5090"; dotnet run
+  ```
+
+Leave it open. When it says `Now listening on: http://localhost:5090`, it's ready.
+
+### Step 4. Start the website
+
+Open **another** terminal in the project folder (not in `api`):
 
 ```bash
 npm ci
 npm start
 ```
 
-Open `http://localhost:4200`. The website forwards `/api` calls to the API on port 5080 (`proxy.conf.json`).
+The first time, `npm ci` takes a couple of minutes. When it's done, open **http://localhost:4200** in your browser. The website forwards `/api` calls to the API on port 5090 (`proxy.conf.json`).
 
-Without Telegram configured, smart-form requests are saved in `api/solicitudes/`. That folder is in `.gitignore` because it contains personal data.
+### Step 5. Connect the AI
+
+Without an AI, the website works but the chat replies "La IA de este portfolio todavía no está conectada" (the AI isn't connected yet). Pick an option in [Connect the AI](#connect-the-ai) and restart the API (in its terminal, `Ctrl + C` and run the step 3 command again).
+
+### Step 6. Check that everything works
+
+1. Open **http://localhost:5090/api/health**. It should say `"status":"ok"` and, under `"ia"`, the AI you chose (`ollama` or `openai`).
+2. On the website, type **"hola"** in the chat: it should greet you with your name.
+3. Click a quick question, e.g. "¿Qué tecnologías usas?": the answer should come from your `api/perfil.md`.
+4. Click **"Quiero un proyecto"** and answer a couple of questions.
+
+Without Telegram, smart-form requests are saved in `api/solicitudes/` (a folder in `.gitignore`, since it holds personal data). To receive them on your phone, see [Receive requests on Telegram](#receive-requests-on-telegram).
+
+If something doesn't work, see [Troubleshooting](#troubleshooting).
+
+---
+
+## Connect the AI
+
+The template ships **with no AI connected**. Pick one of these two options. Your keys go in **`api/appsettings.Local.json`**, a file you create yourself that is **never committed to git** (it's in `.gitignore`). With Docker they go in `.env` (see [Publish it online](#publish-it-online)).
+
+| | Ollama | Service compatible with OpenAI |
+|---|---|---|
+| **Where it runs** | On your computer or server | On the service's servers |
+| **Cost** | Free | Depends on the service (usually pay per use) |
+| **Privacy** | What visitors type never leaves your machine | What visitors type is sent to the service |
+| **You need** | A machine with about 6 GB of free RAM | An account and an API key |
+
+### Option A: Ollama (on your machine)
+
+1. Install **[Ollama](https://ollama.com/download)** and open it.
+2. Download a model (see [Choosing a model](#choosing-a-model)):
+
+   ```bash
+   ollama pull qwen3:8b
+   ```
+
+3. Create the file **`api/appsettings.Local.json`** with:
+
+   ```json
+   {
+     "IA": { "Proveedor": "ollama" },
+     "Ollama": { "BaseUrl": "http://localhost:11434/", "Model": "qwen3:8b" }
+   }
+   ```
+
+4. Restart the API.
+
+### Option B: a service compatible with OpenAI
+
+1. Create an account with the service and generate an **API key**.
+2. Create the file **`api/appsettings.Local.json`** with the address, the model and your key:
+
+   ```json
+   {
+     "IA": { "Proveedor": "openai" },
+     "OpenAI": {
+       "BaseUrl": "https://api.openai.com/v1/",
+       "Model": "gpt-4o-mini",
+       "ApiKey": "YOUR_KEY"
+     }
+   }
+   ```
+
+3. Restart the API.
+
+Some services and their address (`BaseUrl`). You'll find the model names in each one's documentation:
+
+| Service | `BaseUrl` |
+|---|---|
+| [OpenAI](https://platform.openai.com) | `https://api.openai.com/v1/` |
+| [OpenRouter](https://openrouter.ai) (many models, some free) | `https://openrouter.ai/api/v1/` |
+| [Groq](https://console.groq.com) | `https://api.groq.com/openai/v1/` |
+| [Mistral](https://console.mistral.ai) | `https://api.mistral.ai/v1/` |
+| [LM Studio](https://lmstudio.ai) (on your computer, no key) | `http://localhost:1234/v1/` |
+
+**Important if you use an external service:**
+
+- **Never commit your key** or put it in `appsettings.json`: anyone who has it can spend on your account. Use `api/appsettings.Local.json` locally and `.env` on the server.
+- Set a **spending limit** in the service's dashboard. The API already limits use per visitor and has a daily cap (`IA:LimiteDiario`, 600 calls a day by default).
+- **Change two texts on the website**, because they say the AI runs on your own server: the "Información sobre la IA" window (`src/app/shared/components/ai-info-dialog/ai-info-dialog.html`) and the privacy policy (`src/app/features/legal/pages/privacy/privacy.html`). They're marked with a comment. Say which service you use and link to its privacy policy.
+- Pick a model **without "reasoning"** (models that "think" before answering, such as `o1`, or `qwen3` through this kind of service): they're slower and can run out of room for the answer. If you want `qwen3`, use option A (Ollama), which turns that reasoning off.
 
 ---
 
@@ -127,7 +253,8 @@ The animation is **optional**. It works with separate frames, like a cartoon:
 | `loopLayer` | An area that **always** moves, even when the character stands still (for example, steam from a cup). It cuts that area from several frames and blends one shape into the next. |
 | `fixedPatch` | An area always painted the same, taken from one frame: fixes elements that "shake" between poses. |
 | `lighting` | Tints the drawing with an ambient color and lights (a lamp, a screen…). |
-| `head` | Where the character's head is: the chat bubbles come out of it. |
+| `face` | Where the face is (the character looks to the left): on desktop, the chat bubble appears in front of it, with its tail pointing at it. |
+| `head` | Where the head is: if the bubble doesn't fit in front of the face, it appears behind the head. |
 | `imageRatio` | Aspect ratio of your frames (width / height). |
 | `description` | Description of the drawing for screen readers. |
 
@@ -138,17 +265,17 @@ Areas and positions are given as **fractions of the image** (0 to 1): `x: 0.5` i
 ## How the AI works
 
 ```
-Browser ──► nginx ──/api──► .NET API ──► Ollama (AI model)
+Browser ──► nginx ──/api──► .NET API ──► AI (Ollama or OpenAI-compatible service)
    ▲                           │
    └──── answer ───────────────┘          Telegram ◄── requests
 ```
 
-The AI is **never exposed to the internet**: only the API talks to Ollama.
+Only the API talks to the AI: the browser never sees your key or your Ollama address, which is **never exposed to the internet**.
 
 ### Quick-questions chat (`/api/ask`)
 
 1. The visitor types a question or clicks a quick question.
-2. The API sends Ollama the **rules** (`api/Prompts.cs`), **your profile** (`api/perfil.md`) and the question.
+2. The API sends the AI the **rules** (`api/Prompts.cs`), **your profile** (`api/perfil.md`) and the question.
 3. The answer is **streamed as it is generated**, so reading starts within a second even if the model is slow.
 4. In the bubble, your LinkedIn, GitHub and email become links. **Only those three addresses**: if the AI wrote any other, it stays as plain text.
 
@@ -163,7 +290,7 @@ The rules make the AI speak in the first person, keep it short, never make up an
    - Finally: branding, texts and photos, integrations with tools they already use, references, then name and email.
 
    The AI detects the project type, skips what doesn't apply and phrases each question naturally. It may also suggest an opportunity ("would you like to sell online?"). Letting the server drive the script stops small models from repeating questions or finishing too early.
-3. The AI replies in **JSON with a fixed schema** (Ollama's `format`), and the server validates it.
+3. The AI replies in **JSON with a fixed schema**, and the server validates it.
 4. The conversation is saved **in the browser** (`localStorage`, 7 days), so it can be resumed if the page is closed.
 5. At the end, the visitor reviews a **summary**, accepts the privacy terms and clicks **«Enviar»** (Send). The API validates it, **saves a copy** and **sends it to you on Telegram** with the conversation attached.
 6. Saved copies are **deleted automatically after 365 days** (`Solicitudes:DiasConservacion`).
@@ -179,12 +306,9 @@ The rules make the AI speak in the first person, keep it short, never make up an
 
 ---
 
-## The AI model
+## Choosing a model
 
-The template runs on **[Ollama](https://ollama.com)**. The author uses **`qwen3:8b`**, which works well in Spanish with about **6 GB of RAM**, but **you can use any other Ollama model** by changing one setting:
-
-- **Locally:** `api/appsettings.json` → `"Ollama": { "Model": "..." }`
-- **In Docker:** `OLLAMA_MODEL=...` in `.env`
+**With Ollama**, the author uses **`qwen3:8b`**, which works well in Spanish with about **6 GB of RAM**. You can use any other Ollama model by changing `"Ollama": { "Model": "..." }` (or `OLLAMA_MODEL` in `.env`):
 
 | Model | Approx. RAM | When |
 |---|---|---|
@@ -193,11 +317,13 @@ The template runs on **[Ollama](https://ollama.com)**. The author uses **`qwen3:
 | **`qwen3:8b`** | **~6 GB** | **Recommended.** |
 | `qwen3:14b` | ~10 GB | If you have plenty of memory or a graphics card. |
 
-If you switch to another model family (`llama3.1`, `gemma3`…), **check first** that:
-1. It answers in the first person and doesn't make things up (ask about things that aren't in your profile).
-2. The smart form works end to end: the model must return JSON with the requested schema.
-
 On a server without a graphics card, the AI runs on the CPU: with `qwen3:8b`, an answer takes a few seconds to start appearing.
+
+**With an OpenAI-compatible service**, pick a small, fast model without reasoning (each service's "mini" or "small" ones): chat answers are short and don't need more.
+
+If you change model, **check first** that:
+1. It answers in the first person and doesn't make things up (ask about things that aren't in your profile).
+2. The smart form works end to end: the model has to return JSON with the requested schema.
 
 ---
 
@@ -212,7 +338,7 @@ On a server without a graphics card, the AI runs on the CPU: with `qwen3:8b`, an
    ```
 
    Look for `"chat":{"id":` followed by a number: that is your **chat ID**.
-4. Put both values in the `.env` file (or, locally, in `api/appsettings.json` → `"Telegram"`):
+4. Put both values in the server's `.env` file (or, locally, in `api/appsettings.Local.json` → `"Telegram": { "BotToken": "…", "ChatId": "…" }`):
 
    ```
    TELEGRAM_BOT_TOKEN=1234567890:AAH…
@@ -231,22 +357,39 @@ If Telegram fails, the request isn't lost: it stays saved on the server (`/data/
 With Docker on your server:
 
 ```bash
-# 1. The AI (once)
-docker compose -f deploy/ollama/compose.yaml up -d
-docker exec ollama-ollama-1 ollama pull qwen3:8b
-
-# 2. Your data and keys
-cp .env.example .env        # fill in Telegram and, optionally, the model
+# 1. Your details, the AI and the keys
+cp .env.example .env        # choose the AI (IA_PROVEEDOR) and fill in Telegram
 chmod 600 .env
 
-# 3. The portfolio (website + API)
+# 2a. With an OpenAI-compatible service: the website and the API
 docker compose up -d --build
+
+# 2b. With Ollama on the same server: add its profile and download the model (once)
+docker compose --profile ollama up -d --build
+docker compose exec ollama ollama pull qwen3:8b
 ```
 
-The site runs at `http://127.0.0.1:8095`, **reachable only from the server itself**. To publish it, `docker-compose.yml` includes **Cloudflare Tunnel**, which doesn't open any ports on your router:
+The website is served at `http://127.0.0.1:8095`, **reachable only from the server itself**. To publish it, `docker-compose.yml` includes **Cloudflare Tunnel**, which opens no ports on your router (add the profile to the command above):
 
-- **Quick test, no account:** `docker compose --profile rapido up -d`. The `*.trycloudflare.com` address appears in `docker compose logs cloudflared-rapido` and changes on every restart.
-- **With your own domain:** create a tunnel in Cloudflare Zero Trust, put its token in `CLOUDFLARE_TUNNEL_TOKEN` and run `docker compose --profile tunel up -d`.
+- **Quick test, no account:** `--profile rapido`. The `*.trycloudflare.com` address shows up in `docker compose logs cloudflared-rapido` and changes on every restart.
+- **With your own domain:** create a tunnel in Cloudflare Zero Trust, put its token in `CLOUDFLARE_TUNNEL_TOKEN` and use `--profile tunel`.
+
+If you already run Ollama somewhere else (another container or machine), skip the `ollama` profile and put its address in `OLLAMA_URL`.
+
+---
+
+## Troubleshooting
+
+| What you see | What's happening and how to fix it |
+|---|---|
+| The chat says **"La IA de este portfolio todavía no está conectada"** | You haven't chosen an AI. Follow [Connect the AI](#connect-the-ai) and restart the API. |
+| The chat says **"Ahora mismo no puedo responder"** | The API can't reach the AI. With Ollama: check it's open (`ollama list`) and that the model in `appsettings.Local.json` is listed. With a service: check the key, the `BaseUrl` and the model name. The exact reason is shown in the API's terminal. |
+| The chat doesn't answer at all, or shows a connection error | The API isn't running, or is on another port. Check **http://localhost:5090/api/health**. |
+| The chat answers as **"Alex Ejemplo"** | You skipped step 2: change `api/appsettings.json` → `"Perfil"` and `api/perfil.md`, and restart the API. |
+| **"Quiero un proyecto"** stops or repeats questions | The model is too small or doesn't return the JSON properly. Try a bigger one (see [Choosing a model](#choosing-a-model)). |
+| `npm start` fails | Check you have Node.js 22 (`node --version`) and run `npm ci` again. |
+| `dotnet run` says the port is in use | Another app uses 5090. Use another port (e.g. 5091) and change it in `proxy.conf.json` too. |
+| Telegram requests don't arrive | Check the token and chat number (see [Telegram](#receive-requests-on-telegram)). Meanwhile, they're saved in `api/solicitudes/`. |
 
 ---
 
@@ -280,8 +423,7 @@ api/
 ├── Prompts.cs     AI rules
 ├── IntakePlan.cs  smart-form script
 ├── perfil.md      what the AI knows about you
-└── Services/      Telegram and request backups
-deploy/ollama/     the AI in Docker
+└── Services/      AI connection, Telegram and request backups
 ```
 
 ---
@@ -289,7 +431,7 @@ deploy/ollama/     the AI in Docker
 ## License
 
 - **Code** (website, API, Docker): **[PolyForm Noncommercial 1.0.0](LICENSE.md)**.
-- **Documentation** (this README and the texts): **[CC BY-NC-SA 4.0](LICENSE-docs.txt)**.
+- **Documentation** (this README, the texts and the screenshots in `docs/`): **[CC BY-NC-SA 4.0](LICENSE-docs.txt)**.
 
 In short:
 

@@ -3,23 +3,29 @@ using System.Text.Json;
 using System.Threading.RateLimiting;
 
 // API del portfolio:
-// - /api/ask: preguntas rápidas sobre la persona del portfolio, respondidas por IA (Ollama) por trozos.
+// - /api/ask: preguntas rápidas sobre la persona del portfolio, respondidas por IA por trozos.
 // - /api/intake: formulario inteligente; la IA pregunta y va rellenando la solicitud.
 // - /api/contact: recibe las solicitudes del formulario inteligente, las guarda y te las envía por Telegram.
-// Ollama nunca se expone a internet: solo esta API habla con él. Es pública (detrás de nginx y el túnel de
-// Cloudflare), así que todo lo que llega tiene tamaño y uso limitados.
+// La IA se elige en appsettings.json → "IA:Proveedor" (Ollama, un servicio compatible con OpenAI o
+// ninguna; ver Services/AiClient.cs). Solo esta API habla con ella: la clave o el Ollama nunca llegan al
+// navegador. Es pública (detrás de nginx y el túnel de Cloudflare), así que todo lo que llega tiene tamaño
+// y uso limitados.
 
 var builder = WebApplication.CreateBuilder(args);
+// Tus claves en local (IA, Telegram) van en appsettings.Local.json, que está en .gitignore
+builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: false);
 Owner.Load(builder.Configuration);
 
 // Ninguna petición puede pesar más de 64 KB
 builder.WebHost.ConfigureKestrel(k => k.Limits.MaxRequestBodySize = Limits.RequestBodyBytes);
 
-builder.Services.AddHttpClient("ollama", c =>
+builder.Services.AddHttpClient(AiClient.HttpClientName, c =>
 {
-    c.BaseAddress = new Uri(builder.Configuration["Ollama:BaseUrl"]!);
+    if (AiClient.BaseAddress(builder.Configuration) is { } address)
+        c.BaseAddress = address;
     c.Timeout = TimeSpan.FromSeconds(180);
 });
+builder.Services.AddSingleton<AiClient>();
 builder.Services.AddHttpClient("telegram", c =>
 {
     c.BaseAddress = new Uri("https://api.telegram.org/");
@@ -56,8 +62,12 @@ var profile = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory,
 var askInstructions = Prompts.Ask(profile);
 var intakeInstructions = Prompts.Intake(profile);
 
+var ai = app.Services.GetRequiredService<AiClient>();
+if (!ai.Configured)
+    app.Logger.LogWarning("IA sin conectar: el chat y el formulario inteligente avisarán de que no está disponible. Ver README → Conectar la IA.");
+
 // Como mucho 2 respuestas generándose a la vez, para no saturar el equipo que ejecuta la IA.
-var ollamaSlots = new SemaphoreSlim(2);
+var aiSlots = new SemaphoreSlim(2);
 
 // Tope global de llamadas a la IA al día, entre todos los visitantes (por si alguien abusa desde muchas IP)
 var dailyAiLimit = new FixedWindowRateLimiter(new FixedWindowRateLimiterOptions
@@ -70,18 +80,19 @@ var dailyAiLimit = new FixedWindowRateLimiter(new FixedWindowRateLimiterOptions
 // Reserva un hueco para usar la IA, o devuelve el error para el visitante si no lo hay
 async Task<IResult?> EnterAi(CancellationToken ct)
 {
+    if (!ai.Configured)
+        return Results.Json(new { error = $"La IA de este portfolio todavía no está conectada. Puedes escribirme a {Owner.Email}." }, statusCode: 503);
     using var permit = dailyAiLimit.AttemptAcquire();
     if (!permit.IsAcquired)
         return Results.Json(new { error = $"Hoy ya he respondido muchas preguntas. Puedes escribirme a {Owner.Email}." }, statusCode: 429);
-    if (!await ollamaSlots.WaitAsync(TimeSpan.FromSeconds(30), ct))
+    if (!await aiSlots.WaitAsync(TimeSpan.FromSeconds(30), ct))
         return Results.Json(new { error = "Ahora mismo hay muchas preguntas a la vez. Inténtalo en unos segundos." }, statusCode: 503);
     return null;
 }
 
-app.MapGet("/api/health", () => Results.Ok(new { status = "ok" }));
+app.MapGet("/api/health", () => Results.Ok(new { status = "ok", ia = ai.Configured ? ai.Provider : "sin conectar" }));
 
-app.MapPost("/api/ask", async (AskRequest request, HttpContext http, IHttpClientFactory clients, IConfiguration config,
-    ILogger<Program> logger, CancellationToken ct) =>
+app.MapPost("/api/ask", async (AskRequest request, HttpContext http, ILogger<Program> logger, CancellationToken ct) =>
 {
     var question = request.Question?.Trim() ?? "";
     if (question.Length is < Limits.QuestionMin or > Limits.QuestionMax)
@@ -95,35 +106,11 @@ app.MapPost("/api/ask", async (AskRequest request, HttpContext http, IHttpClient
     {
         // La respuesta se va enviando a la web según el modelo la genera (texto plano por trozos),
         // así quien pregunta empieza a leer enseguida aunque el modelo sea lento.
-        using var ollamaRequest = new HttpRequestMessage(HttpMethod.Post, "api/chat")
-        {
-            Content = JsonContent.Create(new
-            {
-                model = config["Ollama:Model"],
-                messages = new object[]
-                {
-                    new { role = "system", content = askInstructions },
-                    new { role = "user", content = question }
-                },
-                stream = true,
-                think = false,
-                options = new { temperature = 0.4, num_ctx = ContextTokens, num_predict = 220 }
-            })
-        };
-        using var response = await clients.CreateClient("ollama")
-            .SendAsync(ollamaRequest, HttpCompletionOption.ResponseHeadersRead, ct);
-        response.EnsureSuccessStatusCode();
-
-        using var reader = new StreamReader(await response.Content.ReadAsStreamAsync(ct));
+        AiMessage[] messages = [new("system", askInstructions), new("user", question)];
         var insideThink = false;
-        while (await reader.ReadLineAsync(ct) is { } line)
+        await foreach (var chunk in ai.StreamAsync(messages, temperature: 0.4, maxTokens: 220, ct))
         {
-            if (line.Length == 0)
-                continue;
-            using var chunk = JsonDocument.Parse(line);
-            var piece = chunk.RootElement.TryGetProperty("message", out var message)
-                ? message.GetProperty("content").GetString() ?? ""
-                : "";
+            var piece = chunk;
 
             // Por si el modelo devuelve su razonamiento entre <think>…</think>: no se envía
             if (piece.Contains("<think>")) insideThink = true;
@@ -153,7 +140,7 @@ app.MapPost("/api/ask", async (AskRequest request, HttpContext http, IHttpClient
     }
     catch (Exception ex) when (ex is HttpRequestException or JsonException or TaskCanceledException or KeyNotFoundException or InvalidOperationException)
     {
-        logger.LogWarning(ex, "No se pudo consultar a Ollama");
+        logger.LogWarning(ex, "No se pudo consultar a la IA ({Proveedor})", ai.Provider);
         // Si ya se había empezado a enviar la respuesta, se corta ahí
         if (started)
             return Results.Empty;
@@ -161,14 +148,13 @@ app.MapPost("/api/ask", async (AskRequest request, HttpContext http, IHttpClient
     }
     finally
     {
-        ollamaSlots.Release();
+        aiSlots.Release();
     }
 }).RequireRateLimiting("preguntas");
 
 // Formulario inteligente: recibe la conversación (la guarda el navegador) y los datos recogidos, y la IA
 // responde con su siguiente pregunta y los datos actualizados. El servidor no guarda nada hasta el envío.
-app.MapPost("/api/intake", async (IntakeRequest request, IHttpClientFactory clients, IConfiguration config,
-    ILogger<Program> logger, CancellationToken ct) =>
+app.MapPost("/api/intake", async (IntakeRequest request, ILogger<Program> logger, CancellationToken ct) =>
 {
     if (Validation.Intake(request) is { } invalid)
         return Results.BadRequest(new { error = invalid });
@@ -179,39 +165,24 @@ app.MapPost("/api/intake", async (IntakeRequest request, IHttpClientFactory clie
     try
     {
         var current = request.Data ?? new IntakeData();
-        var messages = new List<object>
+        var messages = new List<AiMessage>
         {
-            new { role = "system", content = intakeInstructions },
-            new { role = "system", content = $"DATOS RECOGIDOS HASTA AHORA: {JsonSerializer.Serialize(current)}" }
+            new("system", intakeInstructions),
+            new("system", $"DATOS RECOGIDOS HASTA AHORA: {JsonSerializer.Serialize(current)}")
         };
-        messages.AddRange(request.Messages!.Select(m => new { role = m.Role, content = m.Content!.Trim() }));
+        messages.AddRange(request.Messages!.Select(m => new AiMessage(m.Role!, m.Content!.Trim())));
         // El servidor decide qué tema toca (los modelos pequeños se olvidan y repiten preguntas). Va al final,
         // justo después del último mensaje, que es donde más caso le hace el modelo.
         var next = IntakePlan.Missing(current).FirstOrDefault();
-        messages.Add(new
-        {
-            role = "system",
-            content = next is null
+        messages.Add(new AiMessage("system",
+            next is null
                 ? "SIGUIENTE PASO: actualiza los datos con lo que acaba de decir el visitante."
                 : $"SIGUIENTE PASO: actualiza los datos con lo que acaba de decir el visitante (detecta los tipos de proyecto y marca en noAplica lo que no tenga sentido para él). " +
                   $"Después pregúntale por {Owner.Fill(next.Hint)}" + (next.Types is null ? "" : $" (clave \"{next.Key}\" de detalles)") + ". " +
                   "Si su última respuesta abre una oportunidad clara que aún no habéis hablado (por ejemplo, vende productos pero no por internet), puedes preguntarle antes por eso, una sola vez. " +
-                  "No repitas ninguna pregunta que ya le hayas hecho."
-        });
+                  "No repitas ninguna pregunta que ya le hayas hecho."));
 
-        var response = await clients.CreateClient("ollama").PostAsJsonAsync("api/chat", new
-        {
-            model = config["Ollama:Model"],
-            messages,
-            stream = false,
-            think = false,
-            format = IntakeSchema,
-            options = new { temperature = 0.3, num_ctx = ContextTokens, num_predict = 800 }
-        }, ct);
-        response.EnsureSuccessStatusCode();
-
-        using var body = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(ct), cancellationToken: ct);
-        var content = body.RootElement.GetProperty("message").GetProperty("content").GetString() ?? "";
+        var content = await ai.CompleteJsonAsync(messages, IntakeSchema, temperature: 0.3, maxTokens: 800, ct);
         using var result = JsonDocument.Parse(content);
         var root = result.RootElement;
 
@@ -284,7 +255,7 @@ app.MapPost("/api/intake", async (IntakeRequest request, IHttpClientFactory clie
     }
     finally
     {
-        ollamaSlots.Release();
+        aiSlots.Release();
     }
 }).RequireRateLimiting("asistente");
 
@@ -360,11 +331,7 @@ static string ClientKey(HttpContext context) =>
 
 partial class Program
 {
-
-    // Mismo tamaño de contexto en todas las llamadas, para que Ollama no tenga que recargar el modelo
-    const int ContextTokens = 8192;
-
-    // Forma obligatoria de la respuesta del formulario inteligente (Ollama la respeta con "format")
+    // Forma obligatoria de la respuesta del formulario inteligente (la IA la recibe como esquema JSON)
     static readonly object IntakeSchema = new
     {
         type = "object",

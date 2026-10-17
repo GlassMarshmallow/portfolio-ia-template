@@ -57,3 +57,6 @@ public/assets/*.zip
 public/assets/video/
 public/assets/Animacion2blanco.png
 public/assets/Animacionn2pc.png
+
+# Claves de la IA y de Telegram en local (nunca en git)
+api/appsettings.Local.json

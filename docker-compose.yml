@@ -1,4 +1,4 @@
-# Portfolio + API de preguntas + túnel de Cloudflare.
+# Portfolio + API del chat + (opcional) Ollama + túnel de Cloudflare.
 name: portfolio
 
 # El portfolio no publica ningún puerto a internet: solo el túnel de Cloudflare llega a él por la
@@ -11,27 +11,48 @@ services:
       - "127.0.0.1:8095:80"
 
   # API del chat y del formulario inteligente. nginx del portfolio le pasa las llamadas a /api/.
-  # Usa el Ollama de deploy/ollama, al que llega por la red "ollama-compartido".
+  # La IA se elige en el .env (IA_PROVEEDOR): sin elegir, el chat avisa de que no está conectada.
   api:
     build: ./api
     restart: unless-stopped
     environment:
+      IA__Proveedor: ${IA_PROVEEDOR:-}
       Ollama__BaseUrl: ${OLLAMA_URL:-http://ollama:11434/}
       Ollama__Model: ${OLLAMA_MODEL:-qwen3:8b}
-      # Bot de Telegram que te envía las solicitudes (en el .env del servidor, nunca en git)
+      OpenAI__BaseUrl: ${OPENAI_URL:-https://api.openai.com/v1/}
+      OpenAI__Model: ${OPENAI_MODEL:-gpt-4o-mini}
+      # Claves (en el .env del servidor, nunca en git)
+      OpenAI__ApiKey: ${OPENAI_API_KEY:-}
       Telegram__BotToken: ${TELEGRAM_BOT_TOKEN:-}
       Telegram__ChatId: ${TELEGRAM_CHAT_ID:-}
       Solicitudes__Carpeta: /data/solicitudes
     volumes:
       # Copia de cada solicitud recibida, por si falla Telegram
       - solicitudes:/data/solicitudes
-    networks:
-      - default
-      - ollama
     mem_limit: 256m
 
+  # Ollama (la IA en tu propio servidor). Solo se arranca si usas IA_PROVEEDOR=ollama:
+  #   docker compose --profile ollama up -d --build
+  #   docker compose exec ollama ollama pull qwen3:8b      (o el modelo que elijas, ver README)
+  # No se publica a internet: la API llega a él por la red interna (http://ollama:11434).
+  ollama:
+    image: ollama/ollama:0.40.5
+    profiles: ["ollama"]
+    restart: unless-stopped
+    environment:
+      # Un solo modelo cargado y una respuesta a la vez: deja memoria libre para el resto del servidor
+      OLLAMA_MAX_LOADED_MODELS: "1"
+      OLLAMA_NUM_PARALLEL: "1"
+      # Si nadie pregunta en 10 minutos, descarga el modelo y libera la memoria
+      OLLAMA_KEEP_ALIVE: "10m"
+      OLLAMA_CONTEXT_LENGTH: "8192"
+    volumes:
+      - modelos:/root/.ollama
+    # Límite de memoria: qwen3:8b ocupa unos 6 GB (ajústalo si usas otro modelo)
+    mem_limit: 8g
+
   # Túnel con dominio propio (URL fija). Necesita CLOUDFLARE_TUNNEL_TOKEN en el archivo .env.
-  # Arranque: docker compose --profile tunel up -d --build
+  # Arranque: añade --profile tunel (p. ej. docker compose --profile tunel up -d --build)
   cloudflared:
     image: cloudflare/cloudflared:2025.9.1
     profiles: ["tunel"]
@@ -43,7 +64,7 @@ services:
       - portfolio
 
   # Túnel rápido sin cuenta ni dominio: da una URL *.trycloudflare.com aleatoria que cambia en cada
-  # reinicio. Útil para probar. Arranque: docker compose --profile rapido up -d --build
+  # reinicio. Útil para probar. Arranque: añade --profile rapido
   # y la URL aparece en: docker compose logs cloudflared-rapido
   cloudflared-rapido:
     image: cloudflare/cloudflared:2025.9.1
@@ -55,9 +76,4 @@ services:
 
 volumes:
   solicitudes:
-
-networks:
-  # Red creada por deploy/ollama/compose.yaml (hay que arrancar Ollama antes que el portfolio)
-  ollama:
-    external: true
-    name: ollama-compartido
+  modelos:

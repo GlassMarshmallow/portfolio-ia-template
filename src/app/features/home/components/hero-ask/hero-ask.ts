@@ -17,9 +17,11 @@ import { PROFILE } from '../../../../core/data/profile.data';
 // - "Quiero un proyecto": formulario inteligente; la IA va preguntando, rellena la solicitud y, al final,
 //   el visitante la revisa y la envía. La conversación se guarda en el navegador para poder retomarla.
 
-// Proporción de la ilustración y posición de la cabeza: en src/app/core/data/hero.data.ts
+// Proporción de la ilustración, posición de la cabeza y de la cara: en src/app/core/data/hero.data.ts
 const IMAGE_RATIO = HERO.imageRatio;
 const HEAD = HERO.head;
+const FACE = HERO.face;
+const TAIL = 16;
 const BUBBLE_WIDTH = 320;
 const MARGIN = 16;
 // Tras terminar de escribirse, el bocadillo de una pregunta rápida se desvanece a los 20 segundos
@@ -33,13 +35,15 @@ type SendStatus = 'idle' | 'sending' | 'sent' | 'error';
 
 interface Placement {
   left: number;
-  top: number;
+  /** Se ancla por arriba o, delante de la cara, por abajo (para que crezca hacia arriba) */
+  top: number | null;
+  bottom: number | null;
   width: number;
   /** Alto máximo para no tapar el título "Hola, soy …" */
   maxHeight: number;
   side: 'right' | 'left' | 'top';
-  /** Posición horizontal de la cola cuando el bocadillo va bajo la cabeza (móvil) */
-  tailX: number;
+  /** Delante de la cara: altura de la cola desde abajo, para que apunte a la cara */
+  tailBottom: number;
 }
 
 // Campos del resumen final, en el orden en que se enseñan
@@ -77,7 +81,7 @@ export class HeroAsk {
   protected readonly shownParts = computed(() => linkifyKnown(this.shown()));
   protected readonly fullAnswer = signal('');
   protected readonly visible = signal(false);
-  protected readonly placement = signal<Placement>({ left: 0, top: 0, width: BUBBLE_WIDTH, maxHeight: 400, side: 'right', tailX: 0 });
+  protected readonly placement = signal<Placement>({ left: 0, top: 0, bottom: null, width: BUBBLE_WIDTH, maxHeight: 400, side: 'right', tailBottom: 0 });
   /** La respuesta ya ha llegado entera (se anuncia a lectores de pantalla y el bocadillo puede terminar) */
   protected readonly done = signal(false);
 
@@ -379,7 +383,7 @@ export class HeroAsk {
   }
 
   // Calcula dónde queda la cabeza de la chica en pantalla (el dibujo cubre la ventana con object-fit: cover)
-  // y coloca el bocadillo a su derecha si cabe, o a su izquierda (en móvil).
+  // y coloca el bocadillo delante de su cara (a la izquierda) si cabe, si no detrás; en móvil, a todo el ancho.
   private placeNearHead() {
     const content = this.host.nativeElement.closest('.content');
     if (!content) {
@@ -388,43 +392,69 @@ export class HeroAsk {
     // Ancho visible sin la barra de desplazamiento, para no pegar el bocadillo al borde
     const vw = document.documentElement.clientWidth;
     const vh = window.innerHeight;
-    const imageWidth = Math.max(vw, vh * IMAGE_RATIO);
+    // El dibujo se recorta para cubrir su lienzo (que ocupa toda la ventana, barra incluida)
+    const scene = document.querySelector('.hero .hero-bg')?.getBoundingClientRect();
+    const sceneWidth = scene?.width || vw;
+    const sceneHeight = scene?.height || vh;
+    const imageWidth = Math.max(sceneWidth, sceneHeight * IMAGE_RATIO);
     const imageHeight = imageWidth / IMAGE_RATIO;
-    const headX = (vw - imageWidth) / 2 + HEAD.x * imageWidth;
-    const headY = (vh - imageHeight) / 2 + HEAD.y * imageHeight;
+    const headX = (sceneWidth - imageWidth) / 2 + HEAD.x * imageWidth;
+    const headY = (sceneHeight - imageHeight) / 2 + HEAD.y * imageHeight;
 
+    // Debajo del menú
     const navBottom = document.querySelector('header')?.getBoundingClientRect().bottom ?? 75;
     let top = Math.max(navBottom + MARGIN, headY - 40);
     const spaceRight = vw - headX - 40 - MARGIN;
 
+    // Todo se mide como si la página estuviera arriba del todo (sumando el desplazamiento): en el móvil, al
+    // desplazarse, la barra del navegador aparece y desaparece y lanza "resize"; medido sobre la ventana,
+    // el bocadillo se recolocaba y bajaba con la página.
+    const scrollY = window.scrollY;
+    const titleTop = (content.querySelector('h1')?.getBoundingClientRect().top ?? vh) + scrollY;
+    // Coordenadas relativas al bloque de contenido (que es el contenedor posicionado)
+    const box = content.getBoundingClientRect();
+    const boxTop = box.top + scrollY;
+    const faceX = (sceneWidth - imageWidth) / 2 + FACE.x * imageWidth;
+    const faceY = (sceneHeight - imageHeight) / 2 + FACE.y * imageHeight;
+
+    if (vw >= 768 && faceX - TAIL - MARGIN >= 260) {
+      // Escritorio: delante de su cara (mira a la izquierda, hacia el portátil), con la cola hacia ella.
+      // Se ancla por abajo, a la altura de la cara (o encima del título), y crece hacia arriba.
+      const width = Math.min(BUBBLE_WIDTH, faceX - TAIL - MARGIN);
+      const left = faceX - TAIL - width;
+      const bottom = Math.min(faceY + 40, titleTop - 12);
+      // nunca por debajo del menú (en ventanas bajas queda más bajito y el texto se desplaza dentro)
+      const maxHeight = Math.max(96, bottom - (navBottom + MARGIN));
+      const tailBottom = Math.max(12, Math.min(bottom - faceY - 9, maxHeight - 30));
+      this.placement.set({
+        left: left - box.left, top: null, bottom: boxTop + box.height - bottom,
+        width, maxHeight, side: 'left', tailBottom
+      });
+      return;
+    }
+
     let left: number;
     let width: number;
     let side: Placement['side'];
-    let tailX = 0;
+    let maxHeight: number;
     if (vw >= 768 && spaceRight >= 260) {
-      // Escritorio: a la derecha de la cabeza
+      // Si delante no cabe: detrás de la cabeza, sin bajar más allá del título
       side = 'right';
       width = Math.min(BUBBLE_WIDTH, spaceRight);
       left = headX + 40;
-    } else if (vw >= 768 && headX - 30 - MARGIN >= 260) {
-      // A la izquierda de la cabeza
-      side = 'left';
-      width = Math.min(BUBBLE_WIDTH, headX - 30 - MARGIN);
-      left = headX - 30 - width;
+      maxHeight = Math.max(140, titleTop - 12 - top);
     } else {
-      // Móvil y tableta: a todo el ancho, debajo del menú, con la cola hacia arriba apuntando a la cabeza
+      // Móvil y tableta: a todo el ancho, en el hueco entre el saludo (arriba) y el chat (abajo); si no
+      // cabe, el texto se desplaza dentro
       side = 'top';
       left = MARGIN;
       width = vw - MARGIN * 2;
-      tailX = Math.min(Math.max(headX - left, 28), width - 28);
+      const above = content.querySelector('.hero-subtitle') ?? content.querySelector('h1') ?? content;
+      top = above.getBoundingClientRect().bottom + scrollY + 8;
+      const belowTop = (content.querySelector('.ask-form')?.getBoundingClientRect().top ?? vh) + scrollY;
+      maxHeight = Math.max(140, belowTop - 8 - top);
     }
 
-    // Que no baje más allá del título: si no cabe, el bocadillo se acorta y su texto se desplaza dentro
-    const titleTop = content.querySelector('h1')?.getBoundingClientRect().top ?? vh;
-    const maxHeight = Math.max(140, titleTop - 12 - top);
-
-    // Coordenadas relativas al bloque de contenido (que es el contenedor posicionado)
-    const box = content.getBoundingClientRect();
-    this.placement.set({ left: left - box.left, top: top - box.top, width, maxHeight, side, tailX });
+    this.placement.set({ left: left - box.left, top: top - boxTop, bottom: null, width, maxHeight, side, tailBottom: 0 });
   }
 }

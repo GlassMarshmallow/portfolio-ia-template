@@ -18,6 +18,9 @@ export class Header {
     { href: '/#skills', label: 'Habilidades' }
   ];
 
+  // Solo en el menú del móvil: allí los iconos de redes no están en el inicio, sino en «Conectemos»
+  readonly mobileLinks = [...this.links, { href: '/#contacto', label: 'Contacto' }];
+
   private readonly openButton = viewChild.required<ElementRef<HTMLButtonElement>>('openButton');
   private readonly closeButton = viewChild.required<ElementRef<HTMLButtonElement>>('closeButton');
 

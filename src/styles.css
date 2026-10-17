@@ -30,7 +30,7 @@ h1 {
 .projects h2,
 .about h2,
 #skills h2,
-.footer h3 {
+.footer h2 {
   color: #117f84;
   font-weight: 800;
   letter-spacing: 0.5px;
@@ -485,7 +485,7 @@ option {
 }
 
 /* Título */
-.footer h3 {
+.footer h2 {
   font-family: var(--font-main, "Montserrat"), sans-serif;
   font-weight: 700;
   font-size: 1.6rem;
@@ -581,6 +581,17 @@ option {
   );
 }
 
+/* Pantallas táctiles: el fondo y los puntos, al alto máximo de la ventana (no cambia al aparecer o
+   desaparecer la barra del navegador, así no dan saltos al desplazarse) */
+@media (pointer: coarse) {
+  .purple-bg,
+  .dots-overlay {
+    bottom: auto;
+    height: 100vh;
+    height: 100lvh;
+  }
+}
+
 /* === Global === */
 /* Color de fondo real de la página (el resplandor y los puntos van encima en capas fijas).
    Sin él, las herramientas de accesibilidad y los modos de alto contraste asumen fondo blanco. */
@@ -652,16 +663,21 @@ main .container-fluid {
   justify-content: center;
   align-items: center;
 
+  /* Cerrado, además de transparente, oculto del todo: con solo opacity 0, algunos navegadores del móvil
+     siguen aplicando el desenfoque (backdrop-filter) a toda la pantalla */
   opacity: 0;
+  visibility: hidden;
   pointer-events: none;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.3s ease, visibility 0s linear 0.3s;
 
   z-index: 2500;
 }
 
 .mobile-menu.active {
   opacity: 1;
+  visibility: visible;
   pointer-events: auto;
+  transition: opacity 0.3s ease, visibility 0s;
 }
 
 /* --- BOTÓN X (cerrar) --- */
@@ -840,7 +856,7 @@ body {
 
 .about h2,
 #skills h2,
-.footer h3 {
+.footer h2 {
   color: var(--text-primary);
   text-shadow: none;
 }
@@ -1181,6 +1197,25 @@ html[data-theme="light"] .ticker-item {
   height: 32px;
 }
 
+/* Los enlaces de los iconos, centrados igual que el botón de copiar el correo (si no, el icono se apoya en
+   la línea de texto y queda unos píxeles más arriba que el sobre) */
+.hero .socials a,
+.footer .socials a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Correo, GitHub y LinkedIn con el mismo tamaño a la vista: con la misma caja, el cuadrado de LinkedIn
+   parece más grande y el sobre (más bajo que ancho) más pequeño; se compensa a ojo */
+.socials app-icon[name="envelope-fill"] {
+  transform: scale(1.08);
+}
+
+.socials app-icon[name="linkedin"] {
+  transform: scale(0.88);
+}
+
 .hamburger-btn app-icon {
   width: 30px;
   height: 30px;
@@ -1357,4 +1392,83 @@ html[data-theme="light"] .skip-link {
   background: #ffffff;
   color: #1d1d1f;
   border-color: var(--accent-text);
+}
+
+/* ===== Móvil: sin barra de menú, solo los dos botones flotando (sol/luna y menú) ===== */
+@media (max-width: 768px) {
+  header .hamburger-bar,
+  header nav,
+  html[data-theme="light"] header nav,
+  html[data-theme="light"] header .hamburger-bar {
+    background: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: none;
+    border-bottom: none;
+  }
+
+  /* Los dos botones: círculos de cristal del mismo tamaño, para que se vean sobre el dibujo y el texto */
+  header .theme-toggle,
+  header .hamburger-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 50%;
+    background: rgba(22, 22, 23, 0.72);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  }
+
+  header .hamburger-btn app-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  html[data-theme="light"] header .theme-toggle,
+  html[data-theme="light"] header .hamburger-btn {
+    border-color: rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* ===== Menú del móvil: la ✕ en el mismo sitio y con el mismo círculo de cristal que el botón de menú ===== */
+.mobile-menu .close-menu-btn {
+  top: 10px;
+  right: 20px;
+  left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  font-size: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 50%;
+  background: rgba(22, 22, 23, 0.72);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.mobile-menu .close-menu-btn app-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* Contorno de foco redondo, como el botón (antes salía un rectángulo) */
+.mobile-menu .close-menu-btn:focus-visible {
+  outline: 2px solid var(--accent-text);
+  outline-offset: 3px;
+  border-radius: 50%;
+}
+
+html[data-theme="light"] .mobile-menu .close-menu-btn {
+  border-color: rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }

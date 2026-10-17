@@ -61,6 +61,13 @@
   box-shadow: inset 0 0 40px 18px rgba(0, 0, 0, 0.85), inset 0 0 0 2px rgba(28, 171, 176, 0.08);
 }
 
+/* En móvil, las esquinas oscurecidas sin redondear */
+@media (max-width: 767px) {
+  .crt-curve {
+    border-radius: 0;
+  }
+}
+
 /* Bordes oscurecidos */
 .film-vignette {
   inset: 0;
@@ -156,6 +163,50 @@
   margin-right: 0;
 }
 
+/* Ordenador: el bloque (saludo, iconos, chat y aviso) abajo, justo encima de la franja de logos, en vez de
+   centrado en vertical; así el dibujo queda más despejado */
+@media (min-width: 768px) {
+  .hero {
+    align-items: flex-end;
+  }
+
+  .hero > .row {
+    width: 100%;
+    justify-content: center;
+    padding-bottom: 5rem;
+  }
+
+  /* Ancho fijo (no el de su contenido): el bocadillo se coloca respecto a este bloque y, si se estrechaba
+     (p. ej. al cambiar los botones en «Quiero un proyecto»), se desplazaba encima de ella */
+  .hero .content {
+    width: 100%;
+    margin-top: 0;
+  }
+}
+
+/* Pantallas táctiles: al desplazarse, la barra del navegador aparece y desaparece y cambia el alto de la
+   ventana. Las capas del fondo se fijan al alto máximo (lvh, con la barra escondida), que no cambia, para
+   que no den saltos; antes se estiraban o encogían con la ventana. */
+@media (pointer: coarse) {
+  .hero .hero-bg,
+  .film-scanlines,
+  .film-vignette,
+  .crt-curve,
+  .hero-dim {
+    bottom: auto;
+    height: 100vh;
+    height: 100lvh;
+  }
+
+  .film-grain {
+    top: -50vh;
+    top: -50lvh;
+    bottom: auto;
+    height: 200vh;
+    height: 200lvh;
+  }
+}
+
 /* ===== Modo claro (atributo data-theme="light" en <html>): dibujo invertido =====
    Va aquí, y no en styles.css, porque necesita ganar a las reglas de este componente. */
 
@@ -201,18 +252,71 @@
   text-shadow: none;
 }
 
-/* En móvil el subtítulo un poco más grande, para que se lea bien */
+/* En móvil: título de unos 32 px (cabe en una línea) y subtítulo de unos 20 px, en proporción */
 @media (max-width: 600px) {
+  .hero .content h1 {
+    font-size: clamp(1.75rem, 8.5vw, 2.1rem);
+    margin-bottom: 0.75rem;
+  }
+
   .hero .content .hero-subtitle {
-    font-size: 1.45rem;
+    font-size: clamp(1.1rem, 5.2vw, 1.3rem);
     line-height: 1.3;
+    margin-bottom: 1.5rem;
   }
 }
 
-/* En móvil, el botón de pausa algo más abajo para no chocar con las preguntas sugeridas */
+/* En móvil, el botón de pausa va debajo del aviso de la IA, en el flujo de la página: flotando en la
+   esquina pisaba el aviso en las pantallas bajas (p. ej. iPhone SE) */
 @media (max-width: 767px) {
+  /* En pantallas bajas el contenido no cabe en una sola pantalla: el inicio crece y se desplaza con la
+     página en vez de recortarse (WCAG 1.4.10); abajo deja sitio para la franja de logos */
+  .hero {
+    height: auto;
+    min-height: 100svh;
+    /* la fila ocupa todo el alto, para repartir el contenido: saludo arriba y el resto abajo */
+    align-items: stretch;
+  }
+
+  /* (el hueco va aquí y no en .hero, que lleva p-0 de Bootstrap con !important) */
+  .hero > .row {
+    /* sin esto, la fila crece con su contenido (la fila de preguntas) y se sale de la pantalla */
+    width: 100%;
+    min-width: 0;
+    /* lo justo para la franja de logos (unos 47 px) y un pequeño margen */
+    padding-bottom: 3.75rem;
+    flex-direction: column;
+    align-items: center;
+    flex-wrap: nowrap;
+  }
+
+  /* El saludo arriba, justo debajo de los botones flotantes; el resto (chat y preguntas) abajo.
+     En el hueco de en medio sale el bocadillo del chat. */
+  .hero .content {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 auto;
+    /* ancho de la pantalla (no el de su contenido), para que la fila de preguntas se deslice dentro */
+    width: 100%;
+    margin-top: 80px;
+  }
+
+  /* El chat y lo de debajo, abajo del todo. El hueco nunca baja del alto mínimo del bocadillo: en los
+     móviles bajos el inicio crece un poco en vez de que el bocadillo tape el chat */
+  .hero .content app-hero-ask {
+    margin-top: auto;
+    padding-top: 10rem;
+  }
+
+  /* Sin los iconos: en el móvil están en «Conectemos», al final (enlace «Contacto» del menú) */
+  .hero .content .socials,
+  .hero .content .copy-msg {
+    display: none !important;
+  }
+
   .pause-btn {
-    bottom: 3.4rem;
+    position: static;
+    margin-top: 0.75rem;
   }
 }
 

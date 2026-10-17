@@ -16,10 +16,11 @@
       <h1>Hola, soy <span class="accent">{{ profile.firstName }}</span>,</h1>
       <p class="hero-subtitle">{{ profile.role }}.</p>
 
+      <!-- Redes (solo en ordenador: en el móvil están en «Conectemos», al final) -->
       <div class="socials d-flex justify-content-center gap-4 mt-4">
         <!-- Mail -->
         <button class="copy-email" aria-label="Copiar dirección de correo" type="button" (click)="copyEmail()">
-          <app-icon name="envelope" />
+          <app-icon name="envelope-fill" />
         </button>
 
         <!-- GitHub -->
