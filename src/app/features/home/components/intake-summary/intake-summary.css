@@ -17,22 +17,8 @@
   text-align: left;
 }
 
-.intake-summary dl {
-  margin: 0 0 .5rem;
-}
-
-.summary-row {
-  margin-bottom: .35rem;
-}
-
-.intake-summary dt {
-  color: var(--gm-muted);
-  font-weight: 600;
-}
-
-.intake-summary dd {
-  margin: 0;
-  overflow-wrap: anywhere;
+.gm-dl {
+  margin-bottom: .5rem;
 }
 
 /* La casilla, con el texto pequeño del bocadillo */

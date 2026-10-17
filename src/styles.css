@@ -33,60 +33,9 @@ main {
   }
 }
 
-/* Secciones del inicio (Sobre mí y Habilidades): título centrado */
-.section {
-  padding-block: 6rem;
-}
-
-.section h2 {
-  margin-bottom: 2rem;
-  font-size: 2rem;
-  text-align: center;
-}
-
-.about-text {
-  margin-inline: auto;
-  margin-bottom: 1.2rem;
-  color: var(--gm-text-secondary);
-  font-size: 1.1rem;
-  line-height: 1.7;
-}
-
-.about-text strong {
-  color: var(--gm-text);
-}
-
-@media (max-width: 600px) {
-  .section {
-    padding-block: 3.5rem;
-  }
-
-  .section h2 {
-    font-size: 1.7rem;
-  }
-}
-
 /* Título del pie, algo más pequeño que el de las secciones */
 .gm-footer h2 {
   margin-bottom: .2rem;
   font-size: 1.6rem;
 }
 
-/* De noche, el acento del portfolio es el turquesa (el del marco de la foto); de día, el rosa del framework.
-   Mismo selector que el fondo de luces de GlassMarshmallow, para ganarle. */
-html[data-theme="dark"]:has(.gm-backdrop:not(.gm-backdrop--contained)) {
-  --gm-accent: #1cabb0;           /* 7,4:1 sobre negro */
-  --gm-accent-strong: #0a5366;    /* con texto blanco: 7,9:1 (AAA) */
-  --gm-accent-hover: #08414f;
-  --gm-focus: #1cabb0;
-  --gm-field-focus: #1cabb0;
-  --gm-field-ring: rgba(28, 171, 176, .45);
-  --gm-selection: rgba(28, 171, 176, .35);
-  --gm-accent-tint: rgba(28, 171, 176, .3);
-  --gm-accent-gradient-text: linear-gradient(#1cabb0, #1cabb0);
-  --gm-gradient-text-dark: #1cabb0;
-  --gm-link-hover: #1cabb0;
-  --gm-accordion-icon: #1cabb0;
-  --gm-accordion-icon-bg: rgba(28, 171, 176, .15);
-  --gm-accordion-chevron: #1cabb0;
-}

@@ -47,31 +47,9 @@
   margin: 0 auto 1.5rem;
 }
 
-/* Correo, GitHub y LinkedIn: iconos grandes de 44 px como mínimo */
+/* Correo, GitHub y LinkedIn (gm-socials): de noche, con una sombra negra para que se vean sobre el fondo */
 .socials {
-  display: flex;
-  justify-content: center;
-  gap: 1.2rem;
   margin-top: 1.5rem;
-}
-
-.socials :is(a, button) {
-  display: grid;
-  min-width: 44px;
-  min-height: 44px;
-  padding: 0;
-  border: 0;
-  color: var(--gm-text);
-  background: none;
-  font-size: 36px;
-  place-items: center;
-  cursor: pointer;
-  transition: transform .2s ease, color .2s ease;
-}
-
-.socials :is(a, button):hover {
-  color: var(--gm-accent);
-  transform: scale(1.1);
 }
 
 [data-theme="dark"] .socials .gmi {
@@ -162,11 +140,5 @@
   .pause-btn {
     position: static;
     margin: .75rem auto 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .socials :is(a, button):hover {
-    transform: none;
   }
 }

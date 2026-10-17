@@ -1,49 +1,7 @@
-/* La barra de GlassMarshmallow (gm-navbar), fija encima del contenido: el dibujo del inicio empieza en el
-   borde superior de la página y la barra lo solapa. Sin logo: los enlaces centrados y el tema a la derecha. */
+/* La barra de GlassMarshmallow sin logo y flotante en el móvil (gm-navbar--centered, --floating), fija encima
+   del contenido: el dibujo del inicio empieza en el borde superior de la página y la barra lo solapa */
 .site-header {
   position: fixed;
   right: 0;
   left: 0;
-  justify-content: center;
-}
-
-.site-header .gm-navbar__actions {
-  position: absolute;
-  right: max(24px, calc((100% - var(--gm-container)) / 2));
-}
-
-/* El botón de menú, solo en el móvil */
-.menu-btn {
-  display: none;
-}
-
-/* Móvil: sin barra, solo los dos botones de cristal flotando (sol/luna y menú) */
-@media (max-width: 860px) {
-  .site-header {
-    border-bottom: 0;
-    background: none;
-    box-shadow: none;
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-    pointer-events: none;
-  }
-
-  .site-header .gm-navbar__actions {
-    right: 20px;
-    pointer-events: auto;
-  }
-
-  .site-header .gm-navbar__actions .gm-icon-btn {
-    width: 2.75rem;
-    height: 2.75rem;
-    border-color: var(--gm-glass-btn-border);
-    background: var(--gm-glass-btn-bg);
-    box-shadow: var(--gm-glass-btn-shadow);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
-    backdrop-filter: saturate(180%) blur(20px);
-  }
-
-  .menu-btn {
-    display: grid;
-  }
 }

@@ -1,7 +1,7 @@
 <!-- Enlace para saltar directamente al contenido con el teclado -->
 <a class="gm-skip-link" href="#main-content">Saltar al contenido</a>
 
-<header class="gm-navbar site-header">
+<header class="gm-navbar gm-navbar--centered gm-navbar--floating site-header">
   <nav class="gm-navbar__nav" aria-label="Principal">
     @for (link of links; track link.href) {
       <a [href]="link.href">{{ link.label }}</a>
@@ -16,7 +16,7 @@
     </button>
 
     <!-- Menú a pantalla completa (solo en el móvil) -->
-    <button #openButton type="button" class="gm-icon-btn gm-icon-btn--glass menu-btn" aria-label="Abrir menú"
+    <button #openButton type="button" class="gm-icon-btn gm-icon-btn--glass gm-navbar__menu" aria-label="Abrir menú"
             aria-controls="mobileMenu" [attr.aria-expanded]="menuOpen()" (click)="openMenu()">
       <i class="gmi gmi-list" aria-hidden="true"></i>
     </button>

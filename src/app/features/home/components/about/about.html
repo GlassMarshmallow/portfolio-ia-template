@@ -1,10 +1,10 @@
-<section id="about" class="section">
+<section id="about" class="gm-section">
   <div class="gm-container gm-container--narrow">
-    <h2>Sobre mí</h2>
+    <h2 class="gm-section__title">Sobre mí</h2>
 
     <!-- El texto se cambia en src/app/core/data/profile.data.ts ("about") -->
     @for (paragraph of profile.about; track $index; let first = $first) {
-      <p class="about-text">
+      <p class="gm-section__text">
         @if (first) {
           Hola, me llamo <strong>{{ profile.fullName }}</strong>
         }

@@ -1,6 +1,6 @@
 <section class="intake-summary" aria-labelledby="intake-summary-title">
   <h2 id="intake-summary-title" class="summary-title">Resumen de tu proyecto</h2>
-  <dl>
+  <dl class="gm-dl">
     @for (field of summary(); track field.label) {
       <div class="summary-row"><dt>{{ field.label }}</dt><dd>{{ field.value }}</dd></div>
     }
