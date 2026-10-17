@@ -10,7 +10,7 @@
   <!-- Pausa la franja y, si lo hay, el dibujo del fondo (WCAG 2.2.2) -->
   @if (moving()) {
     <button type="button" class="gm-icon-btn gm-icon-btn--glass gm-ticker__pause" (click)="paused.update(p => !p)"
-            [attr.aria-pressed]="paused()" [attr.aria-label]="paused() ? 'Reanudar animación' : 'Pausar animación'">
+            [attr.aria-pressed]="paused()" aria-label="Pausar animación">
       <i class="gmi" [class.gmi-play-fill]="paused()" [class.gmi-pause-fill]="!paused()" aria-hidden="true"></i>
     </button>
   }

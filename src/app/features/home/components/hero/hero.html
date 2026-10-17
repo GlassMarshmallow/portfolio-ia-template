@@ -38,7 +38,7 @@
   <!-- Pausa / reanuda el dibujo animado del fondo (WCAG 2.2.2). Sin ilustración no hace falta: la franja de logos
        lleva su propio botón de pausa -->
   @if (hasScene) {
-    <button type="button" class="gm-btn gm-btn--secondary gm-btn--sm pause-btn" (click)="togglePause()" [attr.aria-pressed]="paused()">
+    <button type="button" class="gm-btn gm-btn--secondary gm-btn--sm pause-btn" (click)="togglePause()">
       {{ paused() ? 'Reanudar animación' : 'Pausar animación' }}
     </button>
   }

@@ -27,7 +27,7 @@ import { HAS_SCENE } from '../../utils/scene-animation';
     </section>
     <!-- Pausa / reanuda el dibujo animado de fondo (WCAG 2.2.2); el estado es el mismo que en el inicio -->
     @if (hasScene) {
-      <button type="button" class="gm-btn gm-btn--secondary gm-btn--sm pause-btn" (click)="paused.set(!paused())" [attr.aria-pressed]="paused()">
+      <button type="button" class="gm-btn gm-btn--secondary gm-btn--sm pause-btn" (click)="paused.set(!paused())">
         {{ paused() ? 'Reanudar animación' : 'Pausar animación' }}
       </button>
     }
