@@ -1,0 +1,6 @@
+/* Subtítulos dentro de una sección: más pequeños que los títulos de sección (h2) */
+h3 {
+  margin: 1rem 0 .4rem;
+  font-size: 1rem;
+  font-weight: 700;
+}

@@ -1,0 +1,38 @@
+<app-text-page title="Información sobre la IA">
+  <h2>Qué es</h2>
+  <!-- Si conectas la IA a un servicio externo (OpenAI, OpenRouter…), cambia "que funciona en mi propio
+       servidor, no en servicios externos" por el nombre del servicio (README → Conectar la IA) -->
+  <p>
+    El chat del inicio y «Quiero un proyecto» usan un modelo de inteligencia artificial que funciona en mi
+    propio servidor, no en servicios externos. Responde a partir de mi perfil profesional y
+    <strong>puede equivocarse</strong>: para algo importante, escríbeme directamente.
+  </p>
+
+  <h2>Qué pasa con lo que escribes</h2>
+  <h3>Preguntas rápidas</h3>
+  <p>Tu pregunta solo se usa para darte la respuesta. No se guarda en ningún sitio.</p>
+
+  <h3>«Quiero un proyecto»</h3>
+  <ol>
+    <li>El asistente con IA te hace unas preguntas sobre tu proyecto y tus datos de contacto.</li>
+    <li>
+      Mientras habláis, la conversación se guarda solo en este navegador, por si cierras la página y quieres
+      seguir más tarde. Se borra sola a los 7 días, o antes si pulsas «Empezar de nuevo».
+    </li>
+    <li>
+      Al terminar, el asistente te enseña un resumen y te propone enviármelo. Si pulsas «Enviar a
+      {{ profile.firstName }}», me llegan el resumen y la conversación, para que pueda ponerme en
+      contacto contigo.
+    </li>
+    <li>Si no lo envías, no me llega nada.</li>
+  </ol>
+
+  <h2>Antes de escribir</h2>
+  <p>No incluyas datos sensibles: salud, contraseñas, datos bancarios…</p>
+
+  <h2>Tus datos</h2>
+  <p>
+    Puedes pedirme que los consulte, corrija o borre escribiendo a
+    <a [href]="'mailto:' + profile.email">{{ profile.email }}</a>.
+  </p>
+</app-text-page>

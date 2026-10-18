@@ -1,6 +1,5 @@
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { AiInfoService } from '../../../core/services/ai-info.service';
 import { GITHUB_URL, LINKEDIN_URL, PROFILE } from '../../../core/data/profile.data';
 
 @Component({
@@ -13,6 +12,4 @@ export class Footer {
   protected readonly githubUrl = GITHUB_URL;
   protected readonly linkedinUrl = LINKEDIN_URL;
   protected readonly year = new Date().getFullYear();
-
-  protected readonly aiInfo = inject(AiInfoService);
 }
