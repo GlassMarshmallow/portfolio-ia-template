@@ -33,8 +33,8 @@ export interface HeroConfig {
    * una taza): recorta esa zona de varios fotogramas y funde una forma con la siguiente.
    */
   loopLayer: { frames: string[]; region: HeroRegion; durationMs: number } | null;
-  /** Zona opcional que se pinta siempre igual, sacada de un fotograma (p. ej. algo que tiembla entre poses). */
-  fixedPatch: { source: string; region: HeroRegion } | null;
+  /** Zonas que se pintan siempre igual, sacadas de un fotograma (p. ej. algo que tiembla entre poses). */
+  fixedPatches: { source: string; region: HeroRegion }[];
   /** Iluminación opcional: el dibujo se pasa a gris y se tiñe con un color ambiente y unas luces. */
   lighting: { ambient: string; lights: HeroLight[] } | null;
   /** Descripción de la ilustración para lectores de pantalla */
@@ -54,7 +54,7 @@ export const HERO: HeroConfig = {
   frames: [],
   frameDurationMs: 180,
   loopLayer: null,
-  fixedPatch: null,
+  fixedPatches: [],
   lighting: null,
   description: 'Ilustración animada',
   imageRatio: 16 / 9,

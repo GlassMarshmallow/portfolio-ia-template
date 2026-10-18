@@ -1,5 +1,6 @@
 /* Lo que el fondo de GlassMarshmallow (gm-backdrop) no tiene: el dibujo animado de la plantilla.
-   Con dibujo, debajo va el color liso del fondo en lugar de las luces (las luces las pone el dibujo). */
+   Con dibujo, debajo va el color liso del fondo en lugar de las luces (las luces las pone el dibujo).
+   Sin efecto de televisor (grano, líneas, esquinas curvas, brillo de tubo ni parpadeo). */
 :host {
   display: contents;
 }
@@ -12,22 +13,18 @@
   background: var(--gm-backdrop-bg);
 }
 
-/* El dibujo ocupa toda la pantalla, con un parpadeo suave */
+/* El dibujo ocupa toda la pantalla */
 .scene-bg {
   width: 100vw;
   height: 100vh;
   object-fit: cover;
-  opacity: 20%;
+  opacity: .54;
   filter: brightness(1.35) contrast(1.15);
-  animation: film-flicker 1.4s steps(1) infinite;
 }
 
-/* Brillo de tubo: copia difuminada de la escena sumada por encima */
+/* El brillo de tubo (copia difuminada de la escena) no se muestra: era parte del efecto de televisor */
 .crt-glow {
-  filter: brightness(2.5) blur(4px);
-  mix-blend-mode: screen;
-  opacity: .22;
-  animation: none;
+  display: none;
 }
 
 /* Al bajar por el inicio, el fondo (luces o dibujo) se funde con su color para que los textos se lean bien */
@@ -35,55 +32,66 @@
   background: var(--gm-backdrop-bg);
 }
 
-/* Con dibujo, el grano se mueve a saltos */
-.has-scene .gm-backdrop__grain {
-  animation: film-grain .5s steps(6) infinite;
-}
-
-@keyframes film-flicker {
-  0% { opacity: .55; }
-  15% { opacity: .53; }
-  30% { opacity: .56; }
-  50% { opacity: .52; }
-  70% { opacity: .55; }
-  85% { opacity: .53; }
-}
-
-@keyframes film-grain {
-  0% { transform: translate(0, 0); }
-  17% { transform: translate(-5%, -8%); }
-  33% { transform: translate(7%, 3%); }
-  50% { transform: translate(-3%, 9%); }
-  67% { transform: translate(9%, -4%); }
-  83% { transform: translate(-8%, 6%); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .scene-bg,
-  .has-scene .gm-backdrop__grain {
-    animation: none;
-  }
-}
-
 /* Modo claro: el dibujo invertido (fondo blanco, líneas oscuras). invert + hue-rotate(180deg) invierte la luz
    pero conserva el tono de cada zona */
 :host-context(html[data-theme="light"]) .scene-bg {
+  opacity: .84;
   filter: invert(1) hue-rotate(180deg) brightness(1.05) contrast(1.1);
-  animation-name: film-flicker-light;
 }
 
-:host-context(html[data-theme="light"]) .crt-glow {
-  filter: invert(1) hue-rotate(180deg) blur(4px);
-  mix-blend-mode: multiply;
-  opacity: .18;
-  animation: none;
-}
+/* Móvil: el dibujo entero, sin recortar los lados, en el hueco entre el saludo y el chat. El chat empieza siempre
+   unos 19,5 rem por encima del borde de abajo, así que la franja se centra un poco más arriba de la mitad para no
+   quedar debajo de él. Alto de la pantalla con las barras del navegador visibles (svh), como el inicio */
+@media (max-width: 767px) {
+  .scene-bg {
+    height: 100svh;
+    object-fit: contain;
+    object-position: 50% calc(50% - 5.25rem);
+  }
 
-@keyframes film-flicker-light {
-  0% { opacity: .85; }
-  15% { opacity: .83; }
-  30% { opacity: .86; }
-  50% { opacity: .82; }
-  70% { opacity: .85; }
-  85% { opacity: .83; }
+  /* Modo claro: para que no se note el corte, las líneas del dibujo se desvanecen al llegar a sus bordes de arriba
+     y de abajo (las variables --scene-* están en .gm-backdrop.has-scene, más abajo). De noche no hace falta: el fondo
+     negro del dibujo ya no deja ver el corte, y así se ve entero */
+  :host-context(html[data-theme="light"]) .scene-bg {
+    -webkit-mask-image: linear-gradient(transparent var(--scene-top), #000 calc(var(--scene-top) + var(--scene-edge)),
+      #000 calc(var(--scene-bottom) - var(--scene-edge)), transparent var(--scene-bottom));
+    mask-image: linear-gradient(transparent var(--scene-top), #000 calc(var(--scene-top) + var(--scene-edge)),
+      #000 calc(var(--scene-bottom) - var(--scene-edge)), transparent var(--scene-bottom));
+  }
+
+  /* Detrás del dibujo, su mismo fondo (blanco de día, negro de noche) y, desde sus bordes de arriba y de abajo
+     hacia fuera, un degradado hasta el color de la página. El dibujo mide 56,25vw de alto (16:9) y su centro está
+     5,25rem por encima de la mitad de la pantalla */
+  .gm-backdrop.has-scene {
+    --scene-top: calc(50svh - 28.125vw - 5.25rem);
+    --scene-bottom: calc(50svh + 28.125vw - 5.25rem);
+    /* El color liso sigue un poco más allá de cada borde (--scene-solid) y luego se degrada (--scene-fade) */
+    --scene-edge: 12vw;
+    --scene-solid: 8vw;
+    --scene-fade: 40vw;
+    --scene-back: var(--gm-white);
+    background:
+      linear-gradient(transparent calc(var(--scene-top) - var(--scene-solid) - var(--scene-fade)),
+        var(--scene-back) calc(var(--scene-top) - var(--scene-solid)),
+        var(--scene-back) calc(var(--scene-bottom) + var(--scene-solid)),
+        transparent calc(var(--scene-bottom) + var(--scene-solid) + var(--scene-fade))) no-repeat,
+      var(--gm-backdrop-bg);
+  }
+
+  :host-context(html[data-theme="dark"]) .gm-backdrop.has-scene {
+    --scene-back: var(--gm-black);
+  }
+
+  /* Los puntitos del fondo no pasan por detrás del dibujo: se apagan con el mismo degradado, para que se vea el
+     fondo liso (sobre todo de noche, con el dibujo medio transparente). Se suma a su máscara de óvalo */
+  .has-scene .gm-backdrop__dots {
+    --scene-hole: linear-gradient(#000 calc(var(--scene-top) - var(--scene-solid) - var(--scene-fade)),
+      transparent calc(var(--scene-top) - var(--scene-solid)),
+      transparent calc(var(--scene-bottom) + var(--scene-solid)),
+      #000 calc(var(--scene-bottom) + var(--scene-solid) + var(--scene-fade)));
+    -webkit-mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, #000 75%, transparent 100%), var(--scene-hole);
+    -webkit-mask-composite: source-in;
+    mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, #000 75%, transparent 100%), var(--scene-hole);
+    mask-composite: intersect;
+  }
 }

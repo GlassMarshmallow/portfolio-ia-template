@@ -7,7 +7,7 @@ type Region = HeroRegion;
 const FRAME_SEQUENCE = HERO.frames;
 const FRAME_DURATION_MS = HERO.frameDurationMs;
 const LOOP_LAYER = HERO.loopLayer;
-const FIXED_PATCH = HERO.fixedPatch;
+const FIXED_PATCHES = HERO.fixedPatches;
 
 /** Hay ilustración animada; si no, se ve el fondo degradado */
 export const HAS_SCENE = FRAME_SEQUENCE.length > 0;
@@ -30,7 +30,7 @@ export function startSceneAnimation(
   }
 
   // Precarga; los fotogramas que no existan se saltan.
-  const names = [...new Set([...FRAME_SEQUENCE, ...(LOOP_LAYER?.frames ?? []), ...(FIXED_PATCH ? [FIXED_PATCH.source] : [])])];
+  const names = [...new Set([...FRAME_SEQUENCE, ...(LOOP_LAYER?.frames ?? []), ...FIXED_PATCHES.map(patch => patch.source)])];
   Promise.all(names.map(loadImage)).then(images => {
     if (stopped) {
       return;
@@ -40,8 +40,11 @@ export function startSceneAnimation(
 
     const sequence = FRAME_SEQUENCE.filter(frame => frames.has(frame));
     const steamNames = (LOOP_LAYER?.frames ?? []).filter(frame => frames.has(frame));
-    const chairSource = FIXED_PATCH ? frames.get(FIXED_PATCH.source) : undefined;
-    const chairPatch = chairSource && FIXED_PATCH ? cutPatch(chairSource, FIXED_PATCH.region) : null;
+    // Zonas fijas (la silla y la lámpara): recortadas una vez de su fotograma
+    const fixedPatches = FIXED_PATCHES.flatMap(patch => {
+      const source = frames.get(patch.source);
+      return source ? [{ region: patch.region, image: cutPatch(source, patch.region) }] : [];
+    });
     if (sequence.length === 0) {
       return;
     }
@@ -69,8 +72,8 @@ export function startSceneAnimation(
       pose.height = canvas.height;
       const poseCtx = pose.getContext('2d')!;
       poseCtx.drawImage(frames.get(name)!, 0, 0);
-      if (chairPatch && FIXED_PATCH) {
-        drawPatch(poseCtx, chairPatch, FIXED_PATCH.region, 1);
+      for (const patch of fixedPatches) {
+        drawPatch(poseCtx, patch.image, patch.region, 1);
       }
       if (lightMap) {
         applyLighting(poseCtx, lightMap);
