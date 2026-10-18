@@ -1,0 +1,16 @@
+/* De día, el acordeón con la sombra mediana de GlassMarshmallow y los iconos de cada grupo (a la izquierda) en coral */
+:host-context([data-theme="light"]) .gm-accordion {
+  --gm-accordion-icon: var(--gm-coral);
+  --gm-accordion-icon-bg: rgb(var(--gm-coral-rgb) / .18);
+  box-shadow: var(--gm-shadow-md);
+}
+
+/* Borde por fuera del acordeón más suave que el del framework: gris 300 de día (antes gris 500) y gris 800 de noche
+   (antes gris 600) */
+.gm-accordion {
+  --gm-accordion-border: var(--gm-gray-300);
+}
+
+:host-context([data-theme="dark"]) .gm-accordion {
+  --gm-accordion-border: var(--gm-gray-800);
+}

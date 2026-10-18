@@ -35,14 +35,15 @@ export class Hero {
       destroyRef.onDestroy(() => stops.forEach(stop => stop()));
     });
 
-    // Cuánto se oscurece el dibujo del fondo: 0 arriba del todo, hasta MAX_DIM al pasar el inicio.
+    // Cuánto se oscurece el dibujo del fondo: 0 arriba del todo, hasta el máximo al pasar el inicio. De noche, más
+    // (85 %) para que las secciones se lean bien sobre el fondo; de día, el 80 %.
     afterNextRender(() => {
-      const MAX_DIM = 0.6;
+      const maxDim = () => (document.documentElement.dataset['theme'] === 'dark' ? 0.85 : 0.8);
       // El navegador ya agrupa los eventos de scroll por fotograma; el valor se redondea para que
       // solo se actualice cuando cambia de verdad.
       const updateDim = () => {
         const progress = Math.min(window.scrollY / window.innerHeight, 1);
-        this.scene.dim.set(Math.round(progress * MAX_DIM * 100) / 100);
+        this.scene.dim.set(Math.round(progress * maxDim() * 100) / 100);
       };
       window.addEventListener('scroll', updateDim, { passive: true });
       destroyRef.onDestroy(() => {

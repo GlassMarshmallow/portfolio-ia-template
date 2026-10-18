@@ -2,14 +2,17 @@
   <div class="gm-container gm-container--narrow">
     <h2 class="gm-section__title">Sobre mí</h2>
 
-    <!-- El texto se cambia en src/app/core/data/profile.data.ts ("about") -->
-    @for (paragraph of profile.about; track $index; let first = $first) {
-      <p class="gm-section__text">
-        @if (first) {
-          Hola, me llamo <strong>{{ profile.fullName }}</strong>
-        }
-        {{ paragraph }}
-      </p>
-    }
+    <!-- El texto se cambia en src/app/core/data/profile.data.ts ("about"). Va en un recuadro de cristal para que se
+         lea sobre el fondo -->
+    <div class="about__glass">
+      @for (paragraph of profile.about; track $index; let first = $first) {
+        <p class="gm-section__text">
+          @if (first) {
+            Hola, me llamo <strong>{{ profile.fullName }}</strong>
+          }
+          {{ paragraph }}
+        </p>
+      }
+    </div>
   </div>
 </section>

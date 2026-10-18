@@ -1,0 +1,15 @@
+/* Recuadro de cristal del texto (hecho con el generador de cristal de GlassMarshmallow): blanco al 8 %, desenfoque
+   de 5 px, curva de 14 px y sombra suave */
+.about__glass {
+  padding: 1.5rem 1.75rem;
+  border: .0625rem solid rgba(255, 255, 255, 0);
+  border-radius: .875rem;
+  background: rgba(255, 255, 255, .08);
+  box-shadow: 0 .25rem 1.875rem rgba(0, 0, 0, .1);
+  -webkit-backdrop-filter: blur(.3125rem);
+  backdrop-filter: blur(.3125rem);
+}
+
+.about__glass > :last-child {
+  margin-bottom: 0;
+}

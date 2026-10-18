@@ -39,3 +39,60 @@ main {
   font-size: 1.6rem;
 }
 
+/* Enlaces en el cielo 700 de GlassMarshmallow: 5:1 o más (AA) */
+html[data-theme="light"] {
+  --gm-link: var(--gm-sky-700);
+  --gm-link-hover: var(--gm-sky-700);
+}
+
+/* Móvil, modo claro: menú con fondo melocotón pastel, semitransparente para que se intuya el fondo detrás */
+@media (max-width: 767px) {
+  html[data-theme="light"] .gm-fullscreen-menu {
+    background: rgba(251, 234, 219, .88);
+  }
+}
+
+/* Modo claro sin la viñeta blanca circular del fondo del framework */
+html[data-theme="light"] {
+  --gm-backdrop-vignette: none;
+}
+
+/* Las letras, sin degradados: los títulos de las páginas de texto (privacidad, aviso legal, información sobre la
+   IA), de un solo color; de día, el del texto, y de noche, cielo */
+.gm-prose h2 {
+  background: none;
+  color: var(--gm-text);
+  -webkit-text-fill-color: currentColor;
+}
+
+/* De noche, en el cielo 400: 8,5:1 sobre la tarjeta oscura (AAA; el turquesa de acento se quedaba en 6,3:1) */
+[data-theme="dark"] .gm-prose h2 {
+  color: var(--gm-sky-400);
+}
+
+/* De día, todos los enlaces de texto en el cielo 700: el «Más información» del aviso del chat y los del pie */
+html[data-theme="light"] :is(.gm-ai-notice__link, .gm-footer__links a, .gm-footer__links button, .gm-footer__credit a) {
+  color: var(--gm-link);
+}
+
+/* De noche, el texto secundario (Sobre mí, descripciones) en el gris 400: llega a 7:1 (AAA) sobre los
+   recuadros de cristal oscuros (con el gris del framework se quedaba en 6,5:1) */
+html.gm-accent-turquoise[data-theme="dark"],
+html.gm-accent-turquoise[data-theme="dark"]:has(.gm-backdrop:not(.gm-backdrop--contained)) {
+  --gm-text-secondary: var(--gm-gray-400);
+}
+
+/* La cinta de habilidades no se queda parada al pulsarla. GlassMarshmallow la para con :hover, :focus-within y
+   su pausa; al pulsarla, el foco se quedaba dentro y seguía parada hasta pulsar en otro sitio. Ahora se para
+   mientras el ratón está encima (y sigue al quitarlo) o con su botón de pausa. */
+.gm-ticker:focus-within:not(:hover):not(.is-paused) .gm-ticker__track {
+  animation-play-state: running;
+}
+
+/* En pantallas táctiles no hay ratón: el toque deja la cinta «con el ratón encima» hasta tocar en otro sitio.
+   Ahí solo la para el botón. */
+@media (max-width: 767px), (hover: none) {
+  .gm-ticker:is(:hover, :focus-within):not(.is-paused) .gm-ticker__track {
+    animation-play-state: running;
+  }
+}

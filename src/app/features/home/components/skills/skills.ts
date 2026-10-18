@@ -5,7 +5,8 @@ const PREVIEW_LOGOS = 5;
 
 @Component({
   selector: 'app-skills',
-  templateUrl: './skills.html'
+  templateUrl: './skills.html',
+  styleUrl: './skills.css'
 })
 export class Skills {
   readonly groups = SKILL_GROUPS.map(group => {

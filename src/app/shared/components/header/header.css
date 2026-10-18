@@ -5,3 +5,14 @@
   right: 0;
   left: 0;
 }
+
+/* Móvil: los iconos del botón de modo claro/oscuro y del de menú, más grandes (como en la versión anterior) */
+@media (max-width: 767px) {
+  .gm-navbar__actions .gm-icon-btn .gmi {
+    font-size: 1.6rem;
+  }
+
+  .gm-navbar__actions .gm-navbar__menu .gmi {
+    font-size: 1.85rem;
+  }
+}
