@@ -1,5 +1,6 @@
 import { Component, DestroyRef, inject } from '@angular/core';
-import { NavigationCancel, NavigationError, NavigationStart, Router, RouterOutlet, Scroll } from '@angular/router';
+import { NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router, RouterOutlet, Scroll } from '@angular/router';
+import { SeoService } from './core/services/seo.service';
 
 @Component({
   selector: 'app-root',
@@ -12,7 +13,13 @@ export class App {
     // página con el desplazamiento suave (que sí se mantiene para los enlaces del menú dentro del inicio).
     const root = document.documentElement;
     const restore = () => setTimeout(() => root.style.removeProperty('scroll-behavior'));
-    const events = inject(Router).events.subscribe(event => {
+    const router = inject(Router);
+    const seo = inject(SeoService);
+    const events = router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        // Descripción, dirección canónica y redes sociales de la página nueva
+        seo.update(router.routerState.snapshot.root, event.urlAfterRedirects);
+      }
       if (event instanceof NavigationStart) {
         root.style.scrollBehavior = 'auto';
       } else if (event instanceof Scroll || event instanceof NavigationCancel || event instanceof NavigationError) {

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Páginas para Google. Cambia tu-dominio.com por tu dominio y, al cambiar una página, su fecha (lastmod). -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://tu-dominio.com/</loc>
+    <lastmod>2026-10-18</lastmod>
+  </url>
+  <url>
+    <loc>https://tu-dominio.com/privacidad</loc>
+    <lastmod>2026-10-18</lastmod>
+  </url>
+  <url>
+    <loc>https://tu-dominio.com/informacion-ia</loc>
+    <lastmod>2026-10-18</lastmod>
+  </url>
+  <url>
+    <loc>https://tu-dominio.com/aviso-legal</loc>
+    <lastmod>2026-10-18</lastmod>
+  </url>
+</urlset>

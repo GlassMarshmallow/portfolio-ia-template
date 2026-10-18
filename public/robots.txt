@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+
+# Cambia tu-dominio.com por tu dominio (también en src/index.html, src/app/core/data/site.data.ts y sitemap.xml)
+Sitemap: https://tu-dominio.com/sitemap.xml
