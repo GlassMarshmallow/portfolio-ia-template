@@ -45,13 +45,13 @@ Así se ve con la foto de ejemplo y sin ilustración propia (fondo degradado, si
 
 ## Qué incluye
 
-- **Inicio con animación propia (opcional):** tu ilustración fotograma a fotograma, con efectos de televisor antiguo. Sin ilustración, se muestra un fondo degradado.
+- **Inicio con animación propia (opcional):** tu ilustración fotograma a fotograma. Sin ilustración, se ve el fondo de luces de GlassMarshmallow.
 - **Chat de preguntas rápidas:** los visitantes preguntan («¿Cuál es tu experiencia?», «¿Qué tecnologías usas?»…) y la IA responde en tu nombre, en bocadillos de cómic, palabra a palabra según genera la respuesta.
 - **Formulario inteligente («Quiero un proyecto»):** un asistente con IA hace las preguntas que haría una consultora, distintas según el tipo de proyecto. Al final, el visitante revisa un resumen y te lo envía por Telegram.
 - **Habilidades** en un acordeón con logos de tecnologías, y una franja animada con los logos.
 - **Modo claro y oscuro**, adaptado a móvil.
 - **Accesibilidad WCAG 2.2 AA:** teclado, lectores de pantalla, contraste y «reducir movimiento».
-- **Páginas de privacidad y aviso legal**, y una ventana de **información sobre la IA** (transparencia).
+- **Páginas de privacidad y aviso legal**, y una página de **información sobre la IA** (transparencia).
 
 ---
 
@@ -202,7 +202,7 @@ Algunos servicios y su dirección (`BaseUrl`). El nombre del modelo lo encuentra
 
 - **Nunca subas tu clave a git** ni la pongas en `appsettings.json`: quien la tenga puede gastar a tu cargo. Usa `api/appsettings.Local.json` en local y el `.env` en el servidor.
 - Pon un **límite de gasto** en el panel del servicio. La API ya limita el uso por visitante y tiene un tope diario (`IA:LimiteDiario`, 600 llamadas al día por defecto).
-- **Cambia dos textos de la web**, porque dicen que la IA funciona en tu servidor: la ventana «Información sobre la IA» (`src/app/shared/components/ai-info-dialog/ai-info-dialog.html`) y la política de privacidad (`src/app/features/legal/pages/privacy/privacy.html`). Están marcados con un comentario. Di qué servicio usas y enlaza su política de privacidad.
+- **Cambia dos textos de la web**, porque dicen que la IA funciona en tu servidor: la página «Información sobre la IA» (`src/app/features/legal/pages/ai-info/ai-info.html`) y la política de privacidad (`src/app/features/legal/pages/privacy/privacy.html`). Están marcados con un comentario. Di qué servicio usas y enlaza su política de privacidad.
 - Elige un modelo **sin «razonamiento»** (los que «piensan» antes de responder, como `o1` o `qwen3` a través de este tipo de servicios): tardan más y pueden quedarse sin espacio para la respuesta. Si quieres usar `qwen3`, hazlo con la opción A (Ollama), que desactiva ese razonamiento.
 
 ---
@@ -217,7 +217,9 @@ Algunos servicios y su dirección (`BaseUrl`). El nombre del modelo lo encuentra
 | **Nombre, correo y enlaces que usa la IA** | `api/appsettings.json` → `"Perfil"` |
 | **Tus habilidades y sus logos** | `src/app/core/data/skills.data.ts` (cada logo es un icono de GlassMarshmallow por su nombre, por ejemplo `'angular'`; la lista, en la página Iconos de GlassMarshmallow, categoría Brand) |
 | **La animación del inicio** | `src/app/core/data/hero.data.ts` (ver abajo) |
+| **Las respuestas de los botones de preguntas rápidas** (salen al instante, sin IA) | `api/respuestas-rapidas.json` |
 | **Las preguntas del formulario inteligente** | `api/IntakePlan.cs` |
+| **Tu dominio, la descripción y la imagen para Google y las redes** | `src/app/core/data/site.data.ts`, `src/index.html`, `public/robots.txt`, `public/sitemap.xml` (busca «tu-dominio.com») y `public/assets/og-image.jpg` (1200 × 630 px) |
 | **Las reglas de la IA** | `api/Prompts.cs` |
 | **Privacidad y aviso legal** | `src/app/features/legal/pages/` |
 
@@ -250,7 +252,7 @@ Opciones de `hero.data.ts`:
 |---|---|
 | `frameDurationMs` | Cuánto dura cada fotograma (180 ms queda natural). |
 | `loopLayer` | Una zona que se mueve **siempre**, aunque el personaje se quede quieto (por ejemplo, el humo de una taza). Recorta esa zona de varios fotogramas y funde una forma con la siguiente. |
-| `fixedPatch` | Una zona que se pinta siempre igual, sacada de un fotograma: arregla elementos que «tiemblan» entre poses. |
+| `fixedPatches` | Zonas que se pintan siempre igual, sacadas de un fotograma: arreglan elementos que «tiemblan» entre poses (una silla, una lámpara…). |
 | `lighting` | Tiñe el dibujo con un color ambiente y luces (una lámpara, una pantalla…). |
 | `face` | Dónde está la cara (el personaje mira a la izquierda): en ordenador, el bocadillo del chat sale delante de ella con la cola apuntándole. |
 | `head` | Dónde está la cabeza: si delante de la cara no cabe el bocadillo, sale detrás de la cabeza. |
@@ -283,15 +285,15 @@ Las reglas hacen que la IA hable en primera persona, sea breve, no invente nada 
 ### Formulario inteligente (`/api/intake` y `/api/contact`)
 
 1. El visitante pulsa **«Quiero un proyecto»**. Un asistente con IA se presenta y le pregunta qué quiere crear.
-2. Es **el servidor, no la IA, quien decide qué preguntar** (`api/IntakePlan.cs`):
-   - Primero lo común: negocio, qué necesita, a quién va dirigido, cómo lo gestiona ahora y qué quiere conseguir.
-   - Después, las preguntas propias de cada tipo de proyecto: tienda online (productos, cobros, envíos, stock), reservas (servicios, horarios, recordatorios…), web informativa, panel de gestión, automatización o mejora de una web.
-   - Al final: marca, textos y fotos, conexiones con lo que ya usa, referencias, y nombre y correo.
+2. Es **el servidor, no la IA, quien hace las preguntas** (`api/IntakePlan.cs`), en orden y al instante:
+   - Primero lo común: qué quiere crear, a qué se dedica, a quién va dirigido, cómo lo gestiona ahora y qué quiere conseguir.
+   - Con la primera respuesta, **la IA decide una sola vez el tipo de proyecto** (tienda online, reservas, web informativa, portfolio, panel de gestión, automatización o mejora de una web) y qué preguntas sobran. Después van las propias de ese tipo.
+   - Al final: marca, textos y fotos, conexiones con lo que ya usa, referencias, nombre, correo, teléfono y empresa (opcionales) y una nota del formulario.
 
-   La IA detecta el tipo de proyecto, se salta lo que no aplica y formula cada pregunta con naturalidad. También puede proponer una oportunidad («¿te interesaría vender por internet?»). Que el servidor controle el guion evita que los modelos pequeños repitan preguntas o terminen antes de tiempo.
+   Si el visitante pregunta algo a mitad, la IA le contesta en una o dos frases, se apunta su pregunta en el resumen y se repite la pregunta pendiente. Sin IA conectada el formulario también funciona: hace todas las preguntas de una web informativa.
 3. La IA responde en **JSON con un esquema fijo**, y el servidor lo valida.
 4. La conversación se guarda **en el navegador** (`localStorage`, 7 días) para poder retomarla si se cierra la página.
-5. Al terminar, el visitante revisa un **resumen**, acepta la privacidad y pulsa **«Enviar»**. La API la valida, **guarda una copia** y **te la envía por Telegram** con la conversación adjunta.
+5. Al terminar, el visitante revisa un **resumen por bloques**, puede cambiar cualquier dato con **«Editar»**, acepta la privacidad y pulsa **«Enviar»**. La API la valida, **guarda una copia** y **te la envía por Telegram** con la conversación adjunta.
 6. Las copias guardadas **se borran solas a los 365 días** (`Solicitudes:DiasConservacion`).
 
 ### Medidas de seguridad

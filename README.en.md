@@ -47,13 +47,13 @@ This is how it looks with the example photo and no illustration of your own (gra
 
 ## Features
 
-- **Home with your own animation (optional):** your illustration frame by frame, with retro TV effects. Without an illustration, a gradient background is shown.
+- **Home with your own animation (optional):** your illustration frame by frame. Without an illustration, you see the GlassMarshmallow lights background.
 - **Quick-questions chat:** visitors ask («What's your experience?», «Which technologies do you use?»…) and the AI answers on your behalf in comic speech bubbles, word by word as it generates the answer.
 - **Smart form («Quiero un proyecto» / "I want a project"):** an AI assistant asks the questions a consultancy would ask, different for each type of project. At the end, the visitor reviews a summary and sends it to you on Telegram.
 - **Skills** in an accordion with technology logos, plus an animated logo strip.
 - **Light and dark mode**, mobile-friendly.
 - **WCAG 2.2 AA accessibility:** keyboard, screen readers, contrast and "reduce motion".
-- **Privacy and legal notice pages**, and an **AI information** window (transparency).
+- **Privacy and legal notice pages**, and an **AI information** page (transparency).
 
 ---
 
@@ -204,7 +204,7 @@ Some services and their address (`BaseUrl`). You'll find the model names in each
 
 - **Never commit your key** or put it in `appsettings.json`: anyone who has it can spend on your account. Use `api/appsettings.Local.json` locally and `.env` on the server.
 - Set a **spending limit** in the service's dashboard. The API already limits use per visitor and has a daily cap (`IA:LimiteDiario`, 600 calls a day by default).
-- **Change two texts on the website**, because they say the AI runs on your own server: the "Información sobre la IA" window (`src/app/shared/components/ai-info-dialog/ai-info-dialog.html`) and the privacy policy (`src/app/features/legal/pages/privacy/privacy.html`). They're marked with a comment. Say which service you use and link to its privacy policy.
+- **Change two texts on the website**, because they say the AI runs on your own server: the "Información sobre la IA" page (`src/app/features/legal/pages/ai-info/ai-info.html`) and the privacy policy (`src/app/features/legal/pages/privacy/privacy.html`). They're marked with a comment. Say which service you use and link to its privacy policy.
 - Pick a model **without "reasoning"** (models that "think" before answering, such as `o1`, or `qwen3` through this kind of service): they're slower and can run out of room for the answer. If you want `qwen3`, use option A (Ollama), which turns that reasoning off.
 
 ---
@@ -219,7 +219,9 @@ Some services and their address (`BaseUrl`). You'll find the model names in each
 | **Name, email and links used by the AI** | `api/appsettings.json` → `"Perfil"` |
 | **Your skills and their logos** | `src/app/core/data/skills.data.ts` (each logo is a GlassMarshmallow icon by name, for example `'angular'`; the list is on the GlassMarshmallow Icons page, Brand category) |
 | **The home animation** | `src/app/core/data/hero.data.ts` (see below) |
+| **The answers to the quick-question buttons** (instant, no AI) | `api/respuestas-rapidas.json` |
 | **The smart-form questions** | `api/IntakePlan.cs` |
+| **Your domain, description and image for Google and social networks** | `src/app/core/data/site.data.ts`, `src/index.html`, `public/robots.txt`, `public/sitemap.xml` (search for "tu-dominio.com") and `public/assets/og-image.jpg` (1200 × 630 px) |
 | **The AI rules** | `api/Prompts.cs` |
 | **Privacy and legal notice** | `src/app/features/legal/pages/` |
 
@@ -252,7 +254,7 @@ The animation is **optional**. It works with separate frames, like a cartoon:
 |---|---|
 | `frameDurationMs` | How long each frame lasts (180 ms looks natural). |
 | `loopLayer` | An area that **always** moves, even when the character stands still (for example, steam from a cup). It cuts that area from several frames and blends one shape into the next. |
-| `fixedPatch` | An area always painted the same, taken from one frame: fixes elements that "shake" between poses. |
+| `fixedPatches` | Areas always painted the same, taken from one frame: they fix elements that "shake" between poses (a chair, a lamp…). |
 | `lighting` | Tints the drawing with an ambient color and lights (a lamp, a screen…). |
 | `face` | Where the face is (the character looks to the left): on desktop, the chat bubble appears in front of it, with its tail pointing at it. |
 | `head` | Where the head is: if the bubble doesn't fit in front of the face, it appears behind the head. |
@@ -285,15 +287,15 @@ The rules make the AI speak in the first person, keep it short, never make up an
 ### Smart form (`/api/intake` and `/api/contact`)
 
 1. The visitor clicks **«Quiero un proyecto»**. An AI assistant introduces itself and asks what they want to build.
-2. **The server, not the AI, decides what to ask** (`api/IntakePlan.cs`):
-   - First the common questions: business, what they need, target audience, how they handle it today and what they want to achieve.
-   - Then the questions for each project type: online shop (products, payments, shipping, stock), bookings (services, hours, reminders…), informational website, admin panel, automation or improving an existing site.
-   - Finally: branding, texts and photos, integrations with tools they already use, references, then name and email.
+2. **The server, not the AI, asks the questions** (`api/IntakePlan.cs`), in order and instantly:
+   - First the common ones: what they want to build, what they do, who it's for, how they handle it today and what they want to achieve.
+   - With the first answer, **the AI decides once which type of project it is** (online shop, bookings, informational website, portfolio, admin panel, automation or improving an existing site) and which questions to skip. Then come the questions for that type.
+   - Finally: branding, texts and photos, integrations with tools they already use, references, name, email, phone and company (optional) and a rating of the form.
 
-   The AI detects the project type, skips what doesn't apply and phrases each question naturally. It may also suggest an opportunity ("would you like to sell online?"). Letting the server drive the script stops small models from repeating questions or finishing too early.
+   If the visitor asks something halfway through, the AI answers in one or two sentences, their question is noted in the summary and the pending question is repeated. Without an AI connected the form still works: it asks all the questions for an informational website.
 3. The AI replies in **JSON with a fixed schema**, and the server validates it.
 4. The conversation is saved **in the browser** (`localStorage`, 7 days), so it can be resumed if the page is closed.
-5. At the end, the visitor reviews a **summary**, accepts the privacy terms and clicks **«Enviar»** (Send). The API validates it, **saves a copy** and **sends it to you on Telegram** with the conversation attached.
+5. At the end, the visitor reviews a **summary in blocks**, can change any detail with **«Editar»** (Edit), accepts the privacy terms and clicks **«Enviar»** (Send). The API validates it, **saves a copy** and **sends it to you on Telegram** with the conversation attached.
 6. Saved copies are **deleted automatically after 365 days** (`Solicitudes:DiasConservacion`).
 
 ### Security measures
