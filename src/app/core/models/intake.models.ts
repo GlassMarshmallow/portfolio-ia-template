@@ -13,20 +13,23 @@ export interface IntakeData {
   negocio: string;
   necesita: string;
   comentarios: string;
-  /** Tipos de proyecto detectados por la IA (tienda_online, reservas…) */
-  tipos: string[];
-  /** Respuestas a los temas del guion de consultora, por clave (publico, horarios…) */
+  /** Respuestas a las preguntas que no tienen campo propio, por clave (publico, objetivos…) */
   detalles: Record<string, string>;
-  /** Temas que no aplican a este proyecto */
-  noAplica: string[];
-  /** Tema por el que se ha preguntado en el último mensaje (lo decide el servidor) */
+  /** Preguntas del guion ya respondidas: así se sabe por cuál se va al retomar la conversación */
+  respondidas: string[];
+  /** Preguntas que ha hecho el visitante, para que la persona del portfolio las responda */
+  preguntas: string[];
+  /** Siguiente pregunta (lo decide el servidor) */
   pendiente: string | null;
+  /** Tipos de proyecto que ha decidido la IA (null: aún no lo ha decidido) */
+  tipos: string[] | null;
 }
 
-/** Un dato del resumen, con su etiqueta legible (la pone el servidor) */
+/** Un dato del resumen, con su etiqueta legible (la pone el servidor) y su clave del guion */
 export interface SummaryItem {
   label: string;
   value: string;
+  key?: string;
 }
 
 /** Lo que se guarda en el navegador para poder retomar la conversación */

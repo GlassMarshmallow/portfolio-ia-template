@@ -11,14 +11,107 @@
 }
 
 .summary-title {
-  margin: 0 0 .5rem;
-  font-size: .9rem;
+  margin: 0 0 .25rem;
+  font-size: .95rem;
   font-weight: 700;
   text-align: left;
 }
 
-.gm-dl {
-  margin-bottom: .5rem;
+.summary-subtitle {
+  margin: 0 0 .75rem;
+  color: var(--gm-text-secondary);
+  font-size: .8rem;
+  line-height: 1.4;
+}
+
+/* Subtítulo de cada bloque (Tu proyecto, Tus datos de contacto, Para terminar) */
+.summary-group {
+  margin: 1rem 0 .25rem;
+  color: var(--gm-text-secondary);
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.summary-list {
+  margin: 0 0 .5rem;
+}
+
+/* Cada dato: su nombre, su texto y «Editar» debajo, separado del siguiente por una línea fina */
+.summary-item {
+  padding: .6rem 0;
+  border-bottom: 1px solid var(--gm-line);
+}
+
+.summary-item:last-child {
+  border-bottom: none;
+}
+
+.summary-label {
+  margin-bottom: .15rem;
+  font-size: .8rem;
+  font-weight: 700;
+}
+
+.summary-value {
+  margin: 0;
+}
+
+.summary-value p {
+  margin: 0;
+  overflow-wrap: anywhere;
+  line-height: 1.45;
+}
+
+/* «Editar»: botón pequeño en melocotón pastel de día y, de noche, en el turquesa de la web (#1cabb0) */
+.summary-edit {
+  display: inline-flex;
+  align-items: center;
+  margin-top: .4rem;
+  padding: .25rem .8rem;
+  border: 1px solid var(--gm-peach-300);
+  border-radius: var(--gm-radius-pill);
+  background: var(--gm-peach-100);
+  color: var(--gm-peach-900);
+  font: inherit;
+  font-size: .78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color .2s ease;
+}
+
+.summary-edit:hover {
+  background: var(--gm-peach-200);
+}
+
+.summary-edit:focus-visible {
+  outline: 2px solid var(--gm-focus);
+  outline-offset: 2px;
+}
+
+:host-context([data-theme="dark"]) .summary-edit {
+  border-color: rgba(28, 171, 176, .5);
+  background: rgba(28, 171, 176, .14);
+  color: #1cabb0;
+}
+
+:host-context([data-theme="dark"]) .summary-edit:hover {
+  background: rgba(28, 171, 176, .26);
+}
+
+.summary-editing {
+  margin: .2rem 0 0;
+}
+
+.summary-edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: .5rem;
+}
+
+.summary-privacy {
+  margin-top: .75rem;
 }
 
 /* La casilla, con el texto pequeño del bocadillo */
@@ -34,9 +127,8 @@
   margin-top: .1rem;
 }
 
-.summary-error {
-  margin: 0 0 .6rem;
-  color: var(--gm-danger);
+.gm-field__error {
+  margin-bottom: .6rem;
   font-size: .8rem;
 }
 

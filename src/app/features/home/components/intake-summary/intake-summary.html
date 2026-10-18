@@ -1,23 +1,66 @@
 <section class="intake-summary" aria-labelledby="intake-summary-title">
   <h2 id="intake-summary-title" class="summary-title">Resumen de tu proyecto</h2>
-  <dl class="gm-dl">
-    @for (field of summary(); track field.label) {
-      <div class="summary-row"><dt>{{ field.label }}</dt><dd>{{ field.value }}</dd></div>
-    }
-  </dl>
-  <div class="gm-check">
+  <p class="summary-subtitle">Revisa lo que me has contado antes de enviárselo a {{ profile.firstName }}. Puedes cambiar cualquier dato con «Editar».</p>
+
+  <!-- Un bloque por tema (proyecto, contacto, para terminar) y, en cada uno, cada dato con su nombre, su texto y,
+       debajo, «Editar»; una línea fina separa un dato del siguiente -->
+  @for (group of groups(); track group.title) {
+    <h3 class="summary-group">{{ group.title }}</h3>
+    <dl class="summary-list">
+      @for (field of group.fields; track field.label) {
+        <div class="summary-item">
+          <dt class="summary-label" [id]="'summary-label-' + field.key">{{ field.label }}</dt>
+          @if (field.key && editing() === field.key) {
+            <dd class="gm-field summary-editing">
+              @if (singleLine(field.key)) {
+                <input class="summary-input" [type]="field.key === 'correo' ? 'email' : 'text'"
+                       [attr.aria-labelledby]="'summary-label-' + field.key"
+                       [attr.aria-invalid]="editError() ? 'true' : null"
+                       [attr.aria-describedby]="editError() ? 'summary-edit-error' : null"
+                       [value]="draft()" (input)="draft.set($any($event.target).value)"
+                       (keydown.enter)="save(field.key)" (keydown.escape)="$event.stopPropagation(); cancel(field.key)">
+              } @else {
+                <textarea class="summary-input" rows="3" maxlength="400"
+                          [attr.aria-labelledby]="'summary-label-' + field.key"
+                          [attr.aria-invalid]="editError() ? 'true' : null"
+                          [attr.aria-describedby]="editError() ? 'summary-edit-error' : null"
+                          [value]="draft()" (input)="draft.set($any($event.target).value)"
+                          (keydown.escape)="$event.stopPropagation(); cancel(field.key)"></textarea>
+              }
+              @if (editError()) {
+                <p id="summary-edit-error" class="gm-field__error" role="alert">{{ editError() }}</p>
+              }
+              <div class="summary-edit-actions">
+                <button type="button" class="gm-btn gm-btn--secondary gm-btn--sm" (click)="cancel(field.key)">Cancelar</button>
+                <button type="button" class="gm-btn gm-btn--sm" (click)="save(field.key)">Guardar</button>
+              </div>
+            </dd>
+          } @else {
+            <dd class="summary-value">
+              <p>{{ field.value }}</p>
+              @if (canEdit(field)) {
+                <button type="button" class="summary-edit" [attr.data-edit]="field.key"
+                        [attr.aria-label]="'Editar ' + field.label" (click)="startEdit(field)">Editar</button>
+              }
+            </dd>
+          }
+        </div>
+      }
+    </dl>
+  }
+
+  <div class="gm-check summary-privacy">
     <label>
       <input type="checkbox" [checked]="privacy()" (change)="privacy.set($any($event.target).checked)">
-      <span>Acepto que se usen mis datos para responder a mi solicitud. Le llegan a {{ profile.firstName }} por Telegram, junto con esta conversación, y no se ceden a nadie más.</span>
+      <span>Acepto que se usen mis datos para responder a mi solicitud. Le llegan a {{ profile.firstName }} junto con esta conversación y no se ceden a nadie más.</span>
     </label>
   </div>
   @if (sendStatus() === 'error') {
-    <p class="summary-error" role="alert">{{ sendError() }}</p>
+    <p class="gm-field__error" role="alert">{{ sendError() }}</p>
   }
   <div class="summary-actions">
-    <button type="button" class="gm-btn gm-btn--secondary gm-btn--sm" (click)="correct.emit()">Corregir algo</button>
     <button type="button" class="gm-btn gm-btn--sm" (click)="send.emit()"
-            [disabled]="!privacy() || sendStatus() === 'sending'">
+            [disabled]="!privacy() || sendStatus() === 'sending' || editing() !== null">
       {{ sendStatus() === 'sending' ? 'Enviando…' : 'Enviar a ' + profile.firstName }}
     </button>
   </div>

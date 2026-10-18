@@ -1,4 +1,6 @@
-<!-- Preguntas sobre ti o, en modo "Quiero un proyecto", respuestas al formulario inteligente -->
+<!-- Preguntas sobre la persona del portfolio o, en modo "Quiero un proyecto", respuestas al formulario inteligente.
+     Al enviar, el foco se queda en el campo: mientras piensa es de solo lectura (no disabled, que le quitaría el foco)
+     y el botón de enviar no se lleva el foco al pulsarlo (mousedown) -->
 <form class="gm-chat-input" (submit)="$event.preventDefault(); submit()" [attr.role]="mode() === 'intake' ? null : 'search'"
       [attr.aria-label]="mode() === 'intake' ? 'Cuéntame tu proyecto' : 'Pregúntame sobre mi trabajo'">
   <label for="ask-input" class="gm-visually-hidden">
@@ -6,8 +8,8 @@
   </label>
   <input id="ask-input" type="text" class="gm-chat-input__field" [attr.maxlength]="maxLength()" autocomplete="off"
          [placeholder]="mode() === 'intake' ? 'Escribe tu respuesta…' : 'Pregúntame lo que quieras…'"
-         [value]="question()" (input)="onInput($event)" [disabled]="status() === 'thinking'">
-  <button type="submit" class="gm-chat-input__send" [attr.aria-label]="mode() === 'intake' ? 'Enviar respuesta' : 'Enviar pregunta'"
+         [value]="question()" (input)="onInput($event)" [readOnly]="status() === 'thinking'">
+  <button type="submit" class="gm-chat-input__send" (mousedown)="$event.preventDefault()" [attr.aria-label]="mode() === 'intake' ? 'Enviar respuesta' : 'Enviar pregunta'"
           [disabled]="status() === 'thinking' || question().trim().length < minLength()">
     <i class="gmi gmi-arrow-up-circle-fill" aria-hidden="true"></i>
   </button>
@@ -67,8 +69,8 @@
          [style.--gm-bubble-tail-y.px]="placement().tailBottom > 0 ? placement().tailBottom : null">
       <!-- Se puede enfocar con el teclado para desplazar el texto con las flechas cuando no cabe (WCAG 2.1.1) -->
       <div class="gm-bubble__scroll" tabindex="0" role="region" aria-label="Respuesta">
-        <!-- Mientras se escribe letra a letra es decorativo (se anuncia arriba); al terminar, sus enlaces se
-             pueden usar también con teclado y lector de pantalla -->
+        <!-- Mientras se escribe palabra a palabra es decorativo (se anuncia arriba); al terminar, sus enlaces se
+             pueden usar también con teclado y lector de pantalla. Cada palabra va en su .bubble-word para el fundido -->
         <div [attr.aria-hidden]="done() && status() !== 'thinking' && shown() === fullAnswer() ? null : 'true'">
           @if (resumed() && done()) {
             <span class="gm-bubble__note">Seguimos donde lo dejamos</span>
@@ -78,16 +80,20 @@
           } @else {
             @for (part of shownParts(); track $index) {
               @if (part.href) {
-                <a [href]="part.href" [attr.aria-label]="part.label"
+                <a class="bubble-word" [href]="part.href" [attr.aria-label]="part.label"
                    [attr.target]="part.external ? '_blank' : null" [attr.rel]="part.external ? 'noopener' : null">{{ part.text }}</a>
-              } @else {{{ part.text }}}
+              } @else {
+                @for (word of words(part.text); track $index) {<span class="bubble-word">{{ word }}</span>}
+              }
             }
           }
         </div>
 
-        @if (mode() === 'intake' && complete() && status() === 'answer' && sendStatus() !== 'sent') {
+        <!-- El resumen aparece cuando el mensaje ya está escrito del todo: si estuviera debajo mientras se teclea,
+             cada línea nueva lo empujaría y el bocadillo temblaría al seguir el texto hacia abajo -->
+        @if (mode() === 'intake' && complete() && status() === 'answer' && sendStatus() !== 'sent' && shown() === fullAnswer()) {
           <app-intake-summary [summary]="summary()" [sendStatus]="sendStatus()" [sendError]="sendError()"
-                              [(privacy)]="privacy" (send)="sendIntake()" (correct)="correct()" />
+                              [(privacy)]="privacy" (send)="sendIntake()" (edit)="editField($event)" />
         }
       </div>
       <button type="button" class="gm-bubble__close" tabindex="-1" aria-hidden="true" (click)="close()"><i class="gmi gmi-x" aria-hidden="true"></i></button>

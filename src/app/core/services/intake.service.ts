@@ -7,7 +7,7 @@ import { PROFILE } from '../data/profile.data';
 export class IntakeError extends Error {}
 
 export const INTAKE_GREETING =
-  `¡Qué bien! Soy el asistente con IA de ${PROFILE.firstName}: te haré unas preguntas y, al final, revisarás el resumen antes de enviárselo. ¿Qué te gustaría crear?`;
+  `¡Qué bien! Soy el asistente con IA de ${PROFILE.firstName}: te haré unas preguntas sobre tu proyecto y, al final, revisarás el resumen antes de enviárselo. Si te surge alguna duda, pregúntame. ¿Qué te gustaría crear?`;
 export const INTAKE_MESSAGE_MAX = 500;
 
 const STORAGE_KEY = 'portfolio-formulario-inteligente';
@@ -17,13 +17,22 @@ const FALLBACK = 'Ahora mismo no puedo seguir. Tu conversación está guardada: 
 
 export const emptyIntakeData = (): IntakeData => ({
   nombre: '', empresa: '', correo: '', telefono: '', negocio: '',
-  necesita: '', comentarios: '', tipos: [], detalles: {}, noAplica: [], pendiente: null
+  necesita: '', comentarios: '', detalles: {}, respondidas: [], preguntas: [], pendiente: null, tipos: null
 });
 
 const list = (value: string) => (value.trim() ? [value.trim()] : []);
 
-// Formulario inteligente: la IA (API /api/intake) va preguntando y rellenando la solicitud. La conversación
-// se guarda en este navegador para que no se pierda si se cierra la página o falla la conexión.
+// Datos del resumen que se envían en su propio campo (no en «detalles»)
+const FIELD_KEYS = ['necesita', 'negocio', 'nombre', 'correo', 'telefono', 'empresa'];
+
+/** Cambia un dato del resumen (botón «Editar»): en su campo propio o en los detalles */
+export function editIntakeData(data: IntakeData, key: string, value: string): IntakeData {
+  const field = key as 'necesita' | 'negocio' | 'nombre' | 'correo' | 'telefono' | 'empresa';
+  return FIELD_KEYS.includes(key) ? { ...data, [field]: value } : { ...data, detalles: { ...data.detalles, [key]: value } };
+}
+
+// Formulario «Quiero un proyecto» (API /api/intake): el servidor elige cada pregunta (con ayuda de la IA) y va
+// rellenando la solicitud. La conversación se guarda en este navegador para retomarla donde se quedó.
 @Injectable({ providedIn: 'root' })
 export class IntakeService {
   private readonly contactService = inject(ContactService);
@@ -57,7 +66,7 @@ export class IntakeService {
     }
   }
 
-  /** Envía la conversación y devuelve la siguiente pregunta de la IA con los datos actualizados. */
+  /** Envía la respuesta y devuelve la siguiente pregunta con los datos actualizados. */
   async next(messages: ChatMessage[], data: IntakeData, signal: AbortSignal): Promise<IntakeReply> {
     const response = await fetch('/api/intake', {
       method: 'POST',
@@ -85,7 +94,7 @@ export class IntakeService {
       objetivos: [],
       gestionActual: [],
       comentarios: d.comentarios,
-      detalles: state.details,
+      detalles: state.details.filter(item => !item.key || !FIELD_KEYS.includes(item.key)),
       origen: 'asistente',
       conversacion: state.messages,
       web: ''

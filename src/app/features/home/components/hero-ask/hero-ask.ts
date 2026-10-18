@@ -3,11 +3,12 @@ import type { ChatMessage, IntakeData, SummaryItem } from '../../../../core/mode
 import { ASK_FALLBACK, AskError, AskService } from '../../../../core/services/ask.service';
 import { ContactError } from '../../../../core/services/contact.service';
 import {
-  INTAKE_GREETING, INTAKE_MESSAGE_MAX, IntakeError, IntakeService, emptyIntakeData
+  INTAKE_GREETING, INTAKE_MESSAGE_MAX, IntakeError, IntakeService, editIntakeData, emptyIntakeData
 } from '../../../../core/services/intake.service';
 import { AiNotice } from '../../../../shared/components/ai-notice/ai-notice';
+import { keepAboveKeyboard } from '../../../../shared/utils/keep-above-keyboard';
 import { linkifyKnown } from '../../../../shared/utils/known-links';
-import { IntakeSummary } from '../intake-summary/intake-summary';
+import { IntakeSummary, SummaryEdit } from '../intake-summary/intake-summary';
 import { HERO } from '../../../../core/data/hero.data';
 import { PROFILE } from '../../../../core/data/profile.data';
 
@@ -45,16 +46,6 @@ interface Placement {
   tailBottom: number;
 }
 
-// Campos del resumen final, en el orden en que se enseñan
-const SUMMARY_FIELDS: { key: 'nombre' | 'correo' | 'telefono' | 'empresa' | 'negocio' | 'necesita'; label: string }[] = [
-  { key: 'nombre', label: 'Nombre' },
-  { key: 'correo', label: 'Correo' },
-  { key: 'telefono', label: 'Teléfono' },
-  { key: 'empresa', label: 'Empresa' },
-  { key: 'negocio', label: 'Negocio' },
-  { key: 'necesita', label: 'Necesitas' }
-];
-
 @Component({
   selector: 'app-hero-ask',
   imports: [IntakeSummary, AiNotice],
@@ -64,7 +55,6 @@ const SUMMARY_FIELDS: { key: 'nombre' | 'correo' | 'telefono' | 'empresa' | 'neg
 })
 export class HeroAsk {
   protected readonly profile = PROFILE;
-
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly askService = inject(AskService);
   private readonly intakeService = inject(IntakeService);
@@ -92,14 +82,9 @@ export class HeroAsk {
   protected readonly privacy = signal(false);
   protected readonly sendStatus = signal<SendStatus>('idle');
   protected readonly sendError = signal('');
-  /** Detalles del proyecto ya etiquetados por el servidor (productos, horarios, marca…) */
+  /** Resumen de la solicitud, con sus etiquetas y en orden (lo prepara el servidor) */
   protected readonly details = signal<SummaryItem[]>([]);
-  // Resumen: los datos básicos, los detalles del guion y el resumen que redacta la IA
-  protected readonly summary = computed(() => [
-    ...SUMMARY_FIELDS.map(field => ({ label: field.label, value: this.intakeData()[field.key].trim() })),
-    ...this.details(),
-    { label: 'Resumen', value: this.intakeData().comentarios.trim() }
-  ].filter(field => field.value.length > 0));
+  protected readonly summary = computed(() => this.details().filter(field => field.value.trim().length > 0));
   /** Hay una conversación guardada a medias (el botón dice "Seguir con mi proyecto") */
   protected readonly hasSaved = signal(false);
 
@@ -118,7 +103,13 @@ export class HeroAsk {
       const place = () => this.placeNearHead();
       place();
       window.addEventListener('resize', place);
+
+      // Móvil: al abrirse el teclado, el campo del chat queda pegado encima de él
+      const input = this.host.nativeElement.querySelector<HTMLInputElement>('#ask-input');
+      const stopKeyboard = input ? keepAboveKeyboard(input, input.closest('form') ?? input) : undefined;
+
       destroyRef.onDestroy(() => {
+        stopKeyboard?.();
         window.removeEventListener('resize', place);
         clearInterval(this.typingTimer);
         clearTimeout(this.hideTimer);
@@ -132,6 +123,8 @@ export class HeroAsk {
   }
 
   protected submit() {
+    // Si se envió con el teclado desde el botón, el foco vuelve al campo (el botón se desactiva mientras piensa)
+    this.host.nativeElement.querySelector<HTMLInputElement>('#ask-input')?.focus();
     if (this.mode() === 'intake') {
       this.reply();
     } else {
@@ -271,15 +264,11 @@ export class HeroAsk {
     }
   }
 
-  /** Para corregir algo del resumen: el visitante lo dice en el chat y la IA actualiza los datos */
-  correct() {
-    const message = 'Claro, dime qué quieres cambiar o añadir.';
-    this.complete.set(false);
-    this.messages.update(messages => [...messages, { role: 'assistant', content: message }]);
+  /** Cambia un dato del resumen con «Editar», sin pasar por la IA */
+  editField(change: SummaryEdit) {
+    this.intakeData.update(data => editIntakeData(data, change.key, change.value));
+    this.details.update(items => items.map(item => (item.key === change.key ? { ...item, value: change.value } : item)));
     this.persist();
-    this.prepareBubble('');
-    this.showAnswer(message, 'answer');
-    this.focusInput();
   }
 
   /** Sale del formulario inteligente; la conversación queda guardada para retomarla */
@@ -352,15 +341,42 @@ export class HeroAsk {
     this.startReveal(status);
   }
 
-  // Escribe la respuesta letra a letra según va llegando (o de golpe si la persona prefiere menos
-  // movimiento). Termina cuando ha llegado entera y ya se ha escrito todo.
+  // Escribe la respuesta palabra a palabra, a un ritmo constante (o de golpe si la persona prefiere menos
+  // movimiento). Mientras llega de la IA, va un poco por detrás de lo recibido para no quedarse parada esperando
+  // y nunca enseña una palabra a medias; cuando ya ha llegado entera, termina más deprisa. Cada palabra nueva
+  // aparece con un fundido (.bubble-word en el CSS). Termina cuando ha llegado entera y ya se ha escrito todo.
   private startReveal(status: Status) {
     this.status.set(status);
     clearInterval(this.typingTimer);
     let index = 0;
+    let lastStep = 0;
     this.typingTimer = setInterval(() => {
       const text = this.fullAnswer();
-      index = this.reducedMotion ? text.length : Math.min(index + 2, text.length);
+      if (this.reducedMotion) {
+        index = text.length;
+      } else {
+        const pending = text.slice(index);
+        const lead = pending.match(/^\s*/)![0].length;
+        const words = pending.slice(lead).match(/\S+\s*/g) ?? [];
+        // Mientras llega, la última palabra puede estar a medias: se espera a la siguiente
+        const ready = this.done() ? words.length : Math.max(0, words.length - 1);
+        const since = performance.now() - lastStep;
+        // Terminada: varias palabras por paso si quedan muchas. Llegando: se guarda un colchón de 2 palabras para
+        // que las pausas breves de la IA no se noten (más deprisa si se acumulan; si no llega nada, una cada medio
+        // segundo). Ritmos probados con respuestas simuladas a la velocidad del mini PC.
+        let step = 0;
+        if (this.done()) {
+          step = Math.ceil(ready / 25);
+        } else if (ready >= 4 && since >= 90) {
+          step = ready > 6 ? 2 : 1;
+        } else if ((ready >= 2 && since >= 220) || (ready >= 1 && since >= 500)) {
+          step = 1;
+        }
+        if (step > 0) {
+          index += lead + words.slice(0, step).join('').length;
+          lastStep = performance.now();
+        }
+      }
       this.shown.set(text.slice(0, index));
       // Si el bocadillo es más bajo que el texto, lo va siguiendo hacia abajo
       const box = this.host.nativeElement.querySelector('.gm-bubble__scroll');
@@ -374,7 +390,12 @@ export class HeroAsk {
           this.scheduleHide();
         }
       }
-    }, 22);
+    }, 50);
+  }
+
+  /** El texto en palabras (con su espacio detrás), para que cada palabra nueva aparezca con un fundido */
+  protected words(text: string) {
+    return text.match(/\s+|\S+\s*/g) ?? [];
   }
 
   private scheduleHide() {

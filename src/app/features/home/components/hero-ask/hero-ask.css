@@ -1,7 +1,8 @@
 /* Piezas del chat de GlassMarshmallow (gm-chat-input, gm-chip, gm-bubble, gm-typing). Aquí solo va cómo se
    colocan en el inicio. */
+/* 1.25rem: con los iconos de redes de 44 px, el título queda a la misma altura que antes del framework */
 .gm-chat-input {
-  margin: 1.75rem auto 0;
+  margin: 1.25rem auto 0;
 }
 
 /* Preguntas sugeridas y «Quiero un proyecto», centradas en una fila */
@@ -41,4 +42,58 @@
 
 .gm-bubble {
   min-height: 0;
+}
+
+/* Ordenador: el chat, más cerca de las redes de encima */
+@media (min-width: 768px) {
+  .gm-chat-input {
+    margin-top: .25rem;
+  }
+}
+
+/* De día, el borde y la cola del bocadillo en el melocotón pastel de GlassMarshmallow, no en el degradado de colores */
+:host-context([data-theme="light"]) .gm-bubble {
+  --gm-bubble-color: var(--gm-peach);
+}
+
+/* De día, el borde de los chips al pasar el ratón o seleccionarlos, el del chip «Quiero un proyecto» y el botón de
+   enviar, en el cielo 500 de GlassMarshmallow (en lugar del degradado de colores y del cian) */
+:host-context([data-theme="light"]) .gm-chip {
+  --gm-chip-color: var(--gm-sky-500);
+}
+
+:host-context([data-theme="light"]) .gm-chat-input__send {
+  color: var(--gm-sky-500);
+}
+
+/* De día, los enlaces de las respuestas del bocadillo en el color de enlace (cielo 700), como los de las tarjetas */
+:host-context([data-theme="light"]) .gm-bubble a {
+  color: var(--gm-link);
+}
+
+/* De día, sin el degradado de colores en todo el chat (el borde del campo al escribir, los puntos de «escribiendo…»):
+   el cielo 500, como los chips y el botón de enviar */
+:host-context([data-theme="light"]) {
+  --gm-lights-gradient: linear-gradient(var(--gm-sky-500), var(--gm-sky-500));
+}
+
+/* Cada palabra nueva de la respuesta aparece con un fundido suave (sin animación si se pide menos movimiento) */
+.bubble-word {
+  animation: bubble-word-in .3s ease-out both;
+}
+
+@keyframes bubble-word-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bubble-word {
+    animation: none;
+  }
 }
