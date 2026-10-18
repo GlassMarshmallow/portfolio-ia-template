@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <None Update="perfil.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="respuestas-rapidas.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

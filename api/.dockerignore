@@ -1,3 +1,5 @@
 bin
 obj
 solicitudes
+# Claves locales: en el servidor pisarían las del .env
+appsettings.Local.json

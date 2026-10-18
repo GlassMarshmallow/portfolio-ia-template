@@ -1,11 +1,12 @@
-using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.RateLimiting;
 
 // API del portfolio:
-// - /api/ask: preguntas rápidas sobre la persona del portfolio, respondidas por IA por trozos.
-// - /api/intake: formulario inteligente; la IA pregunta y va rellenando la solicitud.
-// - /api/contact: recibe las solicitudes del formulario inteligente, las guarda y te las envía por Telegram.
+// - /api/ask: preguntas rápidas sobre la persona del portfolio, respondidas por IA por trozos (las de los
+//   botones, al instante con las respuestas de respuestas-rapidas.json).
+// - /api/intake: formulario «Quiero un proyecto»; el servidor hace las preguntas y la IA decide el tipo de
+//   proyecto y responde a lo que pregunte el visitante.
+// - /api/contact: recibe las solicitudes del formulario, las guarda y te las envía por Telegram.
 // La IA se elige en appsettings.json → "IA:Proveedor" (Ollama, un servicio compatible con OpenAI o
 // ninguna; ver Services/AiClient.cs). Solo esta API habla con ella: la clave o el Ollama nunca llegan al
 // navegador. Es pública (detrás de nginx y el túnel de Cloudflare), así que todo lo que llega tiene tamaño
@@ -28,7 +29,8 @@ builder.Services.AddHttpClient(AiClient.HttpClientName, c =>
 builder.Services.AddSingleton<AiClient>();
 builder.Services.AddHttpClient("telegram", c =>
 {
-    c.BaseAddress = new Uri("https://api.telegram.org/");
+    // Configurable solo para pruebas (un Telegram falso en local); por defecto, el de verdad
+    c.BaseAddress = new Uri(builder.Configuration["Telegram:BaseUrl"] ?? "https://api.telegram.org/");
     c.Timeout = TimeSpan.FromSeconds(20);
 });
 builder.Services.AddSingleton<TelegramNotifier>();
@@ -37,13 +39,14 @@ builder.Services.AddHostedService<RequestCleanup>();
 
 // Límites por visitante (por IP):
 // - preguntas: 10 seguidas y después 1 por minuto
-// - asistente (formulario inteligente): 30 mensajes seguidos y después 3 por minuto
+// - asistente (formulario): 60 mensajes seguidos y después 6 por minuto (casi ningún turno usa la IA, que
+//   tiene su propio tope diario)
 // - solicitudes: 3 seguidas y después 1 cada 20 minutos
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
     options.AddPolicy("preguntas", context => Bucket(ClientKey(context), 10, 1, TimeSpan.FromMinutes(1)));
-    options.AddPolicy("asistente", context => Bucket(ClientKey(context), 30, 3, TimeSpan.FromMinutes(1)));
+    options.AddPolicy("asistente", context => Bucket(ClientKey(context), 60, 6, TimeSpan.FromMinutes(1)));
     options.AddPolicy("solicitudes", context => Bucket(ClientKey(context), 3, 1, TimeSpan.FromMinutes(20)));
     options.OnRejected = async (context, ct) =>
     {
@@ -59,12 +62,18 @@ var app = builder.Build();
 app.UseRateLimiter();
 
 var profile = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, Owner.ProfileFile));
+// Respuestas ya escritas para las preguntas rápidas de los botones: salen al instante, sin IA
+var quickAnswers = JsonSerializer.Deserialize<Dictionary<string, string>>(
+        await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, "respuestas-rapidas.json")))!
+    .Where(kv => !kv.Key.StartsWith('_'))
+    .ToDictionary(kv => QuestionKey(kv.Key), kv => Owner.Fill(kv.Value));
 var askInstructions = Prompts.Ask(profile);
-var intakeInstructions = Prompts.Intake(profile);
+var intakeTypesInstructions = Prompts.IntakeTypes(IntakePlan.Battery());
+var intakeQuestionInstructions = Prompts.IntakeQuestion(profile);
 
 var ai = app.Services.GetRequiredService<AiClient>();
 if (!ai.Configured)
-    app.Logger.LogWarning("IA sin conectar: el chat y el formulario inteligente avisarán de que no está disponible. Ver README → Conectar la IA.");
+    app.Logger.LogWarning("IA sin conectar: el chat y las preguntas del formulario avisarán de que no está disponible. Ver README → Conectar la IA.");
 
 // Como mucho 2 respuestas generándose a la vez, para no saturar el equipo que ejecuta la IA.
 var aiSlots = new SemaphoreSlim(2);
@@ -97,6 +106,9 @@ app.MapPost("/api/ask", async (AskRequest request, HttpContext http, ILogger<Pro
     var question = request.Question?.Trim() ?? "";
     if (question.Length is < Limits.QuestionMin or > Limits.QuestionMax)
         return Results.BadRequest(new { error = $"Escribe una pregunta de entre {Limits.QuestionMin} y {Limits.QuestionMax} caracteres." });
+
+    if (quickAnswers.TryGetValue(QuestionKey(question), out var quickAnswer))
+        return Results.Text(quickAnswer, "text/plain; charset=utf-8");
 
     if (await EnterAi(ct) is { } busy)
         return busy;
@@ -152,133 +164,159 @@ app.MapPost("/api/ask", async (AskRequest request, HttpContext http, ILogger<Pro
     }
 }).RequireRateLimiting("preguntas");
 
-// Formulario inteligente: recibe la conversación (la guarda el navegador) y los datos recogidos, y la IA
-// responde con su siguiente pregunta y los datos actualizados. El servidor no guarda nada hasta el envío.
+// Formulario «Quiero un proyecto» (ver IntakePlan). En cada turno el servidor guarda la respuesta en la
+// pregunta pendiente y elige la siguiente (ver ChooseNextQuestion): la IA solo razona una vez, al terminar
+// las preguntas de base, qué tipo de proyecto es; el resto va en orden y al instante.
+// Si el visitante pregunta algo, la IA le contesta en una o dos frases y se repite la pregunta pendiente.
+// Sin IA conectada el formulario funciona igual: hace todas las preguntas de una web informativa y responde
+// a las del visitante con un texto fijo.
+// La conversación la guarda el navegador; el servidor no guarda nada hasta el envío.
 app.MapPost("/api/intake", async (IntakeRequest request, ILogger<Program> logger, CancellationToken ct) =>
 {
     if (Validation.Intake(request) is { } invalid)
         return Results.BadRequest(new { error = invalid });
+    var history = request.Messages!;
+    var firstTurn = history.Count(m => m.Role == "assistant") == 1;
 
-    if (await EnterAi(ct) is { } busy)
-        return busy;
+    var data = IntakePlan.Clean(request.Data ?? new IntakeData());
+    // La pregunta a la que responde (en el primer turno, la del saludo)
+    var asked = IntakePlan.Step(data.Pendiente) ?? (firstTurn ? IntakePlan.Step("necesita") : null);
+    var answer = history[^1].Content!.Trim();
+    string reply;
 
+    if (asked is null)
+    {
+        // Sin pregunta pendiente (por ejemplo, una conversación guardada con una versión anterior del
+        // formulario): se sigue por la primera que falte
+        IntakeStep? next;
+        (data, next) = await ChooseNextQuestion(data, logger, ct);
+        reply = next?.Question ?? IntakePlan.DoneMessage;
+        data = data with { Pendiente = next?.Key };
+    }
+    else if (IntakePlan.IsQuestion(answer))
+    {
+        // Pregunta del visitante: la responde la IA, se apunta en el resumen y se repite la pregunta pendiente
+        data = IntakePlan.AddQuestion(data, answer);
+        var aiAnswer = await AnswerIntakeQuestion(answer, logger, ct) ?? IntakePlan.QuestionFallback;
+        reply = $"{aiAnswer} {IntakePlan.Continue} {asked.Question}";
+        data = data with { Pendiente = asked.Key };
+    }
+    else
+    {
+        // Si ya se le preguntó «¿Cuáles?» (o similar) y responde, se guarda lo que diga
+        var followUpAsked = history.Count >= 2 && history[^2].Role == "assistant" && history[^2].Content == asked.FollowUp;
+        (data, var retry) = IntakePlan.Apply(data, asked, answer, followUpAsked);
+        if (retry is not null)
+        {
+            reply = retry;
+            data = data with { Pendiente = asked.Key };
+        }
+        else
+        {
+            IntakeStep? next;
+            (data, next) = await ChooseNextQuestion(data, logger, ct);
+            reply = next?.Question ?? IntakePlan.DoneMessage;
+            data = data with { Pendiente = next?.Key };
+        }
+    }
+
+    var complete = data.Pendiente is null;
+    return Results.Ok(new { reply, data, complete, summary = IntakePlan.Summary(data) });
+}).RequireRateLimiting("asistente");
+
+// Siguiente pregunta. Con la primera respuesta («¿Qué te gustaría crear?»), la IA decide una sola vez los
+// tipos de proyecto y si ya ha dicho a qué se dedica o si tiene un negocio en marcha (para saltarse esas dos
+// preguntas). Después van, en orden y sin IA, las de base que queden, las de esos tipos, las comunes y las
+// del final. Si la IA falla o no está conectada: web informativa y todas las de base.
+async Task<(IntakeData Data, IntakeStep? Next)> ChooseNextQuestion(IntakeData data, ILogger logger, CancellationToken ct)
+{
+    if (data.Tipos is null && IntakePlan.IsAnswered(data, "necesita"))
+    {
+        var plan = await AskAiForProjectTypes(data, logger, ct);
+        data = data with { Tipos = plan?.Types is { Count: > 0 } types ? types : ["web_informativa"] };
+        // Las preguntas de base que sobran las decide el servidor con las respuestas de sí o no de la IA
+        if (plan?.SaidWhatTheyDo == true)
+            data = IntakePlan.Skip(data, "negocio");
+        if (plan?.HasRunningBusiness == false)
+            data = IntakePlan.Skip(data, "gestionActual");
+    }
+
+    return (data, IntakePlan.NextBase(data) ?? IntakePlan.NextProject(data) ?? IntakePlan.NextFinal(data));
+}
+
+async Task<(List<string> Types, bool SaidWhatTheyDo, bool HasRunningBusiness)?> AskAiForProjectTypes(IntakeData data,
+    ILogger logger, CancellationToken ct)
+{
+    var types = IntakePlan.ProjectTypes.Select(t => t.Key).ToArray();
+    // Lo que cambia va al final: las instrucciones (con los tipos) se leen una sola vez
+    var turn = $"LO QUE HA CONTADO:\n{IntakePlan.Answers(data)}";
+
+    if (await EnterAi(ct) is not null)
+        return null;
     try
     {
-        var current = request.Data ?? new IntakeData();
-        var messages = new List<AiMessage>
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        timeout.CancelAfter(TimeSpan.FromSeconds(40));
+        var schema = new
         {
-            new("system", intakeInstructions),
-            new("system", $"DATOS RECOGIDOS HASTA AHORA: {JsonSerializer.Serialize(current)}")
+            type = "object",
+            properties = new
+            {
+                tipos = new { type = "array", items = new { type = "string", @enum = types }, minItems = 1, maxItems = 2 },
+                yaDijoAQueSeDedica = new { type = "boolean" },
+                tieneNegocioEnMarcha = new { type = "boolean" }
+            },
+            required = new[] { "tipos", "yaDijoAQueSeDedica", "tieneNegocioEnMarcha" }
         };
-        messages.AddRange(request.Messages!.Select(m => new AiMessage(m.Role!, m.Content!.Trim())));
-        var history = request.Messages!;
-        var lastAnswer = history[^1].Content!.Trim();
-
-        // El servidor decide qué tema toca (los modelos pequeños se olvidan y repiten preguntas):
-        // - asked: el tema al que está respondiendo el visitante (el saludo pregunta qué quiere crear).
-        // - upcoming: el siguiente que falta sin contar ese, que es por el que tiene que preguntar la IA.
-        var asked = IntakePlan.Topic(current.Pendiente)
-            ?? (history.Count(m => m.Role == "assistant") == 1 ? IntakePlan.Topic("necesita") : null);
-        var upcoming = IntakePlan.Missing(current).FirstOrDefault(t => t.Key != asked?.Key);
-        string KeyOf(IntakeTopic t) => IntakePlan.DetailKeys.Contains(t.Key) ? $"la clave \"{t.Key}\" de detalles" : $"\"{t.Key}\"";
-        // Va al final, justo después del último mensaje, que es donde más caso le hace el modelo.
-        messages.Add(new AiMessage("system",
-            "SIGUIENTE PASO: actualiza los datos con lo que acaba de decir el visitante (detecta los tipos de proyecto y marca en noAplica lo que no tenga sentido para él). " +
-            (asked is null ? "" : $"Está respondiendo a {Owner.Fill(asked.Hint)}: guarda su respuesta en {KeyOf(asked)}. ") +
-            (upcoming is null
-                ? "Después dale las gracias en una frase."
-                : $"Después pregúntale por {Owner.Fill(upcoming.Hint)}. No repitas ninguna pregunta que ya le hayas hecho.")));
-
-        var content = await ai.CompleteJsonAsync(messages, IntakeSchema, temperature: 0.3, maxTokens: 800, ct);
+        var content = await ai.CompleteJsonAsync([new("system", intakeTypesInstructions), new("user", turn)],
+            schema, temperature: 0.1, maxTokens: 80, timeout.Token);
         using var result = JsonDocument.Parse(content);
         var root = result.RootElement;
-
-        var reply = Clip(root.GetProperty("respuesta").GetString(), Limits.IntakeAssistantMessageMax);
-        if (reply.Length == 0)
-            throw new JsonException("Respuesta vacía del modelo");
-
-        // Los datos que devuelve la IA se recortan; lo que no traiga se conserva de antes
-        var d = root.TryGetProperty("datos", out var datos) && datos.ValueKind == JsonValueKind.Object ? datos : default;
-        string Field(JsonElement source, string name, string? previous, int max) =>
-            source.ValueKind == JsonValueKind.Object && source.TryGetProperty(name, out var v) && v.ValueKind == JsonValueKind.String
-                && v.GetString()!.Trim().Length > 0
-                ? Clip(v.GetString(), max)
-                : previous?.Trim() ?? "";
-        List<string> Codes(string name, IEnumerable<string> allowed, IEnumerable<string>? previous) =>
-            (d.ValueKind == JsonValueKind.Object && d.TryGetProperty(name, out var v) && v.ValueKind == JsonValueKind.Array
-                ? v.EnumerateArray().Where(x => x.ValueKind == JsonValueKind.String).Select(x => x.GetString()!)
-                : [])
-            .Concat(previous ?? [])
-            .Where(allowed.Contains).Distinct().ToList();
-
-        var detailsJson = d.ValueKind == JsonValueKind.Object && d.TryGetProperty("detalles", out var det) ? det : default;
-        var details = IntakePlan.DetailKeys
-            .Select(key => (key, value: Field(detailsJson, key, current.Detalles?.GetValueOrDefault(key), Limits.FieldMedium)))
-            .Where(x => x.value.Length > 0)
-            .ToDictionary(x => x.key, x => x.value);
-
-        var data = new IntakeData(
-            Nombre: Field(d, "nombre", current.Nombre, 100),
-            Empresa: Field(d, "empresa", current.Empresa, Limits.FieldShort),
-            Correo: Field(d, "correo", current.Correo, Limits.FieldShort),
-            Telefono: Field(d, "telefono", current.Telefono, 30),
-            Negocio: Field(d, "negocio", current.Negocio, Limits.FieldMedium),
-            Necesita: Field(d, "necesita", current.Necesita, Limits.FieldMedium),
-            Comentarios: Field(d, "comentarios", current.Comentarios, Limits.CommentsMax),
-            Tipos: Codes("tipos", IntakePlan.ProjectTypes, current.Tipos),
-            Detalles: details,
-            NoAplica: Codes("noAplica", IntakePlan.DetailKeys, current.NoAplica));
-
-        // Si la IA no ha recogido la respuesta al tema que se le preguntó, se guarda tal cual la escribió el
-        // visitante: así nunca se queda preguntando lo mismo una y otra vez.
-        if (asked is not null && IntakePlan.Missing(data).Any(t => t.Key == asked.Key))
-            data = IntakePlan.WithAnswer(data, asked.Key, lastAnswer);
-
-        // El final lo decide el servidor, no la IA: cuando no falta ningún tema, pregunta una vez por el
-        // teléfono y la empresa (opcionales) y después da la solicitud por completa.
-        var complete = false;
-        var missing = IntakePlan.Missing(data);
-        if (missing.Count == 0)
-        {
-            if (!history.Any(m => m.Role == "assistant" && m.Content == Owner.Fill(IntakePlan.OptionalQuestion)))
-            {
-                reply = Owner.Fill(IntakePlan.OptionalQuestion);
-            }
-            else
-            {
-                complete = true;
-                reply = Owner.Fill(IntakePlan.DoneMessage);
-            }
-        }
-        else if (missing[0].Key == asked?.Key)
-        {
-            // Solo pasa con el correo: lo que ha escrito no es una dirección válida
-            reply = IntakePlan.InvalidEmailQuestion;
-        }
-        else if (missing[0].Key != upcoming?.Key
-            || IntakePlan.IsQuestionOfOtherTopic(reply, missing[0].Key)
-            || history.Any(m => m.Role == "assistant" && string.Equals(m.Content?.Trim(), reply, StringComparison.OrdinalIgnoreCase)))
-        {
-            // La IA ha preguntado por otro tema (el que toca ha cambiado con su respuesta) o ha repetido una
-            // pregunta: se cambia por la del primer tema que falta
-            reply = Owner.Fill(missing[0].Question);
-        }
-        // Se recuerda por qué tema se pregunta, para saber a qué responde el visitante en el siguiente turno
-        data = data with { Pendiente = missing.Count == 0 ? null : missing[0].Key };
-
-        var summary = IntakePlan.Summary(data);
-        return Results.Ok(new { reply, data, complete, summary });
+        var chosen = root.GetProperty("tipos").EnumerateArray()
+            .Where(t => t.ValueKind == JsonValueKind.String).Select(t => t.GetString()!)
+            .Where(types.Contains).Distinct().Take(2).ToList();
+        bool Flag(string name, bool fallback) =>
+            root.TryGetProperty(name, out var v) && v.ValueKind is JsonValueKind.True or JsonValueKind.False ? v.GetBoolean() : fallback;
+        // Si no lo deja claro, se pregunta todo (es lo más seguro)
+        return (chosen, Flag("yaDijoAQueSeDedica", false), Flag("tieneNegocioEnMarcha", true));
     }
-    catch (Exception ex) when (ex is HttpRequestException or JsonException or TaskCanceledException or KeyNotFoundException or InvalidOperationException)
+    catch (Exception ex) when (!ct.IsCancellationRequested
+        && ex is HttpRequestException or JsonException or TaskCanceledException or KeyNotFoundException or InvalidOperationException)
     {
-        logger.LogWarning(ex, "Fallo del formulario inteligente");
-        return Results.Json(new { error = $"Ahora mismo no puedo seguir. Tu conversación está guardada: inténtalo de nuevo en un momento o escríbeme a {Owner.Email}." }, statusCode: 503);
+        logger.LogWarning(ex, "La IA no ha podido decidir el tipo de proyecto del formulario");
+        return null;
     }
     finally
     {
         aiSlots.Release();
     }
-}).RequireRateLimiting("asistente");
+}
+
+// Respuesta corta de la IA a una pregunta hecha en el formulario. Si la IA no está disponible o tarda
+// demasiado, devuelve null y se usa una respuesta fija.
+async Task<string?> AnswerIntakeQuestion(string question, ILogger logger, CancellationToken ct)
+{
+    if (await EnterAi(ct) is not null)
+        return null;
+    try
+    {
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        timeout.CancelAfter(TimeSpan.FromSeconds(30));
+        var text = Clip(await ai.CompleteTextAsync([new("system", intakeQuestionInstructions), new("user", question)],
+            temperature: 0.4, maxTokens: 160, timeout.Token), 400);
+        return text.Length > 0 ? text : null;
+    }
+    catch (Exception ex) when (!ct.IsCancellationRequested
+        && ex is HttpRequestException or JsonException or TaskCanceledException or KeyNotFoundException or InvalidOperationException)
+    {
+        logger.LogWarning(ex, "La IA no ha podido responder a una pregunta del formulario");
+        return null;
+    }
+    finally
+    {
+        aiSlots.Release();
+    }
+}
 
 // Solicitudes de proyecto: se validan, se guardan y se envían por Telegram.
 app.MapPost("/api/contact", async (ContactRequest request, RequestStore store, TelegramNotifier telegram,
@@ -287,6 +325,10 @@ app.MapPost("/api/contact", async (ContactRequest request, RequestStore store, T
     // Bot: se le responde como si todo hubiera ido bien, pero no se guarda ni se envía nada
     if (!string.IsNullOrEmpty(request.Web))
         return Results.Ok(new { ok = true });
+
+    // Si el formulario se saltó «¿A qué se dedica?» (ya lo dijo al contar qué quiere crear), se usa eso
+    if (string.IsNullOrWhiteSpace(request.Negocio) && request.Necesita?.FirstOrDefault(n => !string.IsNullOrWhiteSpace(n)) is { } said)
+        request = request with { Negocio = Clip(said, Limits.FieldMedium) };
 
     if (Validation.Contact(request) is { } invalid)
         return Results.BadRequest(new { error = invalid });
@@ -310,9 +352,9 @@ app.MapPost("/api/contact", async (ContactRequest request, RequestStore store, T
             await telegram.SendAsync(request, ct);
             sent = true;
         }
-        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        catch (Exception ex) when (!ct.IsCancellationRequested)
         {
-            // Sin datos personales en el registro
+            // Cualquier fallo de Telegram solo se registra: la solicitud ya está guardada. Sin datos personales.
             logger.LogError("No se pudo enviar una solicitud por Telegram: {Error}", ex.GetType().Name);
         }
     }
@@ -343,46 +385,13 @@ static string Clip(string? text, int max)
     return value.Length > max ? value[..max] : value;
 }
 
+// La misma pregunta escrita con o sin «¿?», mayúsculas o espacios de más
+static string QuestionKey(string question) =>
+    string.Join(' ', question.ToLowerInvariant().Trim('¿', '?', '¡', '!', '.', ' ').Split(' ', StringSplitOptions.RemoveEmptyEntries));
+
 // Identifica al visitante: detrás del túnel de Cloudflare la IP real llega en CF-Connecting-IP.
 static string ClientKey(HttpContext context) =>
     context.Request.Headers["CF-Connecting-IP"].FirstOrDefault()
     ?? context.Request.Headers["X-Forwarded-For"].FirstOrDefault()?.Split(',')[0].Trim()
     ?? context.Connection.RemoteIpAddress?.ToString()
     ?? "desconocido";
-
-partial class Program
-{
-    // Forma obligatoria de la respuesta del formulario inteligente (la IA la recibe como esquema JSON)
-    static readonly object IntakeSchema = new
-    {
-        type = "object",
-        properties = new
-        {
-            respuesta = new { type = "string" },
-            datos = new
-            {
-                type = "object",
-                properties = new Dictionary<string, object>
-                {
-                    ["nombre"] = new { type = "string" },
-                    ["empresa"] = new { type = "string" },
-                    ["correo"] = new { type = "string" },
-                    ["telefono"] = new { type = "string" },
-                    ["negocio"] = new { type = "string" },
-                    ["necesita"] = new { type = "string" },
-                    ["comentarios"] = new { type = "string" },
-                    ["tipos"] = new { type = "array", items = new { type = "string", @enum = IntakePlan.ProjectTypes } },
-                    ["detalles"] = new
-                    {
-                        type = "object",
-                        properties = IntakePlan.DetailKeys.ToDictionary(key => key, _ => (object)new { type = "string" })
-                    },
-                    ["noAplica"] = new { type = "array", items = new { type = "string", @enum = IntakePlan.DetailKeys.ToArray() } }
-                },
-                required = new[] { "nombre", "empresa", "correo", "telefono", "negocio", "necesita", "comentarios", "tipos", "detalles", "noAplica" }
-            },
-            completo = new { type = "boolean" }
-        },
-        required = new[] { "respuesta", "datos", "completo" }
-    };
-}

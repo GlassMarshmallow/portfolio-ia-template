@@ -24,6 +24,13 @@ static class Owner
         ProfileFile = section["Archivo"] ?? ProfileFile;
     }
 
-    /// <summary>Sustituye {persona} por el nombre (los textos fijos del guion se escriben así).</summary>
-    public static string Fill(string text) => text.Replace("{persona}", FirstName);
+    /// <summary>
+    /// Sustituye {persona}, {correo}, {linkedin} y {github} por los datos de "Perfil" (así se escriben los textos
+    /// fijos, como las respuestas rápidas).
+    /// </summary>
+    public static string Fill(string text) => text
+        .Replace("{persona}", FirstName)
+        .Replace("{correo}", Email)
+        .Replace("{linkedin}", LinkedIn)
+        .Replace("{github}", GitHub);
 }

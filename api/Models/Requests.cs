@@ -6,21 +6,23 @@ record AskRequest(string? Question);
 
 record ChatMessage(string? Role, string? Content);
 
-/// <summary>Datos de la solicitud que va rellenando el formulario inteligente (ver IntakePlan).</summary>
+/// <summary>Datos de la solicitud que va rellenando el formulario (ver IntakePlan).</summary>
 record IntakeData(
     string? Nombre = "", string? Empresa = "", string? Correo = "", string? Telefono = "",
     string? Negocio = "", string? Necesita = "", string? Comentarios = "",
-    /// Tipos de proyecto detectados (IntakePlan.ProjectTypes)
-    List<string>? Tipos = null,
-    /// Respuestas a los temas del guion, por clave (publico, catalogo, horarios…)
+    /// Respuestas a las preguntas del guion que no tienen campo propio, por clave (publico, objetivos…)
     Dictionary<string, string>? Detalles = null,
-    /// Temas que no aplican a este proyecto (p. ej. envíos si vende servicios)
-    List<string>? NoAplica = null,
-    /// Tema por el que se preguntó en el último mensaje (lo pone el servidor; el navegador lo devuelve tal cual)
-    string? Pendiente = null);
+    /// Preguntas del guion ya respondidas (también las opcionales contestadas con «no»)
+    List<string>? Respondidas = null,
+    /// Preguntas que ha hecho el visitante, para que la persona del portfolio las responda
+    List<string>? Preguntas = null,
+    /// Siguiente pregunta del guion (lo pone el servidor; el navegador lo devuelve tal cual)
+    string? Pendiente = null,
+    /// Tipos de proyecto que ha decidido la IA (null: aún no lo ha decidido)
+    List<string>? Tipos = null);
 
-/// <summary>Un dato del resumen, con su etiqueta legible.</summary>
-record SummaryItem(string? Label, string? Value);
+/// <summary>Un dato del resumen, con su etiqueta legible y la clave del guion (para editarlo).</summary>
+record SummaryItem(string? Label, string? Value, string? Key = null);
 
 record IntakeRequest(List<ChatMessage>? Messages, IntakeData? Data);
 
@@ -38,7 +40,7 @@ static class Limits
 {
     public const int QuestionMin = 3, QuestionMax = 300;
     public const int IntakeUserMessageMax = 500, IntakeAssistantMessageMax = 800;
-    public const int IntakeMessagesMax = 30, IntakeTotalChars = 12_000;
+    public const int IntakeMessagesMax = 40, IntakeTotalChars = 20_000;
     public const int FieldShort = 150, FieldMedium = 400, CommentsMax = 3000, ListItemsMax = 10;
     public const int RequestBodyBytes = 64 * 1024;
 }
@@ -100,17 +102,16 @@ static class Validation
         if (messages.Sum(m => m.Content!.Length) > Limits.IntakeTotalChars)
             return $"La conversación es demasiado larga. Puedes empezar de nuevo o escribirme a {Owner.Email}.";
 
-        // Los datos que devuelve el navegador también se comprueban: tamaños y solo claves conocidas
+        // Los datos que devuelve el navegador también se comprueban: tamaños y cantidades. Las claves que no son
+        // del guion (de versiones anteriores del formulario) no se rechazan: IntakePlan.Clean las quita.
         if (r.Data is { } d)
         {
             var texts = new[] { d.Nombre, d.Empresa, d.Correo, d.Telefono, d.Negocio, d.Necesita };
-            var keys = IntakePlan.DetailKeys.ToHashSet();
             if (texts.Any(t => (t?.Length ?? 0) > Limits.FieldMedium)
                 || (d.Comentarios?.Length ?? 0) > Limits.CommentsMax
-                || (d.Tipos ?? []).Any(t => !IntakePlan.ProjectTypes.Contains(t))
-                || (d.NoAplica ?? []).Any(k => !keys.Contains(k))
-                || (!string.IsNullOrEmpty(d.Pendiente) && IntakePlan.Topic(d.Pendiente) is null)
-                || (d.Detalles ?? []).Any(kv => !keys.Contains(kv.Key) || (kv.Value?.Length ?? 0) > Limits.FieldMedium))
+                || (d.Detalles?.Count ?? 0) > 50 || (d.Respondidas?.Count ?? 0) > 50 || (d.Preguntas?.Count ?? 0) > 20
+                || (d.Detalles ?? []).Any(kv => kv.Key.Length > 40 || (kv.Value?.Length ?? 0) > Limits.FieldMedium)
+                || (d.Preguntas ?? []).Any(q => (q?.Length ?? 0) > Limits.FieldMedium))
                 return "La conversación no es válida. Puedes empezar de nuevo.";
         }
         return null;

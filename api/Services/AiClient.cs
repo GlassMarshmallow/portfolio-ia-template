@@ -152,6 +152,35 @@ class AiClient(IHttpClientFactory clients, IConfiguration config)
         }
     }
 
+    /// <summary>Respuesta completa en texto, de una vez (las preguntas que hace el visitante en el formulario).</summary>
+    public async Task<string> CompleteTextAsync(IReadOnlyList<AiMessage> messages, double temperature, int maxTokens,
+        CancellationToken ct)
+    {
+        using var request = Provider == "ollama"
+            ? Post("api/chat", new
+            {
+                model = Model,
+                messages = Wire(messages),
+                stream = false,
+                think = false,
+                options = new { temperature, num_ctx = OllamaContextTokens, num_predict = maxTokens }
+            })
+            : Post("chat/completions", new
+            {
+                model = Model,
+                messages = Wire(messages),
+                temperature,
+                max_tokens = maxTokens
+            });
+        using var response = await clients.CreateClient(HttpClientName).SendAsync(request, ct);
+        response.EnsureSuccessStatusCode();
+        using var body = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(ct), cancellationToken: ct);
+        var text = Provider == "ollama"
+            ? body.RootElement.GetProperty("message").GetProperty("content").GetString()
+            : body.RootElement.GetProperty("choices")[0].GetProperty("message").GetProperty("content").GetString();
+        return text ?? "";
+    }
+
     HttpRequestMessage Post(string path, object payload)
     {
         var request = new HttpRequestMessage(HttpMethod.Post, path) { Content = JsonContent.Create(payload) };

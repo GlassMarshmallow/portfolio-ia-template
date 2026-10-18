@@ -1,0 +1,7 @@
+{
+  "_comentario": "Respuestas ya escritas para los botones de preguntas rápidas: salen al instante, sin IA. La clave es el texto del botón (src/app/features/home/components/hero-ask). {correo}, {linkedin} y {github} se cambian por los de appsettings.json → \"Perfil\". Escríbelas en primera persona, como hablarías tú.",
+  "¿Cuál es tu experiencia?": "Trabajo como desarrollador .NET en una empresa de software, donde desarrollo aplicaciones web y APIs. Además, en mis proyectos personales diseño, programo y despliego aplicaciones web de principio a fin. Puedes acceder a algunos de mis proyectos en mi GitHub ({github}).",
+  "¿Qué tecnologías usas?": "En el front-end trabajo con Angular y TypeScript, y en el back-end con .NET (C#) y PostgreSQL, con despliegue en Docker. Las tienes todas en la sección Habilidades de esta web.",
+  "¿Qué proyectos haces?": "Además de mi trabajo, colaboro en proyectos web a medida: webs informativas, tiendas online, sistemas de reservas o paneles de gestión. Si tienes uno en mente, pulsa «Quiero un proyecto» y mi asistente te hará unas preguntas.",
+  "¿Cómo te contacto?": "Si quieres encargarme un proyecto, pulsa «Quiero un proyecto»: mi asistente con IA te hará unas preguntas aquí mismo en el chat y me llegará un resumen para ponerme en contacto contigo. También puedes escribirme a {correo} o encontrarme en LinkedIn ({linkedin})."
+}
