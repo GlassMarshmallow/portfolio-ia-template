@@ -50,6 +50,7 @@
               }
             ],
             "styles": [
+              "src/styles-vendor/glassmarshmallow-font.min.css",
               "src/styles-vendor/glassmarshmallow.min.css",
               "src/styles-vendor/glassmarshmallow-icons.css",
               "src/styles.css"
@@ -70,7 +71,7 @@
                   "maximumError": "16kB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "bundles"
             },
             "development": {
               "optimization": false,

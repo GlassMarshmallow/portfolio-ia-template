@@ -9,9 +9,16 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const vendor = join(root, 'src/styles-vendor');
 copyFileSync(join(root, '../glassmarshmallow/dist/css/glassmarshmallow.min.css'), join(vendor, 'glassmarshmallow.min.css'));
 copyFileSync(join(root, '../glassmarshmallow-icons/font/glassmarshmallow-icons.css'), join(vendor, 'glassmarshmallow-icons.css'));
+// La letra Montserrat (opcional en el framework): su CSS la busca en ../fonts, es decir, en src/fonts
+copyFileSync(join(root, '../glassmarshmallow/dist/css/glassmarshmallow-font.min.css'), join(vendor, 'glassmarshmallow-font.min.css'));
+const fonts = join(root, 'src/fonts');
+mkdirSync(fonts, { recursive: true });
+for (const file of ['montserrat-latin.woff2', 'OFL.txt']) {
+  copyFileSync(join(root, '../glassmarshmallow/dist/fonts', file), join(fonts, file));
+}
 const scripts = join(root, 'src/vendor/glassmarshmallow');
 mkdirSync(scripts, { recursive: true });
 for (const file of ['gallery.js', 'gallery.d.ts']) {
   copyFileSync(join(root, '../glassmarshmallow/js', file), join(scripts, file));
 }
-console.log('GlassMarshmallow → src/styles-vendor y src/vendor/glassmarshmallow');
+console.log('GlassMarshmallow → src/styles-vendor, src/fonts y src/vendor/glassmarshmallow');

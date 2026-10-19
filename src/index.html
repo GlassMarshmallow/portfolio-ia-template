@@ -51,7 +51,10 @@
     try { document.documentElement.dataset.theme = localStorage.getItem('theme') === 'dark' ? 'dark' : 'light'; }
     catch { document.documentElement.dataset.theme = 'light'; }
   </script>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- La letra Montserrat (src/styles-vendor/glassmarshmallow-font.min.css) se pide desde el principio: así llega antes
+       que el primer dibujo de la página y el texto no cambia de letra ni se mueve al cargar. Angular la deja en media/
+       con su nombre (outputHashing "bundles", en angular.json) -->
+  <link rel="preload" href="media/montserrat-latin.woff2" as="font" type="font/woff2" crossorigin>
 </head>
 <body>
   <app-root></app-root>
