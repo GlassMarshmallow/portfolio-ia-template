@@ -1,4 +1,4 @@
-import { Component, DestroyRef, ElementRef, afterNextRender, inject, signal } from '@angular/core';
+import { Component, DestroyRef, ElementRef, afterNextRender, inject } from '@angular/core';
 import { initZooms } from '../../../../../vendor/glassmarshmallow/gallery.js';
 import { HeroAsk } from '../hero-ask/hero-ask';
 import { SkillsTicker } from '../skills-ticker/skills-ticker';
@@ -21,7 +21,6 @@ export class Hero {
   protected readonly githubUrl = GITHUB_URL;
   protected readonly linkedinUrl = LINKEDIN_URL;
 
-  protected readonly copied = signal(false);
   private readonly scene = inject(SceneService);
   protected readonly paused = this.scene.paused;
 
@@ -56,11 +55,5 @@ export class Hero {
 
   togglePause() {
     this.paused.update(paused => !paused);
-  }
-
-  copyEmail() {
-    navigator.clipboard.writeText(PROFILE.email);
-    this.copied.set(true);
-    setTimeout(() => this.copied.set(false), 2000);
   }
 }
