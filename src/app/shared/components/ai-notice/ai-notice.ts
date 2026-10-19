@@ -8,7 +8,7 @@ import { RouterLink } from '@angular/router';
   template: `
     <p class="gm-ai-notice">
       Respuestas generadas con IA a partir de mi perfil; pueden contener errores.
-      <a class="gm-ai-notice__link" routerLink="/informacion-ia">Más información</a>
+      <a class="gm-ai-notice__link" routerLink="/informacion-ia">Más información sobre la IA</a>
     </p>
   `
 })
