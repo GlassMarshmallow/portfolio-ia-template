@@ -1,7 +1,11 @@
 /*!
- * GlassMarshmallow icons v0.2.0 · Licencia MIT
+ * GlassMarshmallow icons v0.4.0 · Licencia MIT
  * Diseñados por Sara Paez Yamuza. Archivo generado con build/build-css.mjs: no editar a mano.
  */
+/* En la subcapa de los iconos de GlassMarshmallow (@layer): el CSS propio, sin capa, gana siempre, y los componentes
+   y las utilidades del framework los ajustan (van en subcapas posteriores). El orden, el mismo que el del framework */
+@layer glassmarshmallow.tokens, glassmarshmallow.base, glassmarshmallow.layout, glassmarshmallow.icons, glassmarshmallow.components, glassmarshmallow.theme, glassmarshmallow.utilities, glassmarshmallow.extra;
+@layer glassmarshmallow.icons {
 .gmi {
   display: inline-block;
   width: 1em;
@@ -332,3 +336,4 @@
 .gmi-x-octagon-fill { --gmi-src: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cdefs%3E%3Cmask%20id%3D%22gmi-x-octagon-fill%22%3E%3Cg%20fill%3D%22white%22%20stroke%3D%22white%22%3E%3Cpath%20d%3D%22M20.68%2015.60L15.60%2020.68L8.40%2020.68L3.32%2015.60L3.32%208.40L8.40%203.32L15.60%203.32L20.68%208.40Z%22%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22black%22%3E%3Cpath%20d%3D%22M9.5%209.5l5%205M14.5%209.5l-5%205%22%2F%3E%3C%2Fg%3E%3C%2Fmask%3E%3C%2Fdefs%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20mask%3D%22url(%23gmi-x-octagon-fill)%22%2F%3E%3C%2Fsvg%3E"); }
 .gmi-x-square { --gmi-src: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20x%3D%223.5%22%20y%3D%223.5%22%20width%3D%2217%22%20height%3D%2217%22%20rx%3D%223%22%2F%3E%3Cpath%20d%3D%22M9.5%209.5l5%205M14.5%209.5l-5%205%22%2F%3E%3C%2Fsvg%3E"); }
 .gmi-x-square-fill { --gmi-src: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cdefs%3E%3Cmask%20id%3D%22gmi-x-square-fill%22%3E%3Cg%20fill%3D%22white%22%20stroke%3D%22white%22%3E%3Crect%20x%3D%223.5%22%20y%3D%223.5%22%20width%3D%2217%22%20height%3D%2217%22%20rx%3D%223%22%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22black%22%3E%3Cpath%20d%3D%22M9.5%209.5l5%205M14.5%209.5l-5%205%22%2F%3E%3C%2Fg%3E%3C%2Fmask%3E%3C%2Fdefs%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%20fill%3D%22currentColor%22%20stroke%3D%22none%22%20mask%3D%22url(%23gmi-x-square-fill)%22%2F%3E%3C%2Fsvg%3E"); }
+}

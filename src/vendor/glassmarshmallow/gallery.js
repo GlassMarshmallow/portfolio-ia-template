@@ -12,6 +12,10 @@
  * - Textos en español si <html lang="es">; en inglés si no. Se cambian con initGallery(root, { texts }).
  */
 
+/** El texto, listo para ir dentro del HTML: sin que < > & " ' se lean como código */
+const esc = (text) => String(text).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+
+
 const TEXTS = {
   es: { close: 'Cerrar', previous: 'Foto anterior', next: 'Foto siguiente', of: 'de', viewer: 'Visor de fotos' },
   en: { close: 'Close', previous: 'Previous photo', next: 'Next photo', of: 'of', viewer: 'Photo viewer' },
@@ -32,12 +36,12 @@ export function initGallery(root, options = {}) {
   dialog.innerHTML = `
     <div class="gm-lightbox__head">
       <span class="gm-lightbox__count" aria-live="polite"></span>
-      <button type="button" class="gm-lightbox__button" data-action="close" aria-label="${t.close}"><i class="gmi gmi-x-lg" aria-hidden="true"></i></button>
+      <button type="button" class="gm-lightbox__button" data-action="close" aria-label="${esc(t.close)}"><i class="gmi gmi-x-lg" aria-hidden="true"></i></button>
     </div>
     <div class="gm-lightbox__stage">
       <img alt="">
-      <button type="button" class="gm-lightbox__button gm-lightbox__prev" data-action="prev" aria-label="${t.previous}"><i class="gmi gmi-chevron-left" aria-hidden="true"></i></button>
-      <button type="button" class="gm-lightbox__button gm-lightbox__next" data-action="next" aria-label="${t.next}"><i class="gmi gmi-chevron-right" aria-hidden="true"></i></button>
+      <button type="button" class="gm-lightbox__button gm-lightbox__prev" data-action="prev" aria-label="${esc(t.previous)}"><i class="gmi gmi-chevron-left" aria-hidden="true"></i></button>
+      <button type="button" class="gm-lightbox__button gm-lightbox__next" data-action="next" aria-label="${esc(t.next)}"><i class="gmi gmi-chevron-right" aria-hidden="true"></i></button>
     </div>
     <p class="gm-lightbox__caption"></p>`;
   document.body.append(dialog);
@@ -52,7 +56,7 @@ export function initGallery(root, options = {}) {
     image.src = item.getAttribute('href') || thumb?.src || '';
     image.alt = thumb?.alt ?? '';
     caption.textContent = item.dataset.caption ?? thumb?.alt ?? '';
-    count.textContent = `${index + 1} ${t.of} ${items.length}`;
+    count.textContent = `${index + 1} ${esc(t.of)} ${items.length}`;
   }
 
   const onOpen = (event) => {
