@@ -1,7 +1,6 @@
-<!-- Fondo de GlassMarshmallow (luces y puntos, sin efecto de televisor) con, encima de las luces, el dibujo
+<!-- Fondo de GlassMarshmallow (luces, sin puntos ni efecto de televisor) con, encima de las luces, el dibujo
      animado si lo hay (src/app/core/data/hero.data.ts). Decorativo: la descripción del dibujo está en el inicio. -->
 <div class="gm-backdrop" [class.has-scene]="hasScene" aria-hidden="true">
-  <div class="gm-backdrop__dots"></div>
   @if (hasScene) {
     <canvas #scene class="scene-bg"></canvas>
     <canvas #glow class="scene-bg crt-glow"></canvas>

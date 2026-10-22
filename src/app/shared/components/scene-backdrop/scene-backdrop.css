@@ -81,17 +81,4 @@
   :host-context(html[data-theme="dark"]) .gm-backdrop.has-scene {
     --scene-back: var(--gm-black);
   }
-
-  /* Los puntitos del fondo no pasan por detrás del dibujo: se apagan con el mismo degradado, para que se vea el
-     fondo liso (sobre todo de noche, con el dibujo medio transparente). Se suma a su máscara de óvalo */
-  .has-scene .gm-backdrop__dots {
-    --scene-hole: linear-gradient(#000 calc(var(--scene-top) - var(--scene-solid) - var(--scene-fade)),
-      transparent calc(var(--scene-top) - var(--scene-solid)),
-      transparent calc(var(--scene-bottom) + var(--scene-solid)),
-      #000 calc(var(--scene-bottom) + var(--scene-solid) + var(--scene-fade)));
-    -webkit-mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, #000 75%, transparent 100%), var(--scene-hole);
-    -webkit-mask-composite: source-in;
-    mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, #000 75%, transparent 100%), var(--scene-hole);
-    mask-composite: intersect;
-  }
 }
